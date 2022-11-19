@@ -6,5 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-gtk4 = "0.5.1"
-gstreamer = "0.19.2"
+gtk = {package = "gtk4",  version = "0.5.1"}
+gst = {package = "gstreamer", version = "0.19.2"}
+gst_base = {package = "gstreamer-base", version = "0.19.2"}
+gst_video = {package = "gstreamer-video", version = "0.19.2"}
+gstgtk4 = {package = "gst-plugin-gtk4", version = "0.9.1"}
+
+glib = "0.16.3"
