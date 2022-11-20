@@ -146,6 +146,16 @@ fn build_ui(app: &gtk::Application) {
     let pipeline = gst::Pipeline::default();
     let src = gst::ElementFactory::make("videotestsrc").build().unwrap();
 
+    // These are the components I need in the pipeline 
+    
+    // let src = gst::ElementFactory::make("v4l2src").build().unwrap();
+
+    // let decoder = gst::ElementFactory::make("decodebin").build().unwrap();
+
+    // let converter = gst::ElementFactory::make("videoconvert").build().unwrap();
+
+    // let scaler = gst::ElementFactory::make("videoscale").build().unwrap();
+
     let overlay = gst::ElementFactory::make("clockoverlay")
         .property("font-desc", "Monospace 42")
         .build()
