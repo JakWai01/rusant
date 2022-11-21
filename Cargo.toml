@@ -11,5 +11,6 @@ gst = {package = "gstreamer", version = "0.19.2"}
 gst_base = {package = "gstreamer-base", version = "0.19.2"}
 gst_video = {package = "gstreamer-video", version = "0.19.2"}
 gstgtk4 = {package = "gst-plugin-gtk4", version = "0.9.1"}
+gstreamer-sys = "0.6.1"
 
 glib = "0.16.3"

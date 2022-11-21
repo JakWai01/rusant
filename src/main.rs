@@ -8,6 +8,8 @@ use std::cell::RefCell;
 use std::path::Path;
 use std::process;
 
+use gstreamer_sys::*;
+
 // const gst_src: &str = "v4l2src device=";
 // const gst_src_format: &str = "video/x-raw,format=RGB";
 // const gst_videosink: &str = "ximagesink";
@@ -15,9 +17,9 @@ use std::process;
 
 // gst-launch-1.0 v4l2src name=cam_src ! decodebin ! videoconvert ! videoscale ! video/x-raw,format=RGB ! queue ! videoconvert ! ximagesink name=img_origin
 fn main() {
-    if !Path::new("/dev/video0").exists() {
-        panic!("No webcam detected: /dev/video0 cannot be found.")
-    }
+    // if !Path::new("/dev/video0").exists() {
+    //     panic!("No webcam detected: /dev/video0 cannot be found.")
+    // }
 
     gtk::init().unwrap();
     gst::init().unwrap();
@@ -141,68 +143,70 @@ fn build_ui(app: &gtk::Application) {
     //         .build();
 
     //     window.present();
-    
+
     // Somewhat equivalent to this: gst-launch-1.0 videotestsrc ! videoconvert ! autovideosink
     let pipeline = gst::Pipeline::default();
-    let src = gst::ElementFactory::make("videotestsrc").build().unwrap();
+    // let src = gst::ElementFactory::make("videotestsrc").build().unwrap();
 
-    // These are the components I need in the pipeline 
-    
     // let src = gst::ElementFactory::make("v4l2src").build().unwrap();
+    let src = gst::ElementFactory::make("autovideosrc").build().unwrap();
 
     // let decoder = gst::ElementFactory::make("decodebin").build().unwrap();
 
-    // let converter = gst::ElementFactory::make("videoconvert").build().unwrap();
+    let converter = gst::ElementFactory::make("videoconvert").build().unwrap();
 
     // let scaler = gst::ElementFactory::make("videoscale").build().unwrap();
 
-    let overlay = gst::ElementFactory::make("clockoverlay")
-        .property("font-desc", "Monospace 42")
-        .build()
-        .unwrap();
+    // let overlay = gst::ElementFactory::make("clockoverlay")
+    //     .property("font-desc", "Monospace 42")
+    //     .build()
+    //     .unwrap();
 
     let sink = gst::ElementFactory::make("gtk4paintablesink")
         .build()
         .unwrap();
+
     let paintable = sink.property::<gdk::Paintable>("paintable");
 
-    pipeline.add_many(&[&src, &overlay, &sink]).unwrap();
+    pipeline.add_many(&[&src, &converter, &sink]).unwrap();
     src.link_filtered(
-        &overlay,
+        &converter,
         &gst_video::VideoCapsBuilder::new()
             .width(640)
             .height(480)
             .build(),
     ).unwrap();
-    overlay.link(&sink).unwrap();
+
+    converter.link(&sink).unwrap();
 
     let window = gtk::ApplicationWindow::new(app);
-    window.set_default_size(640, 480);
+    // The error I am getting most likely is related to the resolution. Otherwise, the picture does not display at all
+    window.set_default_size(1280, 720);
 
     let vbox = gtk::Box::new(gtk::Orientation::Vertical, 0);
     let picture = gtk::Picture::new();
-    let label = gtk::Label::new(Some("Position: 00:00:00"));
+    // let label = gtk::Label::new(Some("Position: 00:00:00"));
 
     picture.set_paintable(Some(&paintable));
     vbox.append(&picture);
-    vbox.append(&label);
+    // vbox.append(&label);
 
     window.set_child(Some(&vbox));
     window.show();
 
     app.add_window(&window);
 
-    let pipeline_weak = pipeline.downgrade();
-    let timeout_id = glib::timeout_add_local(std::time::Duration::from_millis(500), move || {
-        let pipeline = match pipeline_weak.upgrade() {
-            Some(pipeline) => pipeline,
-            None => return glib::Continue(true),
-        };
+    // let pipeline_weak = pipeline.downgrade();
+    // let timeout_id = glib::timeout_add_local(std::time::Duration::from_millis(500), move || {
+        // let pipeline = match pipeline_weak.upgrade() {
+        //     Some(pipeline) => pipeline,
+        //     None => return glib::Continue(true),
+        // };
 
-        let position = pipeline.query_position::<gst::ClockTime>();;
-        label.set_text(&format!("Position: {:.0}", position.display()));
-        glib::Continue(true)
-    });
+        // let position = pipeline.query_position::<gst::ClockTime>();
+        // label.set_text(&format!("Position: {:.0}", position.display()));
+    //    glib::Continue(true)
+    //});
 
     let bus = pipeline.bus().unwrap();
 
@@ -233,7 +237,7 @@ fn build_ui(app: &gtk::Application) {
         glib::Continue(true)
     }).expect("Failed to add bus watch");
 
-    let timeout_id = RefCell::new(Some(timeout_id));
+    // let timeout_id = RefCell::new(Some(timeout_id));
     let pipeline = RefCell::new(Some(pipeline));
     app.connect_shutdown(move |_| {
         window.close();
@@ -244,8 +248,8 @@ fn build_ui(app: &gtk::Application) {
             pipeline.bus().unwrap().remove_watch().unwrap();
         }
 
-        if let Some(timeout_id) = timeout_id.borrow_mut().take() {
-            timeout_id.remove();
-        }
+        // if let Some(timeout_id) = timeout_id.borrow_mut().take() {
+        //     timeout_id.remove();
+        // }
     });
 }
