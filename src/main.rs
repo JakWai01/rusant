@@ -1,13 +1,13 @@
 use gst::prelude::*;
 
 use gtk::prelude::*;
-use gtk::{gdk, gio, glib};
+use gtk::{gdk, gio, glib, Button, ToggleButton, Picture};
 
 use config::Config;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
 use std::collections::HashMap;
-
-use std::env;
+use glib::clone;
 
 fn main() {
     // Parse config
@@ -63,7 +63,7 @@ fn build_ui(app: &gtk::Application) {
             .build(),
     )
     .unwrap();
-
+    
     converter.link(&sink).unwrap();
 
     let window = gtk::ApplicationWindow::new(app);
@@ -73,18 +73,43 @@ fn build_ui(app: &gtk::Application) {
     let picture = gtk::Picture::new();
 
     picture.set_paintable(Some(&paintable));
+    
+    let bus = pipeline.bus().unwrap();
+
+    let button = Button::builder()
+        .label("Turn video off")
+        .margin_top(12)
+        .margin_bottom(12)
+        .margin_start(12)
+        .margin_end(12)
+        .build();
+    
+    let mut hidden = Rc::new(Cell::new(false));
+
     vbox.append(&picture);
+    vbox.append(&button);
+
+    button.connect_clicked(move |button| {
+        if !hidden.get() {
+            button.set_label("Turn video on");
+            picture.hide();
+            hidden.set(true);
+        } else {
+            button.set_label("Turn video off");
+            picture.show();
+            hidden.set(false);
+        }
+    });
+
+    pipeline
+        .set_state(gst::State::Playing)
+        .expect("Unable to set the pipeline to the `Playing` state");
+
 
     window.set_child(Some(&vbox));
     window.show();
 
     app.add_window(&window);
-
-    let bus = pipeline.bus().unwrap();
-
-    pipeline
-        .set_state(gst::State::Playing)
-        .expect("Unable to set the pipeline to the `Playing` state");
 
     let app_weak = app.downgrade();
     bus.add_watch_local(move |_, msg| {
