@@ -3,13 +3,35 @@ use gst::prelude::*;
 use gtk::prelude::*;
 use gtk::{gdk, gio, glib};
 
+use config::Config;
 use std::cell::RefCell;
+use std::collections::HashMap;
+
+use std::env;
 
 fn main() {
-    gtk::init().unwrap();
-    gst::init().unwrap();
+    // Parse config
+    let config = Config::builder()
+        .add_source(config::File::with_name("Config"))
+        .build()
+        .unwrap()
+        .try_deserialize::<HashMap<String, String>>()
+        .unwrap();
+
+    let name = &config.get("name").unwrap();
+    let app_id = &config.get("app_id").unwrap();
+
+    // Initialize GTK
+    gtk::init().unwrap_or_else(|_| panic!("Failed to initialize GTK."));
+
+    // Initialize Gstreamer
+    gst::init().expect("Failed to initialize Gstreamer.");
 
     gstgtk4::plugin_register_static().expect("Failed to register gstgtk4 plugin");
+
+    // Apply configuration
+    glib::set_application_name(name);
+    gtk::Window::set_default_icon_name(app_id);
 
     let app = gtk::Application::new(None, gio::ApplicationFlags::FLAGS_NONE);
 
@@ -23,7 +45,7 @@ fn main() {
 
 fn build_ui(app: &gtk::Application) {
     let pipeline = gst::Pipeline::default();
-    
+
     let src = gst::ElementFactory::make("autovideosrc").build().unwrap();
     let converter = gst::ElementFactory::make("videoconvert").build().unwrap();
     let sink = gst::ElementFactory::make("gtk4paintablesink")
@@ -39,7 +61,8 @@ fn build_ui(app: &gtk::Application) {
             .width(640)
             .height(480)
             .build(),
-    ).unwrap();
+    )
+    .unwrap();
 
     converter.link(&sink).unwrap();
 
@@ -56,11 +79,13 @@ fn build_ui(app: &gtk::Application) {
     window.show();
 
     app.add_window(&window);
-    
+
     let bus = pipeline.bus().unwrap();
 
-    pipeline.set_state(gst::State::Playing).expect("Unable to set the pipeline to the `Playing` state");
-   
+    pipeline
+        .set_state(gst::State::Playing)
+        .expect("Unable to set the pipeline to the `Playing` state");
+
     let app_weak = app.downgrade();
     bus.add_watch_local(move |_, msg| {
         use gst::MessageView;
@@ -85,15 +110,17 @@ fn build_ui(app: &gtk::Application) {
         };
 
         glib::Continue(true)
-    }).expect("Failed to add bus watch");
+    })
+    .expect("Failed to add bus watch");
 
     let pipeline = RefCell::new(Some(pipeline));
     app.connect_shutdown(move |_| {
         window.close();
 
         if let Some(pipeline) = pipeline.borrow_mut().take() {
-            pipeline.set_state(gst::State::Null)
-            .expect("Unable to set the pipeline to the `Null` state");
+            pipeline
+                .set_state(gst::State::Null)
+                .expect("Unable to set the pipeline to the `Null` state");
             pipeline.bus().unwrap().remove_watch().unwrap();
         }
     });
