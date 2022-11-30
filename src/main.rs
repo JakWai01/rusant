@@ -371,106 +371,257 @@ use gst_audio::*;
 //     bus.remove_signal_watch();
 // }
 
-use gst::element_error;
+// use gst::element_error;
+// use gst::prelude::*;
+
+// use byte_slice_cast::*;
+
+// use std::i16;
+// use std::i32;
+
+// fn create_pipeline() -> Result<gst::Pipeline, Error> {
+//     gst::init().unwrap();
+
+//     let pipeline = gst::Pipeline::new(None);
+//     let src = gst::ElementFactory::make("audiotestsrc").build().unwrap();
+//     let sink = gst::ElementFactory::make("appsink").build().unwrap();
+
+//     pipeline.add_many(&[&src, &sink]).unwrap();
+//     src.link(&sink).unwrap();
+
+//     let appsink = sink
+//         .dynamic_cast::<gst_audio::AppSink>()
+//         .expect("Sink element is expected to be an appsink!");
+
+//     // Tell the appsink what format we want. It will then be the audiotestsrc's job to
+//     // provide the format we request.
+//     // This can be set after linking the two objects, because format negotiation between
+//     // both elements will happen during pre-rolling of the pipeline.
+//     appsink.set_caps(Some(
+//         &gst::Caps::builder("audio/x-raw")
+//             .field("format", gst_app::AUDIO_FORMAT_S16.to_str())
+//             .field("layout", "interleaved")
+//             .field("channels", 1i32)
+//             .field("rate", gst::IntRange::<i32>::new(1, i32::MAX))
+//             .build(),
+//     ));
+
+//     // Getting data out of the appsink is done by setting callbacks on it.
+//     // The appsink will then call those handlers, as soon as data is available.
+//     appsink.set_callbacks(
+//         app_sink::AppSinkCallbacks::builder()
+//             // Add a handler to the "new-sample" signal.
+//             .new_sample(|appsink| {
+//                 // Pull the sample in question out of the appsink's buffer.
+//                 let sample = appsink.pull_sample().map_err(|_| gst::FlowError::Eos)?;
+//                 let buffer = sample.buffer().ok_or_else(|| {
+//                     element_error!(
+//                         appsink,
+//                         gst::ResourceError::Failed,
+//                         ("Failed to get buffer from appsink")
+//                     );
+
+//                     gst::FlowError::Error
+//                 })?;
+
+//                 // At this point, buffer is only a reference to an existing memory region somewhere.
+//                 // When we want to access its content, we have to map it while requesting the required
+//                 // mode of access (read, read/write).
+//                 // This type of abstraction is necessary, because the buffer in question might not be
+//                 // on the machine's main memory itself, but rather in the GPU's memory.
+//                 // So mapping the buffer makes the underlying memory region accessible to us.
+//                 // See: https://gstreamer.freedesktop.org/documentation/plugin-development/advanced/allocation.html
+//                 let map = buffer.map_readable().map_err(|_| {
+//                     element_error!(
+//                         appsink,
+//                         gst::ResourceError::Failed,
+//                         ("Failed to map buffer readable")
+//                     );
+
+//                     gst::FlowError::Error
+//                 })?;
+
+//                 // We know what format the data in the memory region has, since we requested
+//                 // it by setting the appsink's caps. So what we do here is interpret the
+//                 // memory region we mapped as an array of signed 16 bit integers.
+//                 let samples = map.as_slice_of::<i16>().map_err(|_| {
+//                     element_error!(
+//                         appsink,
+//                         gst::ResourceError::Failed,
+//                         ("Failed to interprete buffer as S16 PCM")
+//                     );
+
+//                     gst::FlowError::Error
+//                 })?;
+
+//                 // For buffer (= chunk of samples), we calculate the root mean square:
+//                 // (https://en.wikipedia.org/wiki/Root_mean_square)
+//                 // let sum: f64 = samples
+//                 //     .iter()
+//                 //     .map(|sample| {
+//                 //         let f = f64::from(*sample) / f64::from(i16::MAX);
+//                 //         f * f
+//                 //     })
+//                 //     .sum();
+//                 // let rms = (sum / (samples.len() as f64)).sqrt();
+//                 // for sample in samples.iter() {
+//                 //     println!("{:?}", sample);
+//                 // }
+//                 println!("{:?}", samples);
+// //                println!("rms: {}", rms);
+
+//                 Ok(gst::FlowSuccess::Ok)
+//             })
+//             .build(),
+//     );
+
+//     Ok(pipeline)
+// }
+
+// fn main_loop(pipeline: gst::Pipeline) -> Result<(), Error> {
+//     pipeline.set_state(gst::State::Playing).unwrap();
+
+//     let bus = pipeline
+//         .bus()
+//         .expect("Pipeline without bus. Shouldn't happen!");
+
+//     for msg in bus.iter_timed(gst::ClockTime::NONE) {
+//         use gst::MessageView;
+
+//         match msg.view() {
+//             MessageView::Eos(..) => break,
+//             MessageView::Error(err) => {
+//                 pipeline.set_state(gst::State::Null).unwrap();
+//             }
+//             _ => (),
+//         }
+//     }
+
+//     pipeline.set_state(gst::State::Null).unwrap();
+
+//     Ok(())
+// }
+
+// fn example_main() {
+//     match create_pipeline().and_then(main_loop) {
+//         Ok(r) => r,
+//         Err(e) => eprintln!("Error! {}", e),
+//     }
+// }
+
+// fn main() {
+//     // tutorials_common::run is only required to set up the application environment on macOS
+//     // (but not necessary in normal Cocoa applications where this is set up automatically)
+//     example_main();
+// }
+
+
 use gst::prelude::*;
 
-use byte_slice_cast::*;
 
-use std::i16;
-use std::i32;
+const WIDTH: usize = 320;
+const HEIGHT: usize = 240;
 
-fn create_pipeline() -> Result<gst::Pipeline, Error> {
+fn create_pipeline() -> Result<gst::Pipeline, String> {
     gst::init().unwrap();
 
     let pipeline = gst::Pipeline::new(None);
-    let src = gst::ElementFactory::make("audiotestsrc").build().unwrap();
-    let sink = gst::ElementFactory::make("appsink").build().unwrap();
+    let src = gst::ElementFactory::make("appsrc").build().unwrap();
+    let videoconvert = gst::ElementFactory::make("videoconvert").build().unwrap();
+    let sink = gst::ElementFactory::make("autovideosink").build().unwrap();
 
-    pipeline.add_many(&[&src, &sink]).unwrap();
-    src.link(&sink).unwrap();
+    pipeline.add_many(&[&src, &videoconvert, &sink]).unwrap();
+    gst::Element::link_many(&[&src, &videoconvert, &sink]).unwrap();
 
-    let appsink = sink
-        .dynamic_cast::<gst_audio::AppSink>()
-        .expect("Sink element is expected to be an appsink!");
+    let appsrc = src
+        .dynamic_cast::<gst_audio::AppSrc>()
+        .expect("Source element is expected to be an appsrc!");
 
-    // Tell the appsink what format we want. It will then be the audiotestsrc's job to
-    // provide the format we request.
-    // This can be set after linking the two objects, because format negotiation between
-    // both elements will happen during pre-rolling of the pipeline.
-    appsink.set_caps(Some(
-        &gst::Caps::builder("audio/x-raw")
-            .field("format", gst_app::AUDIO_FORMAT_S16.to_str())
-            .field("layout", "interleaved")
-            .field("channels", 1i32)
-            .field("rate", gst::IntRange::<i32>::new(1, i32::MAX))
-            .build(),
-    ));
+    // Specify the format we want to provide as application into the pipeline
+    // by creating a video info with the given format and creating caps from it for the appsrc element.
+    let video_info =
+        gst_video::VideoInfo::builder(gst_video::VideoFormat::Bgrx, WIDTH as u32, HEIGHT as u32)
+            .fps(gst::Fraction::new(2, 1))
+            .build()
+            .expect("Failed to create video info");
 
-    // Getting data out of the appsink is done by setting callbacks on it.
-    // The appsink will then call those handlers, as soon as data is available.
-    appsink.set_callbacks(
-        app_sink::AppSinkCallbacks::builder()
-            // Add a handler to the "new-sample" signal.
-            .new_sample(|appsink| {
-                // Pull the sample in question out of the appsink's buffer.
-                let sample = appsink.pull_sample().map_err(|_| gst::FlowError::Eos)?;
-                let buffer = sample.buffer().ok_or_else(|| {
-                    element_error!(
-                        appsink,
-                        gst::ResourceError::Failed,
-                        ("Failed to get buffer from appsink")
-                    );
+    appsrc.set_caps(Some(&video_info.to_caps().unwrap()));
+    appsrc.set_format(gst::Format::Time);
 
-                    gst::FlowError::Error
-                })?;
+    // Our frame counter, that is stored in the mutable environment
+    // of the closure of the need-data callback
+    //
+    // Alternatively we could also simply start a new thread that
+    // pushes a buffer to the appsrc whenever it wants to, but this
+    // is not really needed here. It is *not required* to use the
+    // need-data callback.
+    let mut i = 0;
+    appsrc.set_callbacks(
+        // Since our appsrc element operates in pull mode (it asks us to provide data),
+        // we add a handler for the need-data callback and provide new data from there.
+        // In our case, we told gstreamer that we do 2 frames per second. While the
+        // buffers of all elements of the pipeline are still empty, this will be called
+        // a couple of times until all of them are filled. After this initial period,
+        // this handler will be called (on average) twice per second.
+        app_src::AppSrcCallbacks::builder()
+            .need_data(move |appsrc, _| {
+                // We only produce 100 frames
+                if i == 100 {
+                    let _ = appsrc.end_of_stream();
+                    return;
+                }
 
-                // At this point, buffer is only a reference to an existing memory region somewhere.
-                // When we want to access its content, we have to map it while requesting the required
-                // mode of access (read, read/write).
-                // This type of abstraction is necessary, because the buffer in question might not be
-                // on the machine's main memory itself, but rather in the GPU's memory.
-                // So mapping the buffer makes the underlying memory region accessible to us.
-                // See: https://gstreamer.freedesktop.org/documentation/plugin-development/advanced/allocation.html
-                let map = buffer.map_readable().map_err(|_| {
-                    element_error!(
-                        appsink,
-                        gst::ResourceError::Failed,
-                        ("Failed to map buffer readable")
-                    );
+                println!("Producing frame {}", i);
 
-                    gst::FlowError::Error
-                })?;
+                let r = if i % 2 == 0 { 0 } else { 255 };
+                let g = if i % 3 == 0 { 0 } else { 255 };
+                let b = if i % 5 == 0 { 0 } else { 255 };
 
-                // We know what format the data in the memory region has, since we requested
-                // it by setting the appsink's caps. So what we do here is interpret the
-                // memory region we mapped as an array of signed 16 bit integers.
-                let samples = map.as_slice_of::<i16>().map_err(|_| {
-                    element_error!(
-                        appsink,
-                        gst::ResourceError::Failed,
-                        ("Failed to interprete buffer as S16 PCM")
-                    );
+                // Create the buffer that can hold exactly one BGRx frame.
+                let mut buffer = gst::Buffer::with_size(video_info.size()).unwrap();
+                {
+                    let buffer = buffer.get_mut().unwrap();
+                    // For each frame we produce, we set the timestamp when it should be displayed
+                    // (pts = presentation time stamp)
+                    // The autovideosink will use this information to display the frame at the right time.
+                    buffer.set_pts(i * 500 * gst::ClockTime::MSECOND);
 
-                    gst::FlowError::Error
-                })?;
+                    // At this point, buffer is only a reference to an existing memory region somewhere.
+                    // When we want to access its content, we have to map it while requesting the required
+                    // mode of access (read, read/write).
+                    // See: https://gstreamer.freedesktop.org/documentation/plugin-development/advanced/allocation.html
+                    let mut vframe =
+                        gst_video::VideoFrameRef::from_buffer_ref_writable(buffer, &video_info)
+                            .unwrap();
 
-                // For buffer (= chunk of samples), we calculate the root mean square:
-                // (https://en.wikipedia.org/wiki/Root_mean_square)
-                // let sum: f64 = samples
-                //     .iter()
-                //     .map(|sample| {
-                //         let f = f64::from(*sample) / f64::from(i16::MAX);
-                //         f * f
-                //     })
-                //     .sum();
-                // let rms = (sum / (samples.len() as f64)).sqrt();
-                // for sample in samples.iter() {
-                //     println!("{:?}", sample);
-                // }
-                println!("{:?}", samples);
-//                println!("rms: {}", rms);
+                    // Remember some values from the frame for later usage
+                    let width = vframe.width() as usize;
+                    let height = vframe.height() as usize;
 
-                Ok(gst::FlowSuccess::Ok)
+                    // Each line of the first plane has this many bytes
+                    let stride = vframe.plane_stride()[0] as usize;
+
+                    // Iterate over each of the height many lines of length stride
+                    for line in vframe
+                        .plane_data_mut(0)
+                        .unwrap()
+                        .chunks_exact_mut(stride)
+                        .take(height)
+                    {
+                        // Iterate over each pixel of 4 bytes in that line
+                        for pixel in line[..(4 * width)].chunks_exact_mut(4) {
+                            pixel[0] = b;
+                            pixel[1] = g;
+                            pixel[2] = r;
+                            pixel[3] = 0;
+                        }
+                    }
+                }
+
+                i += 1;
+
+                // appsrc already handles the error here
+                let _ = appsrc.push_buffer(buffer);
             })
             .build(),
     );
@@ -478,7 +629,7 @@ fn create_pipeline() -> Result<gst::Pipeline, Error> {
     Ok(pipeline)
 }
 
-fn main_loop(pipeline: gst::Pipeline) -> Result<(), Error> {
+fn main_loop(pipeline: gst::Pipeline) -> Result<(), String> {
     pipeline.set_state(gst::State::Playing).unwrap();
 
     let bus = pipeline
@@ -492,6 +643,7 @@ fn main_loop(pipeline: gst::Pipeline) -> Result<(), Error> {
             MessageView::Eos(..) => break,
             MessageView::Error(err) => {
                 pipeline.set_state(gst::State::Null).unwrap();
+                return Err(String::from(""));
             }
             _ => (),
         }
@@ -512,5 +664,6 @@ fn example_main() {
 fn main() {
     // tutorials_common::run is only required to set up the application environment on macOS
     // (but not necessary in normal Cocoa applications where this is set up automatically)
-    example_main();
+    example_main()
 }
+
