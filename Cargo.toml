@@ -10,7 +10,10 @@ gtk = {package = "gtk4",  version = "0.5.1"}
 gst = {package = "gstreamer", version = "0.19.2"}
 gst_base = {package = "gstreamer-base", version = "0.19.2"}
 gst_video = {package = "gstreamer-video", version = "0.19.2"}
+gst_audio = {package = "gstreamer-app", version = "0.19.2"} 
+gst_app = {package = "gstreamer-audio", version = "0.19.2"}
 gstgtk4 = {package = "gst-plugin-gtk4", version = "0.9.1"}
 gstreamer-sys = "0.6.1"
 config = "0.13.1"
 glib = "0.16.3"
+byte-slice-cast = "1"
