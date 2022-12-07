@@ -1205,6 +1205,7 @@ dependencies = [
  "byte-slice-cast",
  "config",
  "glib",
+ "gobject-sys 0.16.3",
  "gst-plugin-gtk4",
  "gstreamer",
  "gstreamer-app",
