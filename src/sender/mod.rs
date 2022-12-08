@@ -10,9 +10,6 @@ impl Sender for SenderPipeline {
     fn send(&self){
         println!("Server: Hello!");
 
-        // Initialize Gstreamer
-        gst::init().unwrap();
-
         // Initialize pipeline
         let pipeline = gst::Pipeline::new(Some("Sender"));
 

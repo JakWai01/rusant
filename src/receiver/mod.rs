@@ -9,10 +9,7 @@ pub struct ReceiverPipeline{}
 impl Receiver for ReceiverPipeline {
     fn receive(&self){
         println!("Client: Hello!");
-
-        // Initialize Gstreamer
-        gst::init().unwrap();
-
+        
         // Initialize pipeline
         let pipeline = gst::Pipeline::new(None);
 
