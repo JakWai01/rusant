@@ -11,8 +11,6 @@ use std::env;
 use std::path::Path;
 
 fn main() {
-    println!("Hello World!");
-
     let args: Vec<String> = env::args().collect();
 
     // Parse config

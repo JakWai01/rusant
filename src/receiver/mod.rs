@@ -27,35 +27,7 @@ impl Receiver for ReceiverPipeline {
 }
 
 fn build_ui(app: &gtk::Application) {
-    // Initialize pipeline
-    let pipeline = gst::Pipeline::new(None);
-
-    // Initialize pads
-    let src = gst::ElementFactory::make("udpsrc")
-        .property("address", "127.0.0.1")
-        .property("port", 5200)
-        .build()
-        .unwrap();
-    let filter = gst::ElementFactory::make("capsfilter").build().unwrap();
-    let rtpjpegdepay = gst::ElementFactory::make("rtpjpegdepay").build().unwrap();
-    let jpegdec = gst::ElementFactory::make("jpegdec").build().unwrap();
-    let sink = gst::ElementFactory::make("gtk4paintablesink").build().unwrap();
-
-    let caps = gst::Caps::new_simple(
-        "application/x-rtp",
-        &[("encoding-name", &"JPEG"), ("payload", &26i32)],
-    );
-    filter.set_property("caps", &caps);
-
-    let paintable = sink.property::<gdk::Paintable>("paintable");
-
-    // Add pads
-    pipeline
-        .add_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink])
-        .unwrap();
-
-    // Link pads
-    gst::Element::link_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink]).unwrap();
+    let (pipeline, paintable) = build_receiver_pipeline("127.0.0.1", 5200);
 
     let window = gtk::ApplicationWindow::new(app);
 
@@ -116,4 +88,38 @@ fn build_ui(app: &gtk::Application) {
             pipeline.bus().unwrap().remove_watch().unwrap();
         }
     });
+}
+
+fn build_receiver_pipeline(address: &str, port: i32) -> (gst::Pipeline, gdk::Paintable) {
+    // Initialize pipeline
+    let pipeline = gst::Pipeline::new(None);
+
+    // Initialize pads
+    let src = gst::ElementFactory::make("udpsrc")
+        .property("address", address)
+        .property("port", port)
+        .build()
+        .unwrap();
+    let filter = gst::ElementFactory::make("capsfilter").build().unwrap();
+    let rtpjpegdepay = gst::ElementFactory::make("rtpjpegdepay").build().unwrap();
+    let jpegdec = gst::ElementFactory::make("jpegdec").build().unwrap();
+    let sink = gst::ElementFactory::make("gtk4paintablesink").build().unwrap();
+
+    let caps = gst::Caps::new_simple(
+        "application/x-rtp",
+        &[("encoding-name", &"JPEG"), ("payload", &26i32)],
+    );
+    filter.set_property("caps", &caps);
+
+    let paintable = sink.property::<gdk::Paintable>("paintable");
+
+    // Add pads
+    pipeline
+        .add_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink])
+        .unwrap();
+
+    // Link pads
+    gst::Element::link_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink]).unwrap();
+
+    (pipeline, paintable)
 }
