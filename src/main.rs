@@ -45,13 +45,13 @@ fn main() {
     match args.len() {
         // no arguments passed
         1 => {
-            let receiver = receiver::ReceiverPipeline {};
+            let receiver = receiver::ReceiverPipeline::new("127.0.0.1", 5200);
             receiver.receive();
         }
         2 => {
             match args[1].as_str() {
                 "sender" => {
-                    let sender = sender::SenderPipeline {};
+                    let sender = sender::SenderPipeline::new("127.0.0.1", 5200);
                     sender.send();
                 }
                 "receiver" => {

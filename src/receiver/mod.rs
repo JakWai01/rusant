@@ -7,9 +7,12 @@ pub trait Receiver {
     fn receive(&self) {}
 }
 
-pub struct ReceiverPipeline {}
+pub struct ReceiverPipeline<'a> {
+    address: &'a str,
+    port: i32,
+}
 
-impl Receiver for ReceiverPipeline {
+impl<'a> Receiver for ReceiverPipeline<'a> {
     fn receive(&self) {
         println!("Client: Hello!");
 
@@ -26,8 +29,51 @@ impl Receiver for ReceiverPipeline {
     }
 }
 
+impl<'a> ReceiverPipeline<'a> {
+    pub fn new(address: &'a str, port: i32) -> Self {
+        ReceiverPipeline { address, port }
+    }
+
+    fn build(&self) -> (gst::Pipeline, gdk::Paintable) {
+        // Initialize pipeline
+        let pipeline = gst::Pipeline::new(None);
+
+        // Initialize pads
+        let src = gst::ElementFactory::make("udpsrc")
+            .property("address", self.address)
+            .property("port", self.port)
+            .build()
+            .unwrap();
+        let filter = gst::ElementFactory::make("capsfilter").build().unwrap();
+        let rtpjpegdepay = gst::ElementFactory::make("rtpjpegdepay").build().unwrap();
+        let jpegdec = gst::ElementFactory::make("jpegdec").build().unwrap();
+        let sink = gst::ElementFactory::make("gtk4paintablesink")
+            .build()
+            .unwrap();
+
+        let caps = gst::Caps::new_simple(
+            "application/x-rtp",
+            &[("encoding-name", &"JPEG"), ("payload", &26i32)],
+        );
+        filter.set_property("caps", &caps);
+
+        let paintable = sink.property::<gdk::Paintable>("paintable");
+
+        // Add pads
+        pipeline
+            .add_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink])
+            .unwrap();
+
+        // Link pads
+        gst::Element::link_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink]).unwrap();
+
+        (pipeline, paintable)
+    }
+}
+
 fn build_ui(app: &gtk::Application) {
-    let (pipeline, paintable) = build_receiver_pipeline("127.0.0.1", 5200);
+    // This is an architectural error. We should not be required to instantiate a new ReceiverPipeline here.
+    let (pipeline, paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
 
     let window = gtk::ApplicationWindow::new(app);
 
@@ -88,38 +134,4 @@ fn build_ui(app: &gtk::Application) {
             pipeline.bus().unwrap().remove_watch().unwrap();
         }
     });
-}
-
-fn build_receiver_pipeline(address: &str, port: i32) -> (gst::Pipeline, gdk::Paintable) {
-    // Initialize pipeline
-    let pipeline = gst::Pipeline::new(None);
-
-    // Initialize pads
-    let src = gst::ElementFactory::make("udpsrc")
-        .property("address", address)
-        .property("port", port)
-        .build()
-        .unwrap();
-    let filter = gst::ElementFactory::make("capsfilter").build().unwrap();
-    let rtpjpegdepay = gst::ElementFactory::make("rtpjpegdepay").build().unwrap();
-    let jpegdec = gst::ElementFactory::make("jpegdec").build().unwrap();
-    let sink = gst::ElementFactory::make("gtk4paintablesink").build().unwrap();
-
-    let caps = gst::Caps::new_simple(
-        "application/x-rtp",
-        &[("encoding-name", &"JPEG"), ("payload", &26i32)],
-    );
-    filter.set_property("caps", &caps);
-
-    let paintable = sink.property::<gdk::Paintable>("paintable");
-
-    // Add pads
-    pipeline
-        .add_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink])
-        .unwrap();
-
-    // Link pads
-    gst::Element::link_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink]).unwrap();
-
-    (pipeline, paintable)
 }
