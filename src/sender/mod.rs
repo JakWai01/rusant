@@ -43,8 +43,8 @@ impl <'a> SenderPipeline<'a> {
         SenderPipeline { host, port }
     }
 
-    fn build(&self) -> gst::Pipeline {
-        // Initialize pipeline
+    pub fn build(&self) -> gst::Pipeline {
+        // Initialize Gstreamer pipeline
         let pipeline = gst::Pipeline::new(Some("Sender"));
 
         // Initialize pads
