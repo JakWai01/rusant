@@ -11,13 +11,11 @@ use config::Config;
 use gtk::glib;
 use gtk::gio;
 use std::collections::HashMap;
-use std::env;
 use std::path::Path;
 use std::cell::RefCell;
+use std::thread;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
     // Parse config
     let config = Config::builder()
         .add_source(config::File::with_name("Config"))
@@ -46,42 +44,15 @@ fn main() {
     glib::set_application_name(name);
     gtk::Window::set_default_icon_name(app_id);
 
-    match args.len() {
-        // no arguments passed
-        1 => {
-            println!("Client: Hello!");
+    gtk::init().unwrap();
 
-            gtk::init().unwrap();
+    gstgtk4::plugin_register_static().expect("Failed to register gstgtk4 plugin");
 
-            gstgtk4::plugin_register_static().expect("Failed to register gstgtk4 plugin");
+    {
+        let app = gtk::Application::new(None, gio::ApplicationFlags::FLAGS_NONE);
 
-            {
-                let app = gtk::Application::new(None, gio::ApplicationFlags::FLAGS_NONE);
-
-                app.connect_activate(build_ui);
-                app.run();
-            }
-        }
-        2 => {
-            match args[1].as_str() {
-                "sender" => {
-                    let sender = sender::SenderPipeline::new("127.0.0.1", 5200);
-                    sender.send();
-                }
-                "receiver" => {
-                    /*
-                    You can't provide args when working with gdk as it suspects
-                    that this will be a filename and this would require additional configuration
-                    */
-                }
-                _ => {
-                    panic!("Invalid argument!")
-                }
-            }
-        }
-        _ => {
-            println!("Too many arguments passed!")
-        }
+        app.connect_activate(build_ui);
+        app.run();
     }
 
     unsafe {
@@ -90,6 +61,14 @@ fn main() {
 }
 
 fn build_ui(app: &gtk::Application) {
+    thread::spawn(|| {
+        init_sender();
+    });
+
+    init_receiver(app);
+}
+
+fn init_receiver(app: &gtk::Application) {
     let (pipeline, paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
 
     let window = gtk::ApplicationWindow::new(app);
@@ -151,4 +130,9 @@ fn build_ui(app: &gtk::Application) {
             pipeline.bus().unwrap().remove_watch().unwrap();
         }
     });
+}
+
+fn init_sender() {
+    let sender = sender::SenderPipeline::new("127.0.0.1", 5200);
+    sender.send();
 }
