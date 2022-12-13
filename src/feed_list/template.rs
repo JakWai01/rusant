@@ -2,11 +2,13 @@ use super::FeedList;
 
 use glib::{
     object_subclass,
+    once_cell::sync::Lazy,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
         InitializingObject,
     },
+    ParamFlags, ParamSpec, ParamSpecBoolean, ToValue, Value,
 };
 use gtk::{
     prelude::InitializingWidgetExt,
@@ -42,6 +44,37 @@ impl ObjectSubclass for FeedListTemplate {
 }
 
 impl ObjectImpl for FeedListTemplate {
+    fn properties() -> &'static [ParamSpec] {
+        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
+            vec![ParamSpecBoolean::new(
+                "show-end-title-buttons",
+                "show-end-title-buttons",
+                "Shows the title buttons in the header bar",
+                true,
+                ParamFlags::READWRITE,
+            )]
+        });
+        PROPERTIES.as_ref()
+    }
+
+    fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
+        match pspec.name() {
+            "show-end-title-buttons" => {
+                let bool_value = value.get().expect("The vaule needs to be of type `bool`.");
+
+                self.header_bar.set_show_end_title_buttons(bool_value);
+            }
+            _ => unimplemented!(),
+        }
+    }
+
+    fn property(&self, _id: usize, pspec: &ParamSpec) -> Value {
+        match pspec.name() {
+            "show-end-title-buttons" => self.header_bar.shows_end_title_buttons().to_value(),
+            _ => unimplemented!(),
+        }
+    }
+
     fn constructed(&self) {
         self.parent_constructed();
     }

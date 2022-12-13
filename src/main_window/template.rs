@@ -57,30 +57,6 @@ impl ObjectSubclass for MainWindowTemplate {
 impl ObjectImpl for MainWindowTemplate {
     fn constructed(&self) {
         self.parent_constructed();
-
-        let feed_list = self.feed_list.get();
-        let feed_list_template = FeedListTemplate::from_instance(&feed_list);
-
-        let article_list = self.article_list.get();
-        let article_list_template = ArticleListTemplate::from_instance(&article_list);
-
-        self.leaflet.property_expression("folded").bind(
-            &feed_list_template.header_bar.get(),
-            "show-end-title-buttons",
-            Widget::NONE,
-        );
-
-        self.leaflet.property_expression("folded").bind(
-            &article_list_template.header_bar.get(),
-            "show-start-title-buttons",
-            Widget::NONE,
-        );
-
-        self.leaflet.property_expression("folded").bind(
-            &article_list_template.back_button.get(),
-            "visible",
-            Widget::NONE,
-        );
     }
 }
 
