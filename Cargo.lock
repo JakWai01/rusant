@@ -510,6 +510,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "glib-build-tools"
+version = "0.16.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "251935cb159350458a627642b0852a7fb8e027e3c5916dc2cebcd70f025de3fc"
+
+[[package]]
 name = "glib-macros"
 version = "0.16.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1324,6 +1330,7 @@ dependencies = [
  "byte-slice-cast",
  "config",
  "glib",
+ "glib-build-tools",
  "gobject-sys 0.16.3",
  "gst-plugin-gtk4",
  "gstreamer",

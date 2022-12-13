@@ -8,7 +8,7 @@ use gtk::{
     Accessible, ApplicationWindow, Buildable, ConstraintTarget, Native, Root, ShortcutManager,
     Widget, Window
 };
-use adw::Application;
+use libadwaita::Application;
 
 wrapper! {
     pub struct MainWindow(ObjectSubclass<MainWindowTemplate>)

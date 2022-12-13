@@ -16,10 +16,10 @@ use gtk::{
     },
     Button, CompositeTemplate,
 };
-use adw::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
+use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
 
 #[derive(CompositeTemplate, Default)]
-#[template(file = "../../content/main_window.ui")]
+#[template(resource = "/main-window.ui")]
 pub struct MainWindowTemplate {
     #[template_child]
     pub button: TemplateChild<Button>,

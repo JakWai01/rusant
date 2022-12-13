@@ -1,7 +1,7 @@
+mod main_window;
 mod ports;
 mod receiver;
 mod sender;
-mod main_window;
 use main_window::MainWindow;
 
 use receiver::*;
@@ -9,15 +9,17 @@ use sender::Sender;
 
 use config::Config;
 use gst::prelude::*;
-use gtk::gio;
 use gtk::glib;
-use gtk::prelude::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::path::Path;
 use std::thread;
 
-use adw::{
+use gtk::{
+    gio::resources_register_include,
+};
+
+use libadwaita::{
     gtk::Orientation,
     prelude::{ApplicationExt, ApplicationExtManual, BoxExt, WidgetExt},
     Application, ApplicationWindow, HeaderBar, WindowTitle,
@@ -59,6 +61,8 @@ fn main() {
 
     gstgtk4::plugin_register_static().expect("Failed to register gstgtk4 plugin");
 
+    resources_register_include!("gtk-rusant.gresource").expect("Failed to register resources.");
+
     let app = Application::builder()
         .application_id("com.jakobwaibel.rusant")
         // .flags(gio::ApplicationFlags::FLAGS_NONE)
@@ -80,7 +84,7 @@ fn build_ui(app: &Application) {
 
     let (receiver_pipeline, receiver_paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
 
-    let content = adw::gtk::Box::new(Orientation::Vertical, 0);
+    let content = libadwaita::gtk::Box::new(Orientation::Vertical, 0);
 
     content.append(
         &HeaderBar::builder()
@@ -98,8 +102,8 @@ fn build_ui(app: &Application) {
 
     let window = MainWindow::new(app);
 
-    window.set_default_height(720);
-    window.set_default_width(1280);
+    // window.set_default_height(720);
+    // window.set_default_width(1280);
 
     // let picture = gtk::Picture::new();
     // picture.set_paintable(Some(&receiver_paintable));
@@ -110,7 +114,7 @@ fn build_ui(app: &Application) {
     // window.set_child(Some(&vbox));
     window.show();
 
-    app.add_window(&window);
+    // app.add_window(&window);
 
     let bus = receiver_pipeline.bus().unwrap();
 
@@ -147,7 +151,7 @@ fn build_ui(app: &Application) {
 
     let receiver_pipeline = RefCell::new(Some(receiver_pipeline));
     app.connect_shutdown(move |_| {
-        window.close();
+        // window.close();
 
         if let Some(receiver_pipeline) = receiver_pipeline.borrow_mut().take() {
             receiver_pipeline
