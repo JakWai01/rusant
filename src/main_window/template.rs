@@ -1,28 +1,41 @@
+use crate::{
+    article_list::{ArticleList, template::ArticleListTemplate},
+    feed_list::{FeedList, template::FeedListTemplate}
+};
+
 use super::MainWindow;
 
 use glib::{
     object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
-        types::ObjectSubclass, InitializingObject,
+        types::{ObjectSubclass, ObjectSubclassExt},
+        InitializingObject,
     },
+    StaticTypeExt,
 };
 use gtk::{
-    prelude::InitializingWidgetExt,
+    prelude::{GObjectPropertyExpressionExt, InitializingWidgetExt},
     subclass::{
         application_window::ApplicationWindowImpl,
         prelude::{TemplateChild, WidgetImpl, WindowImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Button, CompositeTemplate,
+    CompositeTemplate, Widget,
 };
-use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
+use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow, Leaflet};
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/main-window.ui")]
 pub struct MainWindowTemplate {
     #[template_child]
-    pub button: TemplateChild<Button>,
+    pub leaflet: TemplateChild<Leaflet>,
+
+    #[template_child]
+    pub feed_list: TemplateChild<FeedList>,
+
+    #[template_child]
+    pub article_list: TemplateChild<ArticleList>,
 }
 
 #[object_subclass]
@@ -44,6 +57,30 @@ impl ObjectSubclass for MainWindowTemplate {
 impl ObjectImpl for MainWindowTemplate {
     fn constructed(&self) {
         self.parent_constructed();
+
+        let feed_list = self.feed_list.get();
+        let feed_list_template = FeedListTemplate::from_instance(&feed_list);
+
+        let article_list = self.article_list.get();
+        let article_list_template = ArticleListTemplate::from_instance(&article_list);
+
+        self.leaflet.property_expression("folded").bind(
+            &feed_list_template.header_bar.get(),
+            "show-end-title-buttons",
+            Widget::NONE,
+        );
+
+        self.leaflet.property_expression("folded").bind(
+            &article_list_template.header_bar.get(),
+            "show-start-title-buttons",
+            Widget::NONE,
+        );
+
+        self.leaflet.property_expression("folded").bind(
+            &article_list_template.back_button.get(),
+            "visible",
+            Widget::NONE,
+        );
     }
 }
 

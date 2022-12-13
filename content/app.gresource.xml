@@ -2,5 +2,7 @@
 <gresources>
     <gresource>
         <file compressed="true">main-window.ui</file>
+        <file compressed="true">feed-list.ui</file>
+        <file compressed="true">article-list.ui</file>
     </gresource>
 </gresources>
