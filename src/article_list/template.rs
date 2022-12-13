@@ -17,7 +17,7 @@ use gtk::{
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
     traits::WidgetExt,
-    Box, Button, CompositeTemplate,
+    Box, Button, CompositeTemplate, ListBox
 };
 use libadwaita::HeaderBar;
 
@@ -26,6 +26,9 @@ use libadwaita::HeaderBar;
 pub struct ArticleListTemplate {
     #[template_child]
     pub header_bar: TemplateChild<HeaderBar>,
+
+    #[template_child]
+    pub list_box: TemplateChild<ListBox>,
 
     #[template_child]
     pub back_button: TemplateChild<Button>,

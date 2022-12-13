@@ -16,7 +16,7 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, CompositeTemplate,
+    Box, CompositeTemplate, ListBox,
 };
 use libadwaita::HeaderBar;
 
@@ -25,6 +25,9 @@ use libadwaita::HeaderBar;
 pub struct FeedListTemplate {
     #[template_child]
     pub header_bar: TemplateChild<HeaderBar>,
+
+    #[template_child]
+    pub list_box: TemplateChild<ListBox>,
 }
 
 #[object_subclass]
@@ -54,14 +57,14 @@ impl ObjectImpl for FeedListTemplate {
                 ParamFlags::READWRITE,
             )]
         });
+
         PROPERTIES.as_ref()
     }
 
     fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
         match pspec.name() {
             "show-end-title-buttons" => {
-                let bool_value = value.get().expect("The vaule needs to be of type `bool`.");
-
+                let bool_value = value.get().expect("The value needs to be of type `bool`.");
                 self.header_bar.set_show_end_title_buttons(bool_value);
             }
             _ => unimplemented!(),

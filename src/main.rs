@@ -1,5 +1,7 @@
 mod feed_list;
+mod feed_item;
 mod article_list;
+mod article_item;
 mod main_window;
 mod ports;
 mod receiver;
