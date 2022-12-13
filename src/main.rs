@@ -1,21 +1,32 @@
+mod ports;
 mod receiver;
 mod sender;
-mod ports;
+mod main_window;
+use main_window::MainWindow;
 
-use sender::Sender;
 use receiver::*;
+use sender::Sender;
 
-use gst::prelude::*;
-use gtk::prelude::*;
 use config::Config;
-use gtk::glib;
+use gst::prelude::*;
 use gtk::gio;
+use gtk::glib;
+use gtk::prelude::*;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::path::Path;
-use std::cell::RefCell;
 use std::thread;
 
+use adw::{
+    gtk::Orientation,
+    prelude::{ApplicationExt, ApplicationExtManual, BoxExt, WidgetExt},
+    Application, ApplicationWindow, HeaderBar, WindowTitle,
+};
+
 fn main() {
+    // Initialize logger
+    pretty_env_logger::init();
+
     // Parse config
     let config = Config::builder()
         .add_source(config::File::with_name("Config"))
@@ -40,7 +51,7 @@ fn main() {
 
     gstgtk4::plugin_register_static().expect("Failed to register gstgtk4 plugin");
 
-    // Apply configuration
+    // Initialize variables
     glib::set_application_name(name);
     gtk::Window::set_default_icon_name(app_id);
 
@@ -48,48 +59,63 @@ fn main() {
 
     gstgtk4::plugin_register_static().expect("Failed to register gstgtk4 plugin");
 
-    {
-        let app = gtk::Application::new(None, gio::ApplicationFlags::FLAGS_NONE);
+    let app = Application::builder()
+        .application_id("com.jakobwaibel.rusant")
+        // .flags(gio::ApplicationFlags::FLAGS_NONE)
+        .build();
 
-        app.connect_activate(build_ui);
-        app.run();
-    }
+    app.connect_activate(build_ui);
+    app.run();
 
     unsafe {
         gst::deinit();
     }
 }
 
-fn build_ui(app: &gtk::Application) {
-    thread::spawn(|| {
-        init_sender();
+fn build_ui(app: &Application) {
+    let sender_pipeline = sender::SenderPipeline::new("127.0.0.1", 5200);
+    thread::spawn(move || {
+        sender_pipeline.send();
     });
 
-    init_receiver(app);
-}
+    let (receiver_pipeline, receiver_paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
 
-fn init_receiver(app: &gtk::Application) {
-    let (pipeline, paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
+    let content = adw::gtk::Box::new(Orientation::Vertical, 0);
 
-    let window = gtk::ApplicationWindow::new(app);
+    content.append(
+        &HeaderBar::builder()
+            .title_widget(&WindowTitle::new("Rusant", ""))
+            .build(),
+    );
 
-    window.set_default_size(1280, 720);
+    // let window = ApplicationWindow::builder()
+    //     .application(app)
+    //     .title("Rusant")
+    //     .default_height(720)
+    //     .default_width(1280)
+    //     .content(&content)
+    //     .build();
 
-    let vbox = gtk::Box::new(gtk::Orientation::Vertical, 0);
-    let picture = gtk::Picture::new();
+    let window = MainWindow::new(app);
 
-    picture.set_paintable(Some(&paintable));
-    vbox.append(&picture);
+    window.set_default_height(720);
+    window.set_default_width(1280);
 
-    window.set_child(Some(&vbox));
+    // let picture = gtk::Picture::new();
+    // picture.set_paintable(Some(&receiver_paintable));
+
+    // let vbox = gtk::Box::new(gtk::Orientation::Vertical, 0);
+    // vbox.append(&picture);
+
+    // window.set_child(Some(&vbox));
     window.show();
 
     app.add_window(&window);
 
-    let bus = pipeline.bus().unwrap();
+    let bus = receiver_pipeline.bus().unwrap();
 
     // Start pipeline
-    pipeline.set_state(gst::State::Playing).unwrap();
+    receiver_pipeline.set_state(gst::State::Playing).unwrap();
 
     let app_weak = app.downgrade();
 
@@ -119,20 +145,15 @@ fn init_receiver(app: &gtk::Application) {
     })
     .expect("Failed to add bus watch");
 
-    let pipeline = RefCell::new(Some(pipeline));
+    let receiver_pipeline = RefCell::new(Some(receiver_pipeline));
     app.connect_shutdown(move |_| {
         window.close();
 
-        if let Some(pipeline) = pipeline.borrow_mut().take() {
-            pipeline
+        if let Some(receiver_pipeline) = receiver_pipeline.borrow_mut().take() {
+            receiver_pipeline
                 .set_state(gst::State::Null)
                 .expect("Unable to set the pipeline to the `Null` state");
-            pipeline.bus().unwrap().remove_watch().unwrap();
+            receiver_pipeline.bus().unwrap().remove_watch().unwrap();
         }
     });
-}
-
-fn init_sender() {
-    let sender = sender::SenderPipeline::new("127.0.0.1", 5200);
-    sender.send();
 }
