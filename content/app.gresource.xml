@@ -4,5 +4,6 @@
         <file compressed="true">main-window.ui</file>
         <file compressed="true">feed-list.ui</file>
         <file compressed="true">article-list.ui</file>
+        <file compressed="true">call-window.ui</file>
     </gresource>
 </gresources>

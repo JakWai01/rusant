@@ -3,10 +3,13 @@ mod feed_item;
 mod article_list;
 mod article_item;
 mod main_window;
+mod call_window;
 mod ports;
 mod receiver;
 mod sender;
-use main_window::MainWindow;
+
+// use main_window::MainWindow;
+use call_window::CallWindow;
 
 use receiver::*;
 use sender::Sender;
@@ -104,7 +107,8 @@ fn build_ui(app: &Application) {
     //     .content(&content)
     //     .build();
 
-    let window = MainWindow::new(app);
+    // let window = MainWindow::new(app);
+    let window = CallWindow::new(app);
 
     // window.set_default_height(720);
     // window.set_default_width(1280);

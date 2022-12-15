@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<interface>
+  <template class="MainWindow" parent="AdwApplicationWindow">
+    <property name="width-request">800</property>
+    <property name="height-request">500</property>
+    <property name="title" translatable="yes">Rusant</property>
+  </template>
+</interface>
