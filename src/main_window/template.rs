@@ -1,5 +1,9 @@
+use std::rc::Rc;
+
 use super::MainWindow;
 use crate::{article_item::ArticleItem, article_list::ArticleList, feed_item::FeedItem, feed_list::FeedList};
+
+use glib::{self, clone, ObjectExt};
 
 use glib::{
     object_subclass,
@@ -62,15 +66,32 @@ impl ObjectImpl for MainWindowTemplate {
             FeedItem::new("Ars Technica", "https://feeds.arstechnica.com/arstechnica/features"),
             FeedItem::new("Hacker News", "https://news.ycombinator.com/rss"),
         ];
-        self.feed_list.set_model(feed_model);
+        self.feed_list.set_model(feed_model.clone());
 
-        let article_model = vec![
-            ArticleItem::new("The Verge - Article 1", "Article 1 summary placed in a handy label widget"),
-            ArticleItem::new("The Verge - Article 2", "Article 2 summary placed in a handy label widget"),
-            ArticleItem::new("The Verge - Article 3", "Article 3 summary placed in a handy label widget"),
-            ArticleItem::new("The Verge - Article 4", "Article 4 summary placed in a handy label widget"),
-        ];
-        self.article_list.set_model(article_model);
+        let feed_model_rt = Rc::new(feed_model.clone());
+        let article_list_rt = Rc::new(self.article_list.clone());
+
+        self.feed_list.connect_local(
+            "changed",
+            false,
+            clone!(@strong feed_model_rt, @strong article_list_rt => move |values| {
+                let value: String = values[1].get().unwrap();
+                let selection = feed_model_rt.iter().find(|x| x.property::<String>("name") == value).unwrap();
+
+                let feed_name:String = selection.property::<String>("name");
+                let feed_url:String = selection.property::<String>("url");
+
+                let article_model = vec![
+                    ArticleItem::new(&format!("{} - Article 1", feed_name), &format!("Article 1 from {}", feed_url)),
+                    ArticleItem::new(&format!("{} - Article 2", feed_name), &format!("Article 2 from {}", feed_url)),
+                    ArticleItem::new(&format!("{} - Article 3", feed_name), &format!("Article 3 from {}", feed_url)),
+                    ArticleItem::new(&format!("{} - Article 4", feed_name), &format!("Article 4 from {}", feed_url)),
+                ];
+                article_list_rt.set_model(article_model);
+
+                None
+            }),
+        );
     }
 }
 

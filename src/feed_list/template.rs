@@ -6,9 +6,9 @@ use glib::{
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
-        InitializingObject,
+        InitializingObject, Signal,
     },
-    ParamFlags, ParamSpec, ParamSpecBoolean, ToValue, Value,
+    ObjectExt, ParamFlags, ParamSpec, ParamSpecBoolean, ToValue, Value, StaticType,
 };
 use gtk::{
     prelude::InitializingWidgetExt,
@@ -16,6 +16,7 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
+    traits::WidgetExt,
     Box, CompositeTemplate, ListBox,
 };
 use libadwaita::HeaderBar;
@@ -78,8 +79,23 @@ impl ObjectImpl for FeedListTemplate {
         }
     }
 
+    fn signals() -> &'static [Signal] {
+        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| vec![Signal::builder("changed").param_types([String::static_type()]).build()]);
+
+        SIGNALS.as_ref()
+    }
+
     fn constructed(&self) {
         self.parent_constructed();
+
+        self.list_box.connect_row_selected(|source, selected_row| {
+            let selection = selected_row.unwrap();
+
+            let feed_list = source.parent().unwrap().parent().unwrap();
+            let name: String = selection.property("title");
+
+            feed_list.emit_by_name::<()>("changed", &[&name.clone()]);
+        });
     }
 }
 
