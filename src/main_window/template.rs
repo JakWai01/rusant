@@ -1,10 +1,9 @@
-use std::rc::Rc;
-
 use super::MainWindow;
 use crate::{article_item::ArticleItem, article_list::ArticleList, feed_item::FeedItem, feed_list::FeedList};
 
-use glib::{self, clone, ObjectExt};
+use glib::{self, clone, MainContext, Continue, PRIORITY_DEFAULT, ObjectExt};
 
+use curio::prelude::Request;
 use glib::{
     object_subclass,
     subclass::{
@@ -24,6 +23,13 @@ use gtk::{
     CompositeTemplate,
 };
 use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow, Leaflet};
+use rss::Channel;
+use std::thread;
+
+enum Message {
+    UpdateArticleList(Channel),
+    FeedSelected(String, String),
+}
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/main-window.ui")]
@@ -61,6 +67,7 @@ impl ObjectImpl for MainWindowTemplate {
     fn constructed(&self) {
         self.parent_constructed();
 
+        let (sender, receiver) = MainContext::channel(PRIORITY_DEFAULT);
         let feed_model = vec![
             FeedItem::new("The Verge", "https://www.theverge.com/rss/index.xml"),
             FeedItem::new("Ars Technica", "https://feeds.arstechnica.com/arstechnica/features"),
@@ -68,27 +75,46 @@ impl ObjectImpl for MainWindowTemplate {
         ];
         self.feed_list.set_model(feed_model.clone());
 
-        let feed_model_rt = Rc::new(feed_model.clone());
-        let article_list_rt = Rc::new(self.article_list.clone());
+        let article_list_clone= self.article_list.clone();
+        let sender_clone = sender.clone();
+        receiver.attach(None, move |x| match x {
+            Message::UpdateArticleList(data) => {
+                let mut article_model = vec![];
 
+                for item in data.items() {
+                    article_model.push(ArticleItem::new(&item.title.clone().unwrap(), &item.description.clone().unwrap()));
+                }
+
+                article_list_clone.set_model(article_model);
+                return Continue(true);
+            }
+            Message::FeedSelected(_name, url) => {
+                let sender_clone = sender.clone();
+
+                thread::spawn(move || {
+                    let response = Request::get(&url).send().unwrap();
+                    let body = response.body.unwrap();
+                    let rss_content = body.as_bytes();
+                    let rss_channel = Channel::read_from(&rss_content[..]);
+
+                    let _ = sender_clone.send(Message::UpdateArticleList(rss_channel.unwrap()));
+                });
+
+                return Continue(true);
+            }
+        });
+
+        let feed_model_clone = feed_model.clone();
         self.feed_list.connect_local(
             "changed",
             false,
-            clone!(@strong feed_model_rt, @strong article_list_rt => move |values| {
+            clone!(@strong feed_model_clone => move |values| {
                 let value: String = values[1].get().unwrap();
-                let selection = feed_model_rt.iter().find(|x| x.property::<String>("name") == value).unwrap();
+                let selection = feed_model_clone.iter().find(|x| x.property::<String>("name") == value).unwrap();
+                let feed_name: String = selection.property::<String>("name");
+                let feed_url: String = selection.property::<String>("url");
 
-                let feed_name:String = selection.property::<String>("name");
-                let feed_url:String = selection.property::<String>("url");
-
-                let article_model = vec![
-                    ArticleItem::new(&format!("{} - Article 1", feed_name), &format!("Article 1 from {}", feed_url)),
-                    ArticleItem::new(&format!("{} - Article 2", feed_name), &format!("Article 2 from {}", feed_url)),
-                    ArticleItem::new(&format!("{} - Article 3", feed_name), &format!("Article 3 from {}", feed_url)),
-                    ArticleItem::new(&format!("{} - Article 4", feed_name), &format!("Article 4 from {}", feed_url)),
-                ];
-                article_list_rt.set_model(article_model);
-
+                let _ = sender_clone.send(Message::FeedSelected(feed_name, feed_url));
                 None
             }),
         );
