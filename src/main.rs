@@ -16,7 +16,7 @@ use sender::Sender;
 
 use config::Config;
 use gst::prelude::*;
-use gtk::glib;
+use gtk::{glib, traits::GtkWindowExt};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::path::Path;
@@ -89,7 +89,7 @@ fn build_ui(app: &Application) {
         sender_pipeline.send();
     });
 
-    let (receiver_pipeline, receiver_paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
+    let (receiver_pipeline, _receiver_paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
 
     let content = libadwaita::gtk::Box::new(Orientation::Vertical, 0);
 
@@ -109,6 +109,8 @@ fn build_ui(app: &Application) {
 
     // let window = MainWindow::new(app);
     let window = CallWindow::new(app);
+
+    // Can we just get the paintable element and call the correct method? 
 
     // window.set_default_height(720);
     // window.set_default_width(1280);

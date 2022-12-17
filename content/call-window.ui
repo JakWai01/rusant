@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <interface>
-  <template class="MainWindow" parent="AdwApplicationWindow">
+  <template class="CallWindow" parent="AdwApplicationWindow">
     <property name="width-request">800</property>
     <property name="height-request">500</property>
     <property name="title" translatable="yes">Rusant</property>
+
+    <child>
+      <object class="GtkBox" id="box">
+        <property name="orientation">vertical</property>
+        <property name="hexpand">True</property>
+
+        <child>
+          <object class="AdwHeaderBar" id="header_bar">
+            <property name="title-widget">
+              <object class="AdwWindowTitle">
+                <property name="title">Rusant</property>
+              </object>
+            </property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkGrid" id="grid">
+            <child>
+              <object class="GtkPicture" id="picture" />
+            </child> 
+          </object>
+        </child>
+      </object>
+    </child>
   </template>
 </interface>
