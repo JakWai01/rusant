@@ -84,12 +84,12 @@ fn main() {
 }
 
 fn build_ui(app: &Application) {
-    let sender_pipeline = sender::SenderPipeline::new("127.0.0.1", 5200);
-    thread::spawn(move || {
-        sender_pipeline.send();
-    });
+    // let sender_pipeline = sender::SenderPipeline::new("127.0.0.1", 5200);
+    // thread::spawn(move || {
+    //     sender_pipeline.send();
+    // });
 
-    let (receiver_pipeline, _receiver_paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
+    // let (receiver_pipeline, _receiver_paintable) = ReceiverPipeline::new("127.0.0.1", 5200).build();
 
     let content = libadwaita::gtk::Box::new(Orientation::Vertical, 0);
 
@@ -126,48 +126,48 @@ fn build_ui(app: &Application) {
 
     // app.add_window(&window);
 
-    let bus = receiver_pipeline.bus().unwrap();
+    // let bus = receiver_pipeline.bus().unwrap();
 
-    // Start pipeline
-    receiver_pipeline.set_state(gst::State::Playing).unwrap();
+    // // Start pipeline
+    // receiver_pipeline.set_state(gst::State::Playing).unwrap();
 
-    let app_weak = app.downgrade();
+    // let app_weak = app.downgrade();
 
-    bus.add_watch_local(move |_, msg| {
-        use gst::MessageView;
+    // bus.add_watch_local(move |_, msg| {
+    //     use gst::MessageView;
 
-        let app = match app_weak.upgrade() {
-            Some(app) => app,
-            None => return glib::Continue(false),
-        };
+    //     let app = match app_weak.upgrade() {
+    //         Some(app) => app,
+    //         None => return glib::Continue(false),
+    //     };
 
-        match msg.view() {
-            MessageView::Eos(..) => app.quit(),
-            MessageView::Error(err) => {
-                println!(
-                    "Error from {:?}: {} ({:?})",
-                    err.src().map(|s| s.path_string()),
-                    err.error(),
-                    err.debug()
-                );
-                app.quit();
-            }
-            _ => (),
-        };
+    //     match msg.view() {
+    //         MessageView::Eos(..) => app.quit(),
+    //         MessageView::Error(err) => {
+    //             println!(
+    //                 "Error from {:?}: {} ({:?})",
+    //                 err.src().map(|s| s.path_string()),
+    //                 err.error(),
+    //                 err.debug()
+    //             );
+    //             app.quit();
+    //         }
+    //         _ => (),
+    //     };
 
-        glib::Continue(true)
-    })
-    .expect("Failed to add bus watch");
+    //     glib::Continue(true)
+    // })
+    // .expect("Failed to add bus watch");
 
-    let receiver_pipeline = RefCell::new(Some(receiver_pipeline));
-    app.connect_shutdown(move |_| {
-        // window.close();
+    // let receiver_pipeline = RefCell::new(Some(receiver_pipeline));
+    // app.connect_shutdown(move |_| {
+    //     // window.close();
 
-        if let Some(receiver_pipeline) = receiver_pipeline.borrow_mut().take() {
-            receiver_pipeline
-                .set_state(gst::State::Null)
-                .expect("Unable to set the pipeline to the `Null` state");
-            receiver_pipeline.bus().unwrap().remove_watch().unwrap();
-        }
-    });
+    //     if let Some(receiver_pipeline) = receiver_pipeline.borrow_mut().take() {
+    //         receiver_pipeline
+    //             .set_state(gst::State::Null)
+    //             .expect("Unable to set the pipeline to the `Null` state");
+    //         receiver_pipeline.bus().unwrap().remove_watch().unwrap();
+    //     }
+    // });
 }

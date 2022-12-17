@@ -12,7 +12,7 @@ use glib::{
     },
     StaticTypeExt,
 };
-use gtk::{gdk, prelude::PaintableExt, Image, ffi::gtk_snapshot_to_paintable};
+use gtk::{gdk, prelude::PaintableExt, Image, ffi::{gtk_snapshot_to_paintable, GTK_POS_RIGHT, GTK_POS_BOTTOM}, traits::GridExt};
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -32,11 +32,11 @@ pub struct CallWindowTemplate {
     // #[template_child]
     // pub gtk_box: TemplateChild<Box>,
 
-    // #[template_child]
-    // pub grid: TemplateChild<Grid>,
-
     #[template_child]
-    pub picture: TemplateChild<Picture>,
+    pub grid: TemplateChild<Grid>,
+
+    // #[template_child]
+    // pub picture: TemplateChild<Picture>,
 }
 
 #[object_subclass]
@@ -63,8 +63,7 @@ impl ObjectImpl for CallWindowTemplate {
        
         let src = gst::ElementFactory::make("v4l2src").build().unwrap();
         
-        // TODO: Find out why video0 is busy
-        src.set_property("device", "/dev/video4");
+        src.set_property("device", "/dev/video0");
 
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
         
@@ -82,10 +81,42 @@ impl ObjectImpl for CallWindowTemplate {
 
         gst::Element::link_many(&[&src, &filter, &convert, &sink]).unwrap();
         
-        self.picture.set_paintable(Some(&paintable));
+        let picture = gtk::Picture::new();
+        picture.set_paintable(Some(&paintable));
+
+        let pipeline_test = gst::Pipeline::default();
+       
+        let src_test = gst::ElementFactory::make("v4l2src").build().unwrap();
         
+        src_test.set_property("device", "/dev/video4");
+
+        let caps_test = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
+        
+        let filter_test = gst::ElementFactory::make("capsfilter").build().unwrap();
+        filter_test.set_property("caps", &caps_test);
+
+        let convert_test = gst::ElementFactory::make("videoconvert").build().unwrap();
+
+        let sink_test = gst::ElementFactory::make("gtk4paintablesink")
+            .build()
+            .unwrap();
+
+        let paintable_test = sink_test.property::<gdk::Paintable>("paintable");
+        pipeline_test.add_many(&[&src_test, &filter_test, &convert_test, &sink_test]).unwrap();
+
+        gst::Element::link_many(&[&src_test, &filter_test, &convert_test, &sink_test]).unwrap();
+        
+        let picture_test = gtk::Picture::new();
+        picture_test.set_paintable(Some(&paintable_test));
+
+        self.grid.attach(&picture, 0, 0, 640, 480);
+        self.grid.attach_next_to(&picture_test, Some(&picture), gtk::PositionType::__Unknown(GTK_POS_BOTTOM), 640, 480);
+
         thread::spawn(move || {
             pipeline.set_state(gst::State::Playing).expect("Unable to set the pipeline to the `Playing` state");
+        });
+        thread::spawn(move || {
+            pipeline_test.set_state(gst::State::Playing).expect("Unable to set the pipeline to the `Playing` state");
         });
     }
 }
