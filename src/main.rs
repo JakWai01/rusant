@@ -26,6 +26,8 @@ use gtk::{
     gio::resources_register_include,
 };
 
+use gio::*;
+
 use libadwaita::{
     gtk::Orientation,
     prelude::{ApplicationExt, ApplicationExtManual, BoxExt, WidgetExt},
@@ -77,6 +79,9 @@ fn main() {
 
     app.connect_activate(build_ui);
     app.run();
+
+    // Image from_gicon
+    // let i: Icon = gio::Icon::for_string("Jakob Waibel").unwrap();
 
     unsafe {
         gst::deinit();

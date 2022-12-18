@@ -17,7 +17,7 @@ use gtk::{
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
     traits::WidgetExt,
-    Box, CompositeTemplate, ListBox,
+    Box, CompositeTemplate, ListBox, Image
 };
 use libadwaita::HeaderBar;
 
@@ -29,6 +29,10 @@ pub struct FeedListTemplate {
 
     #[template_child]
     pub list_box: TemplateChild<ListBox>,
+
+
+    #[template_child]
+    pub image: TemplateChild<Image>,
 }
 
 #[object_subclass]

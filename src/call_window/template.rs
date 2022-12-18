@@ -3,6 +3,7 @@ use super::CallWindow;
 use glib::{self, clone, MainContext, Continue, PRIORITY_DEFAULT, ObjectExt};
 use gst::prelude::*;
 use curio::prelude::Request;
+use std::cell::RefCell;
 use glib::{
     object_subclass,
     subclass::{
@@ -12,6 +13,7 @@ use glib::{
     },
     StaticTypeExt,
 };
+use gio::Icon;
 use gtk::{gdk, prelude::PaintableExt, Image, ffi::{gtk_snapshot_to_paintable, GTK_POS_RIGHT, GTK_POS_BOTTOM}, traits::GridExt};
 use gtk::{
     prelude::InitializingWidgetExt,
@@ -20,7 +22,7 @@ use gtk::{
         prelude::{TemplateChild, WidgetImpl, WindowImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    CompositeTemplate, Box, Grid, Picture, WidgetPaintable
+    CompositeTemplate, Box, Grid, Picture, WidgetPaintable, ListBox
 };
 use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
 use rss::Channel;
@@ -29,14 +31,8 @@ use std::thread;
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/call-window.ui")]
 pub struct CallWindowTemplate {
-    // #[template_child]
-    // pub gtk_box: TemplateChild<Box>,
-
     #[template_child]
     pub grid: TemplateChild<Grid>,
-
-    // #[template_child]
-    // pub picture: TemplateChild<Picture>,
 }
 
 #[object_subclass]

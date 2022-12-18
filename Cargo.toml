@@ -23,6 +23,7 @@ pretty_env_logger = "0.4"
 libadwaita = {package = "libadwaita", version = "0.2.1"}
 rss = "*"
 curio = "*"
+gio = "0.16.7"
 
 [build-dependencies]
 glib-build-tools = "0.16.3"
