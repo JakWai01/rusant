@@ -16,7 +16,7 @@ use sender::Sender;
 
 use config::Config;
 use gst::prelude::*;
-use gtk::{glib, traits::GtkWindowExt};
+use gtk::{glib, traits::GtkWindowExt, CssProvider, StyleContext, gdk::Display};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::path::Path;
@@ -71,6 +71,18 @@ fn main() {
     gstgtk4::plugin_register_static().expect("Failed to register gstgtk4 plugin");
 
     resources_register_include!("gtk-rusant.gresource").expect("Failed to register resources.");
+    
+    // Load the CSS file and add it to the provider
+    let provider = CssProvider::new();
+    // provider.load_from_data(include_bytes!("../content/style.css"));
+    provider.load_from_resource("./style.css");
+
+    // Add the provider to the default screen
+    StyleContext::add_provider_for_display(
+        &Display::default().expect("Could not connect to a display."),
+        &provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
 
     let app = Application::builder()
         .application_id("com.jakobwaibel.rusant")

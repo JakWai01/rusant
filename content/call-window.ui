@@ -64,9 +64,9 @@
             <child>
               <object class="GtkListBox" id="tasks_list">
                 <property name="selection-mode">none</property>
-                <!-- <style>
-                  <class name="boxed-list" />
-                </style> -->
+                <style>
+                  <class name="contacts-contact-list" />
+                </style>
                 <child>
                   <object class="GtkBox">
                     <property name="spacing">12</property>
