@@ -1,9 +1,7 @@
 use super::CallWindow;
 
-use glib::{self, clone, MainContext, Continue, PRIORITY_DEFAULT, ObjectExt};
+use glib::{self, ObjectExt};
 use gst::prelude::*;
-use curio::prelude::Request;
-use std::cell::RefCell;
 use glib::{
     object_subclass,
     subclass::{
@@ -11,10 +9,8 @@ use glib::{
         types::ObjectSubclass,
         InitializingObject,
     },
-    StaticTypeExt,
 };
-use gio::Icon;
-use gtk::{gdk, prelude::PaintableExt, Image, ffi::{gtk_snapshot_to_paintable, GTK_POS_RIGHT, GTK_POS_BOTTOM}, traits::GridExt};
+use gtk::{gdk, ffi::GTK_POS_BOTTOM, traits::GridExt};
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -22,10 +18,9 @@ use gtk::{
         prelude::{TemplateChild, WidgetImpl, WindowImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    CompositeTemplate, Box, Grid, Picture, WidgetPaintable, ListBox
+    CompositeTemplate, Grid,
 };
 use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
-use rss::Channel;
 use std::thread;
 
 #[derive(CompositeTemplate, Default)]
