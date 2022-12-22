@@ -96,6 +96,16 @@
                         </style>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="icon-name">camera-video</property>
+                        <property name="valign">center</property>
+                        <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
+                        <style>
+                          <class name="circular"/>
+                        </style>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
