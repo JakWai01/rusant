@@ -158,7 +158,7 @@
                     <property name="vexpand">True</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <!-- <property name="row_spacing">10</property> -->
+                    <property name="row_spacing">24</property>
                     <property name="column_spacing">24</property>
                   </object>
                 </child>
