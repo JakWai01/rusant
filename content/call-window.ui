@@ -86,6 +86,16 @@
                         <property name="label">Jakob</property>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="icon-name">call-start</property>
+                        <property name="valign">center</property>
+                        <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
+                        <style>
+                          <class name="circular"/>
+                        </style>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -99,6 +109,21 @@
                       <object class="AdwAvatar">
                         <property name="text">Felicitas</property>
                         <property name="size">48</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Felicitas</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="icon-name">call-stop</property>
+                        <property name="valign">center</property>
+                        <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
+                        <style>
+                          <class name="circular"/>
+                        </style>
                       </object>
                     </child>
                   </object>

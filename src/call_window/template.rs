@@ -80,9 +80,9 @@ impl ObjectImpl for CallWindowTemplate {
 
         let pipeline_test = gst::Pipeline::default();
        
-        let src_test = gst::ElementFactory::make("v4l2src").build().unwrap();
+        let src_test = gst::ElementFactory::make("videotestsrc").build().unwrap();
         
-        src_test.set_property("device", "/dev/video4");
+        // src_test.set_property("device", "/dev/video4");
 
         let caps_test = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
         

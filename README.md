@@ -7,3 +7,4 @@
 - Evaluate what encoding can be used best
 - Test if the `keep-aspect-ratio` property only works if the gstreamer pipeline can be set to `Playing` state
 - Add logging
+- Add shortcuts (and shortcuts page)
