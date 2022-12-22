@@ -74,6 +74,8 @@ impl ObjectImpl for CallWindowTemplate {
         
         let picture = gtk::Picture::new();
         picture.set_paintable(Some(&paintable));
+        // picture.set_property("keep-aspect-ratio", true);
+        picture.set_keep_aspect_ratio(true);
 
         let pipeline_test = gst::Pipeline::default();
        
@@ -99,6 +101,8 @@ impl ObjectImpl for CallWindowTemplate {
         
         let picture_test = gtk::Picture::new();
         picture_test.set_paintable(Some(&paintable_test));
+        picture_test.set_keep_aspect_ratio(true);
+        // picture_test.set_property("keep-aspect-ratio", true);
 
         self.grid.attach(&picture, 0, 0, 640, 480);
         self.grid.attach_next_to(&picture_test, Some(&picture), gtk::PositionType::__Unknown(GTK_POS_BOTTOM), 640, 480);
