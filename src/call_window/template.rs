@@ -10,7 +10,7 @@ use glib::{
         InitializingObject,
     },
 };
-use gtk::{gdk, ffi::GTK_POS_BOTTOM, traits::GridExt};
+use gtk::{gdk, ffi::{GTK_POS_BOTTOM, GTK_POS_RIGHT}, traits::GridExt};
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -102,10 +102,12 @@ impl ObjectImpl for CallWindowTemplate {
         let picture_test = gtk::Picture::new();
         picture_test.set_paintable(Some(&paintable_test));
         picture_test.set_keep_aspect_ratio(true);
-        // picture_test.set_property("keep-aspect-ratio", true);
+        picture_test.set_property("keep-aspect-ratio", true);
 
-        self.grid.attach(&picture, 0, 0, 640, 480);
-        self.grid.attach_next_to(&picture_test, Some(&picture), gtk::PositionType::__Unknown(GTK_POS_BOTTOM), 640, 480);
+        // This actually specifies the resolution of the camera image
+        // It might me useful to reduce the image in the pipeline as much as possible in order to save bandwidth
+        self.grid.attach(&picture, 0, 0, 320, 180);
+        self.grid.attach_next_to(&picture_test, Some(&picture), gtk::PositionType::__Unknown(GTK_POS_RIGHT), 320, 180);
 
         thread::spawn(move || {
             pipeline.set_state(gst::State::Playing).expect("Unable to set the pipeline to the `Playing` state");
