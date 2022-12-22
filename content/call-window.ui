@@ -25,6 +25,7 @@
     <child>
       <object class="AdwLeaflet" id="leaflet">
         <property name="can-navigate-back">True</property>
+        <property name="visible-child">camera</property>
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
@@ -117,9 +118,8 @@
         </child>
 
         <child>
-          <object class="GtkBox">
+          <object class="GtkBox" id="camera">
             <property name="orientation">vertical</property>
-            
             <child>
               <object class="AdwHeaderBar">
                 <binding name="show-start-title-buttons">
