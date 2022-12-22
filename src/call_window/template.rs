@@ -10,7 +10,7 @@ use glib::{
         InitializingObject,
     },
 };
-use gtk::{gdk, ffi::{GTK_POS_BOTTOM, GTK_POS_RIGHT}, traits::GridExt};
+use gtk::{gdk, ffi::{GTK_POS_BOTTOM, GTK_POS_RIGHT}, traits::{GridExt, WidgetExt}};
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -18,7 +18,7 @@ use gtk::{
         prelude::{TemplateChild, WidgetImpl, WindowImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    CompositeTemplate, Grid,
+    CompositeTemplate, Grid, FlowBox
 };
 use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
 use std::thread;
@@ -27,7 +27,7 @@ use std::thread;
 #[template(resource = "/call-window.ui")]
 pub struct CallWindowTemplate {
     #[template_child]
-    pub grid: TemplateChild<Grid>,
+    pub grid: TemplateChild<FlowBox>,
 }
 
 #[object_subclass]
@@ -76,6 +76,7 @@ impl ObjectImpl for CallWindowTemplate {
         picture.set_paintable(Some(&paintable));
         // picture.set_property("keep-aspect-ratio", true);
         picture.set_keep_aspect_ratio(true);
+        // picture.add_css_class("camera");
 
         let pipeline_test = gst::Pipeline::default();
        
@@ -102,12 +103,15 @@ impl ObjectImpl for CallWindowTemplate {
         let picture_test = gtk::Picture::new();
         picture_test.set_paintable(Some(&paintable_test));
         picture_test.set_keep_aspect_ratio(true);
-        picture_test.set_property("keep-aspect-ratio", true);
+        // picture_test.add_css_class("camera");
+        // picture_test.set_property("keep-aspect-ratio", true);
 
         // This actually specifies the resolution of the camera image
         // It might me useful to reduce the image in the pipeline as much as possible in order to save bandwidth
-        self.grid.attach(&picture, 0, 0, 320, 180);
-        self.grid.attach_next_to(&picture_test, Some(&picture), gtk::PositionType::__Unknown(GTK_POS_RIGHT), 320, 180);
+        // self.grid.attach(&picture, 0, 0, 320, 180);
+        // self.grid.attach_next_to(&picture_test, Some(&picture), gtk::PositionType::__Unknown(GTK_POS_RIGHT), 320, 180);
+        self.grid.insert(&picture, 0);
+        self.grid.insert(&picture_test, 1);
 
         thread::spawn(move || {
             pipeline.set_state(gst::State::Playing).expect("Unable to set the pipeline to the `Playing` state");
