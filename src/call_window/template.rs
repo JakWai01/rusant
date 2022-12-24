@@ -103,13 +103,7 @@ impl ObjectImpl for CallWindowTemplate {
         let picture_test = gtk::Picture::new();
         picture_test.set_paintable(Some(&paintable_test));
         picture_test.set_keep_aspect_ratio(true);
-        // picture_test.add_css_class("camera");
-        // picture_test.set_property("keep-aspect-ratio", true);
-
-        // This actually specifies the resolution of the camera image
-        // It might me useful to reduce the image in the pipeline as much as possible in order to save bandwidth
-        // self.grid.attach(&picture, 0, 0, 320, 180);
-        // self.grid.attach_next_to(&picture_test, Some(&picture), gtk::PositionType::__Unknown(GTK_POS_RIGHT), 320, 180);
+        
         self.grid.insert(&picture, 0);
         self.grid.insert(&picture_test, 1);
 
