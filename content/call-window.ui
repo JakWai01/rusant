@@ -65,6 +65,8 @@
             <child>
               <object class="GtkListBox" id="tasks_list">
                 <property name="selection-mode">none</property>
+                <!-- <property name="hexpand">True</property> -->
+                <property name="vexpand">True</property>
                 <style>
                   <class name="contacts-contact-list" />
                 </style>
@@ -86,23 +88,25 @@
                         <property name="label">Jakob</property>
                       </object>
                     </child>
-                    <child>
+                    <child type="end">
                       <object class="GtkButton">
                         <property name="icon-name">call-start</property>
                         <property name="valign">center</property>
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
+                          <class name="suggested-action"/>
                         </style>
                       </object>
                     </child>
-                    <child>
+                    <child type="end">
                       <object class="GtkButton">
                         <property name="icon-name">camera-video</property>
                         <property name="valign">center</property>
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
+                          <class name="suggested-action"/>
                         </style>
                       </object>
                     </child>
@@ -133,9 +137,40 @@
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
+                          <class name="destructive-action"/>
                         </style>
                       </object>
                     </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkActionBar" id="actions_bar">
+                <!-- <property name="revealed">False</property> -->
+                <child>
+                  <object class="GtkButton" id="export_button">
+                    <property name="label" translatable="yes" comments="Export refers to the verb">Export</property>
+                    <property name="tooltip-text" translatable="yes">Export Selected Contacts</property>
+                    <property name="action-name">win.export-marked-contacts</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="link_button">
+                    <property name="focus_on_click">False</property>
+                    <property name="label" translatable="yes" comments="Link refers to the verb, from linking contacts together">Link</property>
+                    <property name="tooltip-text" translatable="yes">Link Selected Contacts Together</property>
+                    <property name="action-name">win.link-marked-contacts</property>
+                  </object>
+                </child>
+                <child type="end">
+                  <object class="GtkButton" id="delete_button">
+                    <property name="focus_on_click">False</property>
+                    <property name="label" translatable="yes">Remove</property>
+                    <property name="action-name">win.delete-marked-contacts</property>
+                    <style>
+                      <class name="destructive-action"/>
+                    </style>
                   </object>
                 </child>
               </object>
