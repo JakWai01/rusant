@@ -113,9 +113,40 @@ impl ObjectImpl for CallWindowTemplate {
         picture_test.set_paintable(Some(&paintable_test));
         picture_test.set_keep_aspect_ratio(true);
 
+
+        let pipeline_demo= gst::Pipeline::default();
+
+        let src_demo= gst::ElementFactory::make("videotestsrc").build().unwrap();
+
+        // src_test.set_property("device", "/dev/video4");
+
+        let caps_demo=
+            gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
+
+        let filter_demo= gst::ElementFactory::make("capsfilter").build().unwrap();
+        filter_demo.set_property("caps", &caps_demo);
+
+        let convert_demo= gst::ElementFactory::make("videoconvert").build().unwrap();
+
+        let sink_demo= gst::ElementFactory::make("gtk4paintablesink")
+            .build()
+            .unwrap();
+
+        let paintable_demo= sink_demo.property::<gdk::Paintable>("paintable");
+        pipeline_demo
+            .add_many(&[&src_demo, &filter_demo, &convert_demo, &sink_demo])
+            .unwrap();
+
+        gst::Element::link_many(&[&src_demo, &filter_demo, &convert_demo, &sink_demo]).unwrap();
+
+        let picture_demo= gtk::Picture::new();
+        picture_demo.set_paintable(Some(&paintable_demo));
+        picture_demo.set_keep_aspect_ratio(true);
+
         self.grid.insert(&picture, 0);
         self.grid.insert(&picture_test, 1);
-
+        self.grid.insert(&picture_demo, 2);
+        
         thread::spawn(move || {
             pipeline
                 .set_state(gst::State::Playing)
@@ -123,6 +154,11 @@ impl ObjectImpl for CallWindowTemplate {
         });
         thread::spawn(move || {
             pipeline_test
+                .set_state(gst::State::Playing)
+                .expect("Unable to set the pipeline to the `Playing` state");
+        });
+        thread::spawn(move || {
+            pipeline_demo
                 .set_state(gst::State::Playing)
                 .expect("Unable to set the pipeline to the `Playing` state");
         });
