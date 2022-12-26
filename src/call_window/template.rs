@@ -1,7 +1,6 @@
 use super::CallWindow;
 
 use glib::{self, ObjectExt};
-use gst::prelude::*;
 use glib::{
     object_subclass,
     subclass::{
@@ -10,7 +9,12 @@ use glib::{
         InitializingObject,
     },
 };
-use gtk::{gdk, ffi::{GTK_POS_BOTTOM, GTK_POS_RIGHT}, traits::{GridExt, WidgetExt}};
+use gst::prelude::*;
+use gtk::{
+    ffi::{GTK_POS_BOTTOM, GTK_POS_RIGHT},
+    gdk,
+    traits::{GridExt, WidgetExt},
+};
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -18,7 +22,7 @@ use gtk::{
         prelude::{TemplateChild, WidgetImpl, WindowImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    CompositeTemplate, Grid, FlowBox
+    CompositeTemplate, FlowBox, Grid,
 };
 use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
 use std::thread;
@@ -49,15 +53,15 @@ impl ObjectSubclass for CallWindowTemplate {
 impl ObjectImpl for CallWindowTemplate {
     fn constructed(&self) {
         self.parent_constructed();
-        
+
         let pipeline = gst::Pipeline::default();
-       
+
         let src = gst::ElementFactory::make("v4l2src").build().unwrap();
-        
+
         src.set_property("device", "/dev/video0");
 
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
-        
+
         let filter = gst::ElementFactory::make("capsfilter").build().unwrap();
         filter.set_property("caps", &caps);
 
@@ -68,10 +72,12 @@ impl ObjectImpl for CallWindowTemplate {
             .unwrap();
 
         let paintable = sink.property::<gdk::Paintable>("paintable");
-        pipeline.add_many(&[&src, &filter, &convert, &sink]).unwrap();
+        pipeline
+            .add_many(&[&src, &filter, &convert, &sink])
+            .unwrap();
 
         gst::Element::link_many(&[&src, &filter, &convert, &sink]).unwrap();
-        
+
         let picture = gtk::Picture::new();
         picture.set_paintable(Some(&paintable));
         // picture.set_property("keep-aspect-ratio", true);
@@ -79,13 +85,14 @@ impl ObjectImpl for CallWindowTemplate {
         // picture.add_css_class("camera");
 
         let pipeline_test = gst::Pipeline::default();
-       
+
         let src_test = gst::ElementFactory::make("videotestsrc").build().unwrap();
-        
+
         // src_test.set_property("device", "/dev/video4");
 
-        let caps_test = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
-        
+        let caps_test =
+            gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
+
         let filter_test = gst::ElementFactory::make("capsfilter").build().unwrap();
         filter_test.set_property("caps", &caps_test);
 
@@ -96,22 +103,28 @@ impl ObjectImpl for CallWindowTemplate {
             .unwrap();
 
         let paintable_test = sink_test.property::<gdk::Paintable>("paintable");
-        pipeline_test.add_many(&[&src_test, &filter_test, &convert_test, &sink_test]).unwrap();
+        pipeline_test
+            .add_many(&[&src_test, &filter_test, &convert_test, &sink_test])
+            .unwrap();
 
         gst::Element::link_many(&[&src_test, &filter_test, &convert_test, &sink_test]).unwrap();
-        
+
         let picture_test = gtk::Picture::new();
         picture_test.set_paintable(Some(&paintable_test));
         picture_test.set_keep_aspect_ratio(true);
-        
+
         self.grid.insert(&picture, 0);
         self.grid.insert(&picture_test, 1);
 
         thread::spawn(move || {
-            pipeline.set_state(gst::State::Playing).expect("Unable to set the pipeline to the `Playing` state");
+            pipeline
+                .set_state(gst::State::Playing)
+                .expect("Unable to set the pipeline to the `Playing` state");
         });
         thread::spawn(move || {
-            pipeline_test.set_state(gst::State::Playing).expect("Unable to set the pipeline to the `Playing` state");
+            pipeline_test
+                .set_state(gst::State::Playing)
+                .expect("Unable to set the pipeline to the `Playing` state");
         });
     }
 }

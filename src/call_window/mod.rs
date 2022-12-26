@@ -6,7 +6,7 @@ use glib::{wrapper, Object};
 use gtk::{
     gio::{ActionGroup, ActionMap},
     Accessible, ApplicationWindow, Buildable, ConstraintTarget, Native, Root, ShortcutManager,
-    Widget, Window
+    Widget, Window,
 };
 use libadwaita::Application;
 

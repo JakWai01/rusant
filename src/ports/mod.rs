@@ -10,12 +10,13 @@ impl PortPool {
             serving_port: 5200,
         }
     }
-    
+
     pub fn allocate_listening_port(&mut self, port: i32) -> Result<(), String> {
         match self.listening_port_pool.iter().position(|x| *x == port) {
-            Some(_x) => {
-                Err(format!("Port {} cannot be allocated since it it already in use", port))
-            },
+            Some(_x) => Err(format!(
+                "Port {} cannot be allocated since it it already in use",
+                port
+            )),
             None => {
                 self.listening_port_pool.push(port);
                 Ok(())
@@ -28,8 +29,11 @@ impl PortPool {
             Some(x) => {
                 self.listening_port_pool.remove(x);
                 Ok(())
-            },
-            None => Err(format!("Port {} cannot be freed since it was not allocated before", port))
+            }
+            None => Err(format!(
+                "Port {} cannot be freed since it was not allocated before",
+                port
+            )),
         }
     }
 

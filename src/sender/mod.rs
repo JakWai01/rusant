@@ -1,16 +1,16 @@
 use gst::prelude::*;
 
 pub trait Sender {
-    fn send(&self){}
+    fn send(&self) {}
 }
 
 pub struct SenderPipeline<'a> {
     host: &'a str,
-    port: i32
+    port: i32,
 }
 
-impl <'a> Sender for SenderPipeline<'a> {
-    fn send(&self){
+impl<'a> Sender for SenderPipeline<'a> {
+    fn send(&self) {
         let pipeline = self.build();
 
         // Start pipeline
@@ -38,7 +38,7 @@ impl <'a> Sender for SenderPipeline<'a> {
     }
 }
 
-impl <'a> SenderPipeline<'a> {
+impl<'a> SenderPipeline<'a> {
     pub fn new(host: &'a str, port: i32) -> Self {
         SenderPipeline { host, port }
     }

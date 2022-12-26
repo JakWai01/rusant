@@ -47,5 +47,3 @@ impl<'a> ReceiverPipeline<'a> {
         (pipeline, paintable)
     }
 }
-
-
