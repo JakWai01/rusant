@@ -20,16 +20,12 @@ jobs:
           cargo clippy --version          
       - name: Lint
         run: |
-          ls
-          cd rusant 
           cargo fmt -- --check
           cargo clippy -- -D warnings          
       - name: Test
         run: |
-          cd rusant
           cargo check
           cargo test --all          
       - name: Build
         run: |
-          cd rusant 
           cargo build --release    
