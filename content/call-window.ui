@@ -88,10 +88,12 @@
                         <property name="label">Jakob</property>
                       </object>
                     </child>
-                    <child type="end">
+                    <child>
                       <object class="GtkButton">
                         <property name="icon-name">call-start</property>
                         <property name="valign">center</property>
+                        <property name="halign">end</property>
+                        <property name="hexpand">True</property>
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
@@ -99,10 +101,13 @@
                         </style>
                       </object>
                     </child>
-                    <child type="end">
+                    <child>
                       <object class="GtkButton">
                         <property name="icon-name">camera-video</property>
                         <property name="valign">center</property>
+                        <property name="halign">end</property>
+                        <!-- <property name="hexpand">True</property> -->
+                        <property name="margin-end">12</property>
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
@@ -134,6 +139,9 @@
                       <object class="GtkButton">
                         <property name="icon-name">call-stop</property>
                         <property name="valign">center</property>
+                        <property name="halign">end</property>
+                        <property name="hexpand">True</property>
+                        <property name="margin-end">12</property>
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
