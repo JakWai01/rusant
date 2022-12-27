@@ -81,13 +81,24 @@ fn main() {
     app.connect_activate(build_ui);
     let actions = gio::SimpleActionGroup::new();
     app.set_action_group(Some(&actions));
-    action!{
-        actions,
-        "about",
-        clone!(@weak app as app => move |_, _| {
-           show_about(&app);
-        })
-    };
+
+    {
+        action!{
+            actions,
+            "about",
+            clone!(@weak app as app => move |_, _| {
+            show_about(&app);
+            })
+        };
+
+        action!{
+            actions,
+            "show-preferences",
+            clone!(@weak app as app => move |_, _| {
+                show_preferences(&app);
+            })
+        }
+    }
     
     app.run();
 
@@ -126,5 +137,11 @@ fn show_about(app: &Application) {
         .license_type(gtk::License::Agpl30)
         .build();
 
+    dialog.present();
+}
+
+fn show_preferences(app: &Application) {
+    let window = app.active_window().unwrap();
+    let dialog = libadwaita::PreferencesWindow::builder().transient_for(&window).build();
     dialog.present();
 }
