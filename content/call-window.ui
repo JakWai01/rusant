@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <menu id="hamburger_menu_popover">
-    <section>
-      <item>
-        <attribute name="label" translatable="yes">Preferences</attribute>
-        <attribute name="action">app.show-preferences</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">About Rusant</attribute>
-        <attribute name="action">app.about</attribute>
-      </item>
-    </section>
+  <menu id="menu">
+    <item>
+      <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
+      <attribute name="action">win.show-help-overlay</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">Preferences</attribute>
+      <attribute name="action">app.show-preferences</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">About Rusant</attribute>
+      <attribute name="action">app.about</attribute>
+    </item>
   </menu>
 
   <template class="CallWindow" parent="AdwApplicationWindow">
@@ -38,13 +40,21 @@
                 </property>
 
                 <child type="end">
-                  <object class="GtkMenuButton" id="hamburger_menu_button">
-                    <property name="menu-model">hamburger_menu_popover</property>
-                    <property name="primary">True</property>
-                    <property name="tooltip_text" translatable="yes">Menu</property>
+                  <object class="GtkMenuButton" id="menu">
+                    <property name="valign">center</property>
+                    <property name="halign">center</property>
+                    <property name="menu-model">menu</property>
+                    <!-- <property name="primary">True</property> -->
+                    <!-- <property name="tooltip_text" translatable="yes">Menu</property> -->
                     <property name="icon-name">open-menu-symbolic</property>
+                    <style>
+                      <class name="circular" />
+                    </style>
                   </object>
                 </child>
+                <style>
+                  <class name="flat" />
+                </style>
               </object>
             </child>
 
@@ -185,6 +195,10 @@
                     <property name="title">Rusant</property>
                   </object>
                 </property>
+                
+                <style>
+                  <class name="flat" />
+                </style>
               </object>
             </child>
 

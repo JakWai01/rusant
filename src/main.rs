@@ -14,6 +14,7 @@ use gtk::prelude::ActionMapExt;
 use gtk_macros::action;
 use gtk::prelude::GtkApplicationExt;
 use gtk::prelude::GtkWindowExt;
+use gtk::prelude::ApplicationWindowExt;
 
 use gtk::gio::resources_register_include;
 
@@ -65,7 +66,7 @@ fn main() {
 
     // Load the CSS file and add it to the provider
     let provider = CssProvider::new();
-    provider.load_from_resource("./style.css");
+    provider.load_from_resource("/com/jakobwaibel/Rusant/style.css");
 
     // Add the provider to the default screen
     StyleContext::add_provider_for_display(
@@ -75,13 +76,14 @@ fn main() {
     );
 
     // Initialize application
-    let app = Application::builder().application_id(app_id).build();
-
+    let app = Application::builder().application_id(app_id).resource_base_path("/com/jakobwaibel/Rusant").build();
+    
     // Run application
     app.connect_activate(build_ui);
     let actions = gio::SimpleActionGroup::new();
     app.set_action_group(Some(&actions));
 
+    setup_accels(&app);
     {
         action!{
             actions,
@@ -100,12 +102,12 @@ fn main() {
         }
     }
     
-    app.run();
+    std::process::exit(app.run());
 
     // Deinitialize GStreamer
-    unsafe {
-        gst::deinit();
-    }
+    // unsafe {
+    //     gst::deinit();
+    // }
 }
 
 fn build_ui(app: &Application) {
@@ -124,6 +126,7 @@ fn build_ui(app: &Application) {
 
 fn show_about(app: &Application) {
     let window = app.active_window().unwrap();
+
     let dialog = libadwaita::AboutWindow::builder()
         .transient_for(&window)
         // .application_icon("rusant")
@@ -144,4 +147,8 @@ fn show_preferences(app: &Application) {
     let window = app.active_window().unwrap();
     let dialog = libadwaita::PreferencesWindow::builder().transient_for(&window).build();
     dialog.present();
+}
+
+fn setup_accels(app: &Application) {
+    app.set_accels_for_action("win.show-help-overlay", &["<primary>question"]);
 }

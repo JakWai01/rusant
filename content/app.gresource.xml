@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <gresources>
-    <gresource>
-        <file compressed="true">call-window.ui</file>
+    <gresource prefix="/com/jakobwaibel/Rusant/">
+        <file compressed="true" preprocess="xml-stripblanks">call-window.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">help-overlay.ui</file>
         <file compressed="true">style.css</file>
     </gresource>
 </gresources>

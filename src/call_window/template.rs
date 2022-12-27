@@ -1,4 +1,5 @@
 use super::CallWindow;
+use super::*;
 
 use glib::{self, ObjectExt};
 use glib::{
@@ -26,9 +27,11 @@ use gtk::{
 };
 use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
 use std::thread;
+use gtk_macros::get_widget;
+use libadwaita::prelude::ApplicationWindowExt;
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/call-window.ui")]
+#[template(resource = "/com/jakobwaibel/Rusant/call-window.ui")]
 pub struct CallWindowTemplate {
     #[template_child]
     pub grid: TemplateChild<FlowBox>,

@@ -12,7 +12,7 @@ use libadwaita::Application;
 
 wrapper! {
     pub struct CallWindow(ObjectSubclass<CallWindowTemplate>)
-    @extends ApplicationWindow, Window, Widget,
+    @extends libadwaita::ApplicationWindow, ApplicationWindow, Window, Widget,
     @implements ActionGroup, ActionMap, Accessible, Buildable,
                 ConstraintTarget, Native, Root, ShortcutManager;
 }
