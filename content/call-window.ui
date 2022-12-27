@@ -196,8 +196,6 @@
               <object class="GtkBox">
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
-                <!-- <property name="halign">center</property>
-                <property name="valign">center</property> -->
                 <property name="margin-start">48</property>
                 <property name="margin-end">48</property>
                 <property name="margin-top">48</property>
@@ -205,14 +203,14 @@
                 <child>
                   <object class="GtkFlowBox" id="grid">
                     <property name="selection-mode">none</property>
-                    <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="hexpand">True</property>
                     <property name="vexpand">True</property>
-                    <!-- <property name="visible">True</property> -->
+                    <property name="halign">center</property>
                     <property name="can_focus">False</property>
                     <property name="row_spacing">24</property>
                     <property name="column_spacing">24</property>
+                    <property name="homogeneous">True</property>
                   </object>
                 </child>
               </object>
