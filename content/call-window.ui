@@ -110,6 +110,7 @@
                       <object class="AdwAvatar">
                         <property name="text">Jakob</property>
                         <property name="size">48</property>
+                        <property name="show-initials">True</property>
                       </object>
                     </child>
                     <child>
@@ -126,7 +127,7 @@
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
-                          <class name="suggested-action"/>
+                          <!-- <class name="suggested-action"/> -->
                         </style>
                       </object>
                     </child>
@@ -140,7 +141,7 @@
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
-                          <class name="suggested-action"/>
+                          <!-- <class name="suggested-action"/> -->
                         </style>
                       </object>
                     </child>
@@ -157,6 +158,7 @@
                       <object class="AdwAvatar">
                         <property name="text">Felicitas</property>
                         <property name="size">48</property>
+                        <property name="show-initials">True</property>
                       </object>
                     </child>
                     <child>
@@ -166,15 +168,28 @@
                     </child>
                     <child>
                       <object class="GtkButton">
-                        <property name="icon-name">call-stop</property>
+                        <property name="icon-name">call-start</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>
                         <property name="hexpand">True</property>
+                        <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
+                        <style>
+                          <class name="circular"/>
+                          <!-- <class name="suggested-action"/> -->
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="icon-name">camera-video</property>
+                        <property name="valign">center</property>
+                        <property name="halign">end</property>
+                        <!-- <property name="hexpand">True</property> -->
                         <property name="margin-end">12</property>
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
-                          <class name="destructive-action"/>
+                          <!-- <class name="suggested-action"/> -->
                         </style>
                       </object>
                     </child>
