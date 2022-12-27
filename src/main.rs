@@ -6,16 +6,21 @@ mod sender;
 use call_window::CallWindow;
 
 use config::Config;
+use glib::clone;
 use gtk::{gdk::Display, glib, CssProvider, StyleContext};
 use std::collections::HashMap;
 use std::path::Path;
+use gtk::prelude::ActionMapExt;
+use gtk_macros::action;
+use gtk::prelude::GtkApplicationExt;
+use gtk::prelude::GtkWindowExt;
 
 use gtk::gio::resources_register_include;
 
 use libadwaita::{
     gtk::Orientation,
     prelude::{ApplicationExt, ApplicationExtManual, BoxExt, WidgetExt},
-    Application, HeaderBar, WindowTitle,
+    Application, HeaderBar, WindowTitle
 };
 
 fn main() {
@@ -74,6 +79,16 @@ fn main() {
 
     // Run application
     app.connect_activate(build_ui);
+    let actions = gio::SimpleActionGroup::new();
+    app.set_action_group(Some(&actions));
+    action!{
+        actions,
+        "about",
+        clone!(@weak app as app => move |_, _| {
+           show_about(&app);
+        })
+    };
+    
     app.run();
 
     // Deinitialize GStreamer
@@ -94,4 +109,22 @@ fn build_ui(app: &Application) {
     let window = CallWindow::new(app);
 
     window.show();
+}
+
+fn show_about(app: &Application) {
+    let window = app.active_window().unwrap();
+    let dialog = libadwaita::AboutWindow::builder()
+        .transient_for(&window)
+        // .application_icon("rusant")
+        .application_name("Rusant")
+        .developer_name("Jakob Waibel")
+        .version("0.0.1")
+        .developers(vec!["Jakob Waibel".into(), "Felicitas Pojtinger".into()])
+        .copyright("© 2022 Jakob Waibel")
+        .website("https://github.com/JakWai01/rusant")
+        .issue_url("https://github.com/JakWai01/rusant/issues/new")
+        .license_type(gtk::License::Agpl30)
+        .build();
+
+    dialog.present();
 }
