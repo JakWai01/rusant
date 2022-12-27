@@ -146,7 +146,7 @@ impl ObjectImpl for CallWindowTemplate {
         picture_demo.set_paintable(Some(&paintable_demo));
         picture_demo.set_keep_aspect_ratio(true);
 
-        self.grid.insert(&picture, 0);
+        // self.grid.insert(&picture, 0);
         self.grid.insert(&picture_test, 1);
         self.grid.insert(&picture_demo, 2);
         

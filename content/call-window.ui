@@ -39,6 +39,15 @@
                   </object>
                 </property>
 
+                <child type="start">
+                  <object class="GtkButton" id="add_button">
+                    <property name="tooltip-text" translatable="yes">Create new contact</property>
+                    <property name="icon-name">list-add-symbolic</property>
+                    <property name="action-name">win.new-contact</property>
+                  </object>
+                </child>
+
+
                 <child type="end">
                   <object class="GtkMenuButton" id="menu">
                     <property name="valign">center</property>
@@ -52,9 +61,23 @@
                     </style>
                   </object>
                 </child>
-                <style>
+                <child type="end">
+                  <object class="GtkButton" id="selection_button">
+                    <property name="icon-name">selection-mode-symbolic</property>
+                    <property name="tooltip-text" translatable="yes">Select Items</property>
+                    <!-- <signal name="clicked" handler="on_selection_button_clicked"/> -->
+                  </object>
+                </child>
+                <child type="end">
+                  <object class="GtkButton" id="select_cancel_button">
+                    <property name="visible">False</property>
+                    <property name="label" translatable="yes">Cancel</property>
+                    <property name="tooltip_text" translatable="yes">Cancel Selection</property>
+                  </object>
+                </child>
+                <!-- <style>
                   <class name="flat" />
-                </style>
+                </style> -->
               </object>
             </child>
 
@@ -195,10 +218,10 @@
                     <property name="title">Rusant</property>
                   </object>
                 </property>
-                
+<!--                 
                 <style>
                   <class name="flat" />
-                </style>
+                </style> -->
               </object>
             </child>
 
