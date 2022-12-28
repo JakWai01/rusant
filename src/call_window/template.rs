@@ -1,5 +1,6 @@
 use super::CallWindow;
 use super::*;
+use crate::contact_list::ContactList;
 
 use glib::{self, ObjectExt};
 use glib::{
@@ -35,6 +36,9 @@ use libadwaita::prelude::ApplicationWindowExt;
 pub struct CallWindowTemplate {
     #[template_child]
     pub grid: TemplateChild<FlowBox>,
+
+    #[template_child]
+    pub contact_list: TemplateChild<ContactList>,
 }
 
 #[object_subclass]
@@ -45,6 +49,8 @@ impl ObjectSubclass for CallWindowTemplate {
     type ParentType = ApplicationWindow;
 
     fn class_init(my_class: &mut Self::Class) {
+        ContactList::ensure_type();
+        
         Self::bind_template(my_class);
     }
 
