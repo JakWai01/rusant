@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+
   <menu id="menu">
     <item>
       <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
@@ -24,6 +25,7 @@
       <object class="AdwLeaflet" id="leaflet">
         <property name="can-navigate-back">True</property>
         <property name="visible-child">camera</property>
+
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
@@ -47,27 +49,25 @@
                   </object>
                 </child>
 
-
                 <child type="end">
                   <object class="GtkMenuButton" id="menu">
                     <property name="valign">center</property>
                     <property name="halign">center</property>
                     <property name="menu-model">menu</property>
-                    <!-- <property name="primary">True</property> -->
-                    <!-- <property name="tooltip_text" translatable="yes">Menu</property> -->
                     <property name="icon-name">open-menu-symbolic</property>
                     <style>
                       <class name="circular" />
                     </style>
                   </object>
                 </child>
+
                 <child type="end">
                   <object class="GtkButton" id="selection_button">
                     <property name="icon-name">selection-mode-symbolic</property>
                     <property name="tooltip-text" translatable="yes">Select Items</property>
-                    <!-- <signal name="clicked" handler="on_selection_button_clicked"/> -->
                   </object>
                 </child>
+
                 <child type="end">
                   <object class="GtkButton" id="select_cancel_button">
                     <property name="visible">False</property>
@@ -75,16 +75,13 @@
                     <property name="tooltip_text" translatable="yes">Cancel Selection</property>
                   </object>
                 </child>
-                <!-- <style>
-                  <class name="flat" />
-                </style> -->
+
               </object>
             </child>
 
             <child>
               <object class="GtkSearchEntry" id="filter_entry">
                 <property name="placeholder-text" translatable="yes">Type to search</property>
-                <!-- <signal name="search-changed" handler="filter_entry_changed"/> -->
                 <style>
                   <class name="contacts-filter-entry"/>
                 </style>
@@ -94,11 +91,11 @@
             <child>
               <object class="GtkListBox" id="tasks_list">
                 <property name="selection-mode">none</property>
-                <!-- <property name="hexpand">True</property> -->
                 <property name="vexpand">True</property>
                 <style>
                   <class name="contacts-contact-list" />
                 </style>
+
                 <child>
                   <object class="GtkBox">
                     <property name="spacing">12</property>
@@ -106,6 +103,7 @@
                     <property name="margin-start">6</property>
                     <property name="margin-top">6</property>
                     <property name="margin-bottom">6</property>
+
                     <child>
                       <object class="AdwAvatar">
                         <property name="text">Jakob</property>
@@ -113,11 +111,13 @@
                         <property name="show-initials">True</property>
                       </object>
                     </child>
+
                     <child>
                       <object class="GtkLabel">
                         <property name="label">Jakob</property>
                       </object>
                     </child>
+                    
                     <child>
                       <object class="GtkButton">
                         <property name="icon-name">call-start</property>
@@ -127,26 +127,26 @@
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
-                          <!-- <class name="suggested-action"/> -->
                         </style>
                       </object>
                     </child>
+
                     <child>
                       <object class="GtkButton">
                         <property name="icon-name">camera-video</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>
-                        <!-- <property name="hexpand">True</property> -->
                         <property name="margin-end">12</property>
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
-                          <!-- <class name="suggested-action"/> -->
                         </style>
                       </object>
                     </child>
+
                   </object>
                 </child>
+
                 <child>
                   <object class="GtkBox">
                     <property name="spacing">12</property>
@@ -154,6 +154,7 @@
                     <property name="margin-start">6</property>
                     <property name="margin-top">6</property>
                     <property name="margin-bottom">6</property>
+
                     <child>
                       <object class="AdwAvatar">
                         <property name="text">Felicitas</property>
@@ -161,11 +162,13 @@
                         <property name="show-initials">True</property>
                       </object>
                     </child>
+
                     <child>
                       <object class="GtkLabel">
                         <property name="label">Felicitas</property>
                       </object>
                     </child>
+
                     <child>
                       <object class="GtkButton">
                         <property name="icon-name">call-start</property>
@@ -175,24 +178,23 @@
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
-                          <!-- <class name="suggested-action"/> -->
                         </style>
                       </object>
                     </child>
+
                     <child>
                       <object class="GtkButton">
                         <property name="icon-name">camera-video</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>
-                        <!-- <property name="hexpand">True</property> -->
                         <property name="margin-end">12</property>
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
-                          <!-- <class name="suggested-action"/> -->
                         </style>
                       </object>
                     </child>
+
                   </object>
                 </child>
               </object>
@@ -254,6 +256,7 @@
           <object class="GtkBox" id="camera">
             <property name="orientation">vertical</property>
             <property name="hexpand">True</property>
+
             <child>
               <object class="AdwHeaderBar">
                 <binding name="show-start-title-buttons">
@@ -285,6 +288,7 @@
                 <property name="margin-end">48</property>
                 <property name="margin-top">48</property>
                 <property name="margin-bottom">48</property>
+
                 <child>
                   <object class="GtkFlowBox" id="grid">
                     <property name="selection-mode">none</property>
@@ -298,12 +302,16 @@
                     <property name="homogeneous">True</property>
                   </object>
                 </child>
+
               </object>
             </child>
+
             <child>
               <object class="GtkActionBar" id="actions_bar">
+
                 <child type="center">
                   <object class="GtkBox">
+
                     <child>
                       <object class="GtkButton">
                         <property name="margin-end">12</property>
@@ -315,6 +323,7 @@
                         </style>
                       </object>
                     </child>
+
                     <child>
                       <object class="GtkButton">
                         <property name="icon-name">audio-input-microphone</property>
@@ -324,6 +333,7 @@
                         </style>
                       </object>
                     </child>
+
                     <child>
                       <object class="GtkButton">
                         <property name="margin-start">12</property>
@@ -335,10 +345,13 @@
                         </style>
                       </object>
                     </child>
+
                   </object>
                 </child>
+
               </object>
             </child>
+
           </object>
         </child>
         

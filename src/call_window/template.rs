@@ -83,15 +83,11 @@ impl ObjectImpl for CallWindowTemplate {
 
         let picture = gtk::Picture::new();
         picture.set_paintable(Some(&paintable));
-        // picture.set_property("keep-aspect-ratio", true);
         picture.set_keep_aspect_ratio(true);
-        // picture.add_css_class("camera");
 
         let pipeline_test = gst::Pipeline::default();
 
         let src_test = gst::ElementFactory::make("videotestsrc").build().unwrap();
-
-        // src_test.set_property("device", "/dev/video4");
 
         let caps_test =
             gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
@@ -116,12 +112,9 @@ impl ObjectImpl for CallWindowTemplate {
         picture_test.set_paintable(Some(&paintable_test));
         picture_test.set_keep_aspect_ratio(true);
 
-
         let pipeline_demo= gst::Pipeline::default();
 
         let src_demo= gst::ElementFactory::make("videotestsrc").build().unwrap();
-
-        // src_test.set_property("device", "/dev/video4");
 
         let caps_demo=
             gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
@@ -146,7 +139,7 @@ impl ObjectImpl for CallWindowTemplate {
         picture_demo.set_paintable(Some(&paintable_demo));
         picture_demo.set_keep_aspect_ratio(true);
 
-        // self.grid.insert(&picture, 0);
+        self.grid.insert(&picture, 0);
         self.grid.insert(&picture_test, 1);
         self.grid.insert(&picture_demo, 2);
         
