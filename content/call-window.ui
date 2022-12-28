@@ -209,6 +209,47 @@
           </object>
         </child>
 
+        <!-- <child>
+          <object class="GtkBox" id="camera">
+            <property name="orientation">vertical</property>
+            <property name="hexpand">True</property>
+            <child>
+              <object class="AdwHeaderBar">
+                <binding name="show-start-title-buttons">
+                  <lookup name="folded">leaflet</lookup>
+                </binding>
+
+                <child>
+                  <object class="GtkButton">
+                    <binding name="visible">
+                      <lookup name="folded">leaflet</lookup>
+                    </binding>
+                    <property name="icon-name">go-previous-symbolic</property>
+                  </object>
+                </child>
+
+                <property name="title-widget">
+                  <object class="AdwWindowTitle">
+                    <property name="title">Rusant</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwStatusPage">
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="title">Welcome</property>
+                <property name="description" translatable="yes">Start a call by clicking on the appropriate button in the contacts list. You may also start a group call by selecting multiple contacts.</property>
+                <property name="child">
+                  <object class="AdwClamp" id="clamp">
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </child> -->
+
         <child>
           <object class="GtkBox" id="camera">
             <property name="orientation">vertical</property>
@@ -233,10 +274,6 @@
                     <property name="title">Rusant</property>
                   </object>
                 </property>
-<!--                 
-                <style>
-                  <class name="flat" />
-                </style> -->
               </object>
             </child>
 
@@ -281,11 +318,9 @@
                     <child>
                       <object class="GtkButton">
                         <property name="icon-name">audio-input-microphone</property>
-                        <!-- <property name="icon-name">microphone-sensitivity-muted</property> -->
                         <property name="tooltip-text" translatable="yes">Play the Previous Song</property>
                         <style>
                           <class name="circular"/>
-                          <!-- <class name="suggested-action"/> -->
                         </style>
                       </object>
                     </child>
@@ -306,6 +341,7 @@
             </child>
           </object>
         </child>
+        
       </object>
     </child>
   </template>
