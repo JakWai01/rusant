@@ -10,3 +10,4 @@
 - Add logging
 - Add tooltip texts
 - Follow Gnome naming schemes
+- Rename `call-window` to `main-window` and rename `call-section` to `call-window`

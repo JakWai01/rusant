@@ -2,6 +2,7 @@
 <gresources>
     <gresource prefix="/com/jakobwaibel/Rusant/">
         <file compressed="true" preprocess="xml-stripblanks">call-window.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">call-section.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">contact-list.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">contact-item.ui</file>
         <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">help-overlay.ui</file>
