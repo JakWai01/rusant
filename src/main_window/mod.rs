@@ -1,6 +1,6 @@
 mod template;
 
-use template::CallWindowTemplate;
+use template::MainWindowTemplate;
 
 use glib::{wrapper, Object};
 use gtk::{
@@ -11,13 +11,13 @@ use gtk::{
 use libadwaita::Application;
 
 wrapper! {
-    pub struct CallWindow(ObjectSubclass<CallWindowTemplate>)
+    pub struct MainWindow(ObjectSubclass<MainWindowTemplate>)
     @extends libadwaita::ApplicationWindow, ApplicationWindow, Window, Widget,
     @implements ActionGroup, ActionMap, Accessible, Buildable,
                 ConstraintTarget, Native, Root, ShortcutManager;
 }
 
-impl CallWindow {
+impl MainWindow {
     pub fn new(app: &Application) -> Self {
         Object::new(&[("application", app)])
     }

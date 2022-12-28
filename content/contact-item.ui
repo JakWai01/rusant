@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <interface>
     <template class="ContactItem" parent="GtkBox">
         <child>
@@ -9,7 +8,6 @@
                 <property name="margin-start">6</property>
                 <property name="margin-top">6</property>
                 <property name="margin-bottom">6</property>
-
                 <child>
                     <object class="AdwAvatar">
                         <property name="text">Jakob</property>
@@ -17,13 +15,11 @@
                         <property name="show-initials">True</property>
                     </object>
                 </child>
-
                 <child>
                     <object class="GtkLabel">
                         <property name="label">Jakob</property>
                     </object>
                 </child>
-
                 <child>
                     <object class="GtkButton">
                         <property name="icon-name">call-start</property>
@@ -37,7 +33,6 @@
                         </style>
                     </object>
                 </child>
-
                 <child>
                     <object class="GtkButton">
                         <property name="icon-name">camera-video</property>
@@ -51,7 +46,6 @@
                         </style>
                     </object>
                 </child>
-
             </object>
         </child>
     </template>

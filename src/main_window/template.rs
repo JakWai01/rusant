@@ -1,27 +1,23 @@
-use super::CallWindow;
+use super::MainWindow;
 use super::*;
+
 use crate::call_section::template::CallSectionTemplate;
 use crate::call_section::CallSection;
-use crate::contact_list::ContactList;
-use glib::subclass::types::ObjectSubclassExt;
-use libadwaita::prelude::GObjectPropertyExpressionExt;
 use crate::contact_list::template::ContactListTemplate;
+use crate::contact_list::ContactList;
 
-use glib::{self, ObjectExt};
 use glib::{
-    object_subclass,
+    self, object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
+        types::ObjectSubclassExt,
         InitializingObject,
     },
 };
+
 use gst::prelude::*;
-use gtk::{
-    ffi::{GTK_POS_BOTTOM, GTK_POS_RIGHT},
-    gdk,
-    traits::{GridExt, WidgetExt},
-};
+
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -29,22 +25,19 @@ use gtk::{
         prelude::{TemplateChild, WidgetImpl, WindowImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    CompositeTemplate, FlowBox, Grid,
+    CompositeTemplate,
 };
-use gtk_macros::get_widget;
-use libadwaita::prelude::ApplicationWindowExt;
-use libadwaita::Leaflet;
-use libadwaita::{subclass::prelude::AdwApplicationWindowImpl, ApplicationWindow};
-use std::thread;
+
+use libadwaita::{
+    prelude::GObjectPropertyExpressionExt, subclass::prelude::AdwApplicationWindowImpl,
+    ApplicationWindow, Leaflet,
+};
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/com/jakobwaibel/Rusant/call-window.ui")]
-pub struct CallWindowTemplate {
+#[template(resource = "/com/jakobwaibel/Rusant/main-window.ui")]
+pub struct MainWindowTemplate {
     #[template_child]
     pub leaflet: TemplateChild<Leaflet>,
-
-    // #[template_child]
-    // pub grid: TemplateChild<FlowBox>,
 
     #[template_child]
     pub contact_list: TemplateChild<ContactList>,
@@ -54,10 +47,10 @@ pub struct CallWindowTemplate {
 }
 
 #[object_subclass]
-impl ObjectSubclass for CallWindowTemplate {
-    const NAME: &'static str = "CallWindow";
+impl ObjectSubclass for MainWindowTemplate {
+    const NAME: &'static str = "MainWindow";
 
-    type Type = CallWindow;
+    type Type = MainWindow;
     type ParentType = ApplicationWindow;
 
     fn class_init(my_class: &mut Self::Class) {
@@ -72,7 +65,7 @@ impl ObjectSubclass for CallWindowTemplate {
     }
 }
 
-impl ObjectImpl for CallWindowTemplate {
+impl ObjectImpl for MainWindowTemplate {
     fn constructed(&self) {
         self.parent_constructed();
 
@@ -102,7 +95,7 @@ impl ObjectImpl for CallWindowTemplate {
     }
 }
 
-impl WidgetImpl for CallWindowTemplate {}
-impl WindowImpl for CallWindowTemplate {}
-impl ApplicationWindowImpl for CallWindowTemplate {}
-impl AdwApplicationWindowImpl for CallWindowTemplate {}
+impl WidgetImpl for MainWindowTemplate {}
+impl WindowImpl for MainWindowTemplate {}
+impl ApplicationWindowImpl for MainWindowTemplate {}
+impl AdwApplicationWindowImpl for MainWindowTemplate {}

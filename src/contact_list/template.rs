@@ -1,9 +1,9 @@
 use super::ContactList;
 use crate::contact_item::ContactItem;
 
-use glib::{self, ObjectExt};
-use glib::StaticTypeExt;
 use glib::{
+    self,
+    StaticTypeExt,
     object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
@@ -11,6 +11,7 @@ use glib::{
         InitializingObject,
     },
 };
+
 use libadwaita::HeaderBar;
 
 use gtk::{

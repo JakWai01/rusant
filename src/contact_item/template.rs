@@ -8,11 +8,12 @@ use glib::{
         InitializingObject,
     },
 };
+
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
-        prelude::{BoxImpl, TemplateChild, WidgetImpl},
-        widget::{CompositeTemplate, WidgetClassSubclassExt},
+        prelude::{BoxImpl, WidgetImpl},
+        widget::CompositeTemplate,
     },
     Box, CompositeTemplate,
 };

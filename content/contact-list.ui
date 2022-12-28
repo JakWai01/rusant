@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <interface>
     <template class="ContactList" parent="GtkBox">
         <child>
             <object class="GtkBox">
                 <property name="orientation">vertical</property>
-
                 <child>
                     <object class="AdwHeaderBar" id="header_bar">
-                        <!-- <binding name="show-end-title-buttons">
-                            <lookup
-                        name="folded">leaflet</lookup>
-                        </binding> -->
                         <property name="title-widget">
                             <object class="AdwWindowTitle">
                                 <property name="title">Contacts</property>
                             </object>
                         </property>
-
                         <child type="start">
                             <object class="GtkButton" id="add_button">
                                 <property name="tooltip-text" translatable="yes">Create new contact</property>
@@ -25,7 +18,6 @@
                                 <property name="action-name">win.new-contact</property>
                             </object>
                         </child>
-
                         <child type="end">
                             <object class="GtkMenuButton" id="menu">
                                 <property name="valign">center</property>
@@ -37,14 +29,12 @@
                                 </style>
                             </object>
                         </child>
-
                         <child type="end">
                             <object class="GtkButton" id="selection_button">
                                 <property name="icon-name">selection-mode-symbolic</property>
                                 <property name="tooltip-text" translatable="yes">Select Items</property>
                             </object>
                         </child>
-
                         <child type="end">
                             <object class="GtkButton" id="select_cancel_button">
                                 <property name="visible">False</property>
@@ -52,10 +42,8 @@
                                 <property name="tooltip_text" translatable="yes">Cancel Selection</property>
                             </object>
                         </child>
-
                     </object>
                 </child>
-
                 <child>
                     <object class="GtkSearchEntry" id="filter_entry">
                         <property name="placeholder-text" translatable="yes">Type to search</property>
@@ -64,8 +52,6 @@
                         </style>
                     </object>
                 </child>
-
-
                 <child>
                     <object class="GtkListBox" id="tasks_list">
                         <property name="selection-mode">none</property>
@@ -74,15 +60,12 @@
                         <style>
                             <class name="contacts-contact-list" />
                         </style>
-
                         <child>
                             <object class="ContactItem" id="contact_item" />
                         </child>
-
                         <child>
                             <object class="ContactItem" />
                         </child>
-
                     </object>
                 </child>
             </object>

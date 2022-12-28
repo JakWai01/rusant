@@ -1,4 +1,4 @@
-mod call_window;
+mod main_window;
 mod ports;
 mod receiver;
 mod sender;
@@ -6,18 +6,14 @@ mod contact_list;
 mod contact_item;
 mod call_section;
 
-use call_window::CallWindow;
+use main_window::MainWindow;
 
 use config::Config;
 use glib::clone;
-use gtk::{gdk::Display, glib, CssProvider, StyleContext};
+use gtk::{gdk::Display, glib, CssProvider, StyleContext, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt};
 use std::collections::HashMap;
 use std::path::Path;
-use gtk::prelude::ActionMapExt;
 use gtk_macros::action;
-use gtk::prelude::GtkApplicationExt;
-use gtk::prelude::GtkWindowExt;
-use gtk::prelude::ApplicationWindowExt;
 
 use gtk::gio::resources_register_include;
 
@@ -122,7 +118,7 @@ fn build_ui(app: &Application) {
             .build(),
     );
 
-    let window = CallWindow::new(app);
+    let window = MainWindow::new(app);
 
     window.show();
 }

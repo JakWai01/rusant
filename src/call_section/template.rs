@@ -1,11 +1,10 @@
 use std::thread;
 
 use super::CallSection;
-use crate::contact_item::ContactItem;
 
-use glib::{self, ObjectExt};
-use glib::StaticTypeExt;
 use glib::{
+    self,
+    ObjectExt,
     object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
@@ -13,10 +12,14 @@ use glib::{
         InitializingObject,
     },
 };
-use gst::prelude::GstBinExtManual;
-use gst::traits::ElementExt;
-use gtk::gdk;
+
+use gst::{
+    prelude::GstBinExtManual,
+    traits::ElementExt,
+};
+
 use gtk::{
+    gdk,
     prelude::InitializingWidgetExt,
     subclass::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},

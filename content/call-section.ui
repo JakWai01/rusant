@@ -1,27 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <interface>
     <template class="CallSection" parent="GtkBox">
         <child>
             <object class="GtkBox" id="camera">
                 <property name="orientation">vertical</property>
                 <property name="hexpand">True</property>
-
                 <child>
                     <object class="AdwHeaderBar" id="header_bar">
-                        <!-- <binding name="show-start-title-buttons">
-                            <lookup name="folded">leaflet</lookup>
-                        </binding> -->
-
                         <child>
                             <object class="GtkButton" id="back_button">
-                                <!-- <binding name="visible">
-                                    <lookup name="folded">leaflet</lookup>
-                                </binding> -->
                                 <property name="icon-name">go-previous-symbolic</property>
                             </object>
                         </child>
-
                         <property name="title-widget">
                             <object class="AdwWindowTitle">
                                 <property name="title">Rusant</property>
@@ -29,7 +19,6 @@
                         </property>
                     </object>
                 </child>
-
                 <child>
                     <object class="GtkBox">
                         <property name="hexpand">True</property>
@@ -38,7 +27,6 @@
                         <property name="margin-end">48</property>
                         <property name="margin-top">48</property>
                         <property name="margin-bottom">48</property>
-
                         <child>
                             <object class="GtkFlowBox" id="grid">
                                 <property name="selection-mode">none</property>
@@ -52,16 +40,12 @@
                                 <property name="homogeneous">True</property>
                             </object>
                         </child>
-
                     </object>
                 </child>
-
                 <child>
                     <object class="GtkActionBar" id="actions_bar">
-
                         <child type="center">
                             <object class="GtkBox">
-
                                 <child>
                                     <object class="GtkButton">
                                         <property name="margin-end">12</property>
@@ -74,7 +58,6 @@
                                         </style>
                                     </object>
                                 </child>
-
                                 <child>
                                     <object class="GtkButton">
                                         <property name="icon-name">audio-input-microphone</property>
@@ -85,7 +68,6 @@
                                         </style>
                                     </object>
                                 </child>
-
                                 <child>
                                     <object class="GtkButton">
                                         <property name="margin-start">12</property>
@@ -98,13 +80,10 @@
                                         </style>
                                     </object>
                                 </child>
-
                             </object>
                         </child>
-
                     </object>
                 </child>
-
             </object>
         </child>
     </template>

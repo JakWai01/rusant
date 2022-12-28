@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="menu">
+    <item>
+      <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
+      <attribute name="action">win.show-help-overlay</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">Preferences</attribute>
+      <attribute name="action">app.show-preferences</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">About Rusant</attribute>
+      <attribute name="action">app.about</attribute>
+    </item>
+  </menu>
+  <template class="MainWindow" parent="AdwApplicationWindow">
+    <property name="width-request">800</property>
+    <property name="height-request">500</property>
+    <property name="title" translatable="no">Rusant</property>
+    <child>
+      <object class="AdwLeaflet" id="leaflet">
+        <property name="can-navigate-back">True</property>
+        <property name="visible-child">call_section</property>
+        <child>
+          <object class="ContactList" id="contact_list" />
+        </child>
+        <child>
+          <object class="AdwLeafletPage">
+            <property name="navigatable">False</property>
+            <property name="child">
+              <object class="GtkSeparator" />
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="CallSection" id="call_section"/>
+        </child> 
+      </object>
+    </child>
+  </template>
+</interface>
