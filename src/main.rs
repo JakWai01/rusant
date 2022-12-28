@@ -3,6 +3,7 @@ mod ports;
 mod receiver;
 mod sender;
 mod contact_list;
+mod contact_item;
 
 use call_window::CallWindow;
 

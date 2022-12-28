@@ -1,8 +1,5 @@
-use super::ContactList;
-use crate::contact_item::ContactItem;
+use super::ContactItem;
 
-use glib::{self, ObjectExt};
-use glib::StaticTypeExt;
 use glib::{
     object_subclass,
     subclass::{
@@ -21,22 +18,17 @@ use gtk::{
 };
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/com/jakobwaibel/Rusant/contact-list.ui")]
-pub struct ContactListTemplate {
-    #[template_child]
-    pub contact_item: TemplateChild<ContactItem>,
-}
+#[template(resource = "/com/jakobwaibel/Rusant/contact-item.ui")]
+pub struct ContactItemTemplate {}
 
 #[object_subclass]
-impl ObjectSubclass for ContactListTemplate {
-    const NAME: &'static str = "ContactList";
+impl ObjectSubclass for ContactItemTemplate {
+    const NAME: &'static str = "ContactItem";
 
-    type Type = ContactList;
+    type Type = ContactItem;
     type ParentType = Box;
 
     fn class_init(my_class: &mut Self::Class) {
-        ContactItem::ensure_type();
-
         Self::bind_template(my_class);
     }
 
@@ -45,11 +37,11 @@ impl ObjectSubclass for ContactListTemplate {
     }
 }
 
-impl ObjectImpl for ContactListTemplate {
+impl ObjectImpl for ContactItemTemplate {
     fn constructed(&self) {
         self.parent_constructed();
     }
 }
 
-impl WidgetImpl for ContactListTemplate {}
-impl BoxImpl for ContactListTemplate {}
+impl WidgetImpl for ContactItemTemplate {}
+impl BoxImpl for ContactItemTemplate {}
