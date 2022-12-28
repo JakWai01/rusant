@@ -11,6 +11,8 @@ use glib::{
         InitializingObject,
     },
 };
+use libadwaita::HeaderBar;
+
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -25,6 +27,9 @@ use gtk::{
 pub struct ContactListTemplate {
     #[template_child]
     pub contact_item: TemplateChild<ContactItem>,
+
+    #[template_child]
+    pub header_bar: TemplateChild<HeaderBar>,
 }
 
 #[object_subclass]

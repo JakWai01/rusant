@@ -25,75 +25,10 @@
       <object class="AdwLeaflet" id="leaflet">
         <property name="can-navigate-back">True</property>
         <property name="visible-child">call_section</property>
-
+        
         <child>
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
-
-            <child>
-              <object class="AdwHeaderBar">
-                <binding name="show-end-title-buttons">
-                  <lookup name="folded">leaflet</lookup>
-                </binding>
-                <property name="title-widget">
-                  <object class="AdwWindowTitle">
-                    <property name="title">Contacts</property>
-                  </object>
-                </property>
-
-                <child type="start">
-                  <object class="GtkButton" id="add_button">
-                    <property name="tooltip-text" translatable="yes">Create new contact</property>
-                    <property name="icon-name">list-add-symbolic</property>
-                    <property name="action-name">win.new-contact</property>
-                  </object>
-                </child>
-
-                <child type="end">
-                  <object class="GtkMenuButton" id="menu">
-                    <property name="valign">center</property>
-                    <property name="halign">center</property>
-                    <property name="menu-model">menu</property>
-                    <property name="icon-name">open-menu-symbolic</property>
-                    <style>
-                      <class name="circular" />
-                    </style>
-                  </object>
-                </child>
-
-                <child type="end">
-                  <object class="GtkButton" id="selection_button">
-                    <property name="icon-name">selection-mode-symbolic</property>
-                    <property name="tooltip-text" translatable="yes">Select Items</property>
-                  </object>
-                </child>
-
-                <child type="end">
-                  <object class="GtkButton" id="select_cancel_button">
-                    <property name="visible">False</property>
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="tooltip_text" translatable="yes">Cancel Selection</property>
-                  </object>
-                </child>
-
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkSearchEntry" id="filter_entry">
-                <property name="placeholder-text" translatable="yes">Type to search</property>
-                <style>
-                  <class name="contacts-filter-entry" />
-                </style>
-              </object>
-            </child>
-
-            <child>
-              <object class="ContactList" id="contact_list" />
-            </child>
-          </object>
+          <object class="ContactList" id="contact_list" />
         </child>
-
 
         <child>
           <object class="AdwLeafletPage">

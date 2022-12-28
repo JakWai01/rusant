@@ -5,6 +5,7 @@ use crate::call_section::CallSection;
 use crate::contact_list::ContactList;
 use glib::subclass::types::ObjectSubclassExt;
 use libadwaita::prelude::GObjectPropertyExpressionExt;
+use crate::contact_list::template::ContactListTemplate;
 
 use glib::{self, ObjectExt};
 use glib::{
@@ -45,8 +46,8 @@ pub struct CallWindowTemplate {
     // #[template_child]
     // pub grid: TemplateChild<FlowBox>,
 
-    // #[template_child]
-    // pub contact_list: TemplateChild<ContactList>,
+    #[template_child]
+    pub contact_list: TemplateChild<ContactList>,
 
     #[template_child]
     pub call_section: TemplateChild<CallSection>,
@@ -78,6 +79,9 @@ impl ObjectImpl for CallWindowTemplate {
         let call_section = self.call_section.get();
         let call_section_template = CallSectionTemplate::from_instance(&call_section);
 
+        let contact_list = self.contact_list.get();
+        let contact_list_template = ContactListTemplate::from_instance(&contact_list);
+
         self.leaflet.property_expression("folded").bind(
             &call_section_template.header_bar.get(),
             "show-start-title-buttons",
@@ -87,6 +91,12 @@ impl ObjectImpl for CallWindowTemplate {
         self.leaflet.property_expression("folded").bind(
             &call_section_template.back_button.get(),
             "visible",
+            Widget::NONE,
+        );
+
+        self.leaflet.property_expression("folded").bind(
+            &contact_list_template.header_bar.get(),
+            "show-end-title-buttons",
             Widget::NONE,
         );
     }
