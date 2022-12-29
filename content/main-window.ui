@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <menu id="menu">
-    <item>
-      <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
-      <attribute name="action">win.show-help-overlay</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="yes">Preferences</attribute>
-      <attribute name="action">app.show-preferences</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="yes">About Rusant</attribute>
-      <attribute name="action">app.about</attribute>
-    </item>
-  </menu>
   <template class="MainWindow" parent="AdwApplicationWindow">
     <property name="width-request">800</property>
     <property name="height-request">500</property>
