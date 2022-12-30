@@ -1,6 +1,6 @@
 use super::ContactPane;
 
-use crate::contact_item::ContactItem;
+use crate::rusant_contact_item::ContactItem;
 
 use libadwaita::HeaderBar;
 

@@ -1,12 +1,12 @@
-mod call_section;
-mod contact_item;
-mod contact_list;
-mod main_window;
+mod rusant_call_pane;
+mod rusant_contact_pane;
+mod rusant_contact_item;
+mod rusant_main_window;
 mod ports;
 mod receiver;
 mod sender;
 
-use main_window::MainWindow;
+use rusant_main_window::MainWindow;
 
 use config::Config;
 use glib::clone;

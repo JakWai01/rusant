@@ -1,10 +1,10 @@
 use super::MainWindow;
 use super::*;
 
-use crate::call_section::template::CallPaneTemplate;
-use crate::call_section::CallPane;
-use crate::contact_list::template::ContactPaneTemplate;
-use crate::contact_list::ContactPane;
+use crate::rusant_call_pane::template::CallPaneTemplate;
+use crate::rusant_call_pane::CallPane;
+use crate::rusant_contact_pane::template::ContactPaneTemplate;
+use crate::rusant_contact_pane::ContactPane;
 
 use glib::{
     self, object_subclass,
