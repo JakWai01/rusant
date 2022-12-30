@@ -14,7 +14,7 @@
             <attribute name="action">app.about</attribute>
         </item>
     </menu>
-    <template class="ContactList" parent="GtkBox">
+    <template class="ContactPane" parent="GtkBox">
         <child>
             <object class="GtkBox">
                 <property name="orientation">vertical</property>

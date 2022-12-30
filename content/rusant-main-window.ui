@@ -9,7 +9,7 @@
         <property name="can-navigate-back">True</property>
         <property name="visible-child">call_section</property>
         <child>
-          <object class="ContactList" id="contact_list" />
+          <object class="ContactPane" id="contact_list" />
         </child>
         <child>
           <object class="AdwLeafletPage">
@@ -20,7 +20,7 @@
           </object>
         </child>
         <child>
-          <object class="CallSection" id="call_section"/>
+          <object class="CallPane" id="call_section"/>
         </child> 
       </object>
     </child>

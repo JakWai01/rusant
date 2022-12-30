@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-    <template class="CallSection" parent="GtkBox">
+    <template class="CallPane" parent="GtkBox">
         <child>
             <object class="GtkBox" id="camera">
                 <property name="orientation">vertical</property>

@@ -1,23 +1,23 @@
 pub mod template;
 
-use self::template::CallSectionTemplate;
+use self::template::CallPaneTemplate;
 
 use glib::wrapper;
 use gtk::{Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget};
 
 wrapper! {
-    pub struct CallSection(ObjectSubclass<CallSectionTemplate>)
+    pub struct CallPane(ObjectSubclass<CallPaneTemplate>)
         @extends Widget, Box,
         @implements Accessible, Buildable, ConstraintTarget, Orientable;
 }
 
-impl Default for CallSection {
+impl Default for CallPane {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl CallSection {
+impl CallPane {
     pub fn new() -> Self {
         glib::Object::new(&[])
     }

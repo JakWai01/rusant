@@ -1,18 +1,18 @@
-use super::ContactList;
+use super::ContactPane;
+
 use crate::contact_item::ContactItem;
 
+use libadwaita::HeaderBar;
+
 use glib::{
-    self,
-    StaticTypeExt,
-    object_subclass,
+    self, object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
         InitializingObject,
     },
+    StaticTypeExt,
 };
-
-use libadwaita::HeaderBar;
 
 use gtk::{
     prelude::InitializingWidgetExt,
@@ -24,8 +24,8 @@ use gtk::{
 };
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/com/jakobwaibel/Rusant/contact-list.ui")]
-pub struct ContactListTemplate {
+#[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-pane.ui")]
+pub struct ContactPaneTemplate {
     #[template_child]
     pub contact_item: TemplateChild<ContactItem>,
 
@@ -34,10 +34,10 @@ pub struct ContactListTemplate {
 }
 
 #[object_subclass]
-impl ObjectSubclass for ContactListTemplate {
-    const NAME: &'static str = "ContactList";
+impl ObjectSubclass for ContactPaneTemplate {
+    const NAME: &'static str = "ContactPane";
 
-    type Type = ContactList;
+    type Type = ContactPane;
     type ParentType = Box;
 
     fn class_init(my_class: &mut Self::Class) {
@@ -51,11 +51,11 @@ impl ObjectSubclass for ContactListTemplate {
     }
 }
 
-impl ObjectImpl for ContactListTemplate {
+impl ObjectImpl for ContactPaneTemplate {
     fn constructed(&self) {
         self.parent_constructed();
     }
 }
 
-impl WidgetImpl for ContactListTemplate {}
-impl BoxImpl for ContactListTemplate {}
+impl WidgetImpl for ContactPaneTemplate {}
+impl BoxImpl for ContactPaneTemplate {}

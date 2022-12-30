@@ -1,26 +1,29 @@
+mod call_section;
+mod contact_item;
+mod contact_list;
 mod main_window;
 mod ports;
 mod receiver;
 mod sender;
-mod contact_list;
-mod contact_item;
-mod call_section;
 
 use main_window::MainWindow;
 
 use config::Config;
 use glib::clone;
-use gtk::{gdk::Display, glib, CssProvider, StyleContext, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt};
+use gtk::{
+    gdk::Display, glib, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt,
+    CssProvider, StyleContext,
+};
+use gtk_macros::action;
 use std::collections::HashMap;
 use std::path::Path;
-use gtk_macros::action;
 
 use gtk::gio::resources_register_include;
 
 use libadwaita::{
     gtk::Orientation,
     prelude::{ApplicationExt, ApplicationExtManual, BoxExt, WidgetExt},
-    Application, HeaderBar, WindowTitle
+    Application, HeaderBar, WindowTitle,
 };
 
 fn main() {
@@ -75,8 +78,11 @@ fn main() {
     );
 
     // Initialize application
-    let app = Application::builder().application_id(app_id).resource_base_path("/com/jakobwaibel/Rusant").build();
-    
+    let app = Application::builder()
+        .application_id(app_id)
+        .resource_base_path("/com/jakobwaibel/Rusant")
+        .build();
+
     // Run application
     app.connect_activate(build_ui);
     let actions = gio::SimpleActionGroup::new();
@@ -84,7 +90,7 @@ fn main() {
 
     setup_accels(&app);
     {
-        action!{
+        action! {
             actions,
             "about",
             clone!(@weak app as app => move |_, _| {
@@ -92,7 +98,7 @@ fn main() {
             })
         };
 
-        action!{
+        action! {
             actions,
             "show-preferences",
             clone!(@weak app as app => move |_, _| {
@@ -100,7 +106,7 @@ fn main() {
             })
         }
     }
-    
+
     std::process::exit(app.run());
 
     // Deinitialize GStreamer
@@ -144,7 +150,9 @@ fn show_about(app: &Application) {
 
 fn show_preferences(app: &Application) {
     let window = app.active_window().unwrap();
-    let dialog = libadwaita::PreferencesWindow::builder().transient_for(&window).build();
+    let dialog = libadwaita::PreferencesWindow::builder()
+        .transient_for(&window)
+        .build();
     dialog.present();
 }
 

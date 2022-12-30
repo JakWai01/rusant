@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
     <gresource prefix="/com/jakobwaibel/Rusant/">
-        <file compressed="true" preprocess="xml-stripblanks">main-window.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks">call-section.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks">contact-list.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks">contact-item.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">help-overlay.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">rusant-main-window.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">rusant-call-pane.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">rusant-contact-pane.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">rusant-contact-item.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">rusant-help-overlay.ui</file>
         <file compressed="true">style.css</file>
     </gresource>
 </gresources>

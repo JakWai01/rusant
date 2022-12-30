@@ -19,7 +19,7 @@ use gtk::{
 };
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/com/jakobwaibel/Rusant/contact-item.ui")]
+#[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-item.ui")]
 pub struct ContactItemTemplate {}
 
 #[object_subclass]

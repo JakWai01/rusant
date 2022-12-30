@@ -1,22 +1,20 @@
+use super::CallPane;
+
 use std::thread;
 
-use super::CallSection;
+use libadwaita::HeaderBar;
 
 use glib::{
-    self,
-    ObjectExt,
-    object_subclass,
+    self, object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
         InitializingObject,
     },
+    ObjectExt,
 };
 
-use gst::{
-    prelude::GstBinExtManual,
-    traits::ElementExt,
-};
+use gst::{prelude::GstBinExtManual, traits::ElementExt};
 
 use gtk::{
     gdk,
@@ -25,14 +23,12 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, CompositeTemplate, Button, FlowBox
+    Box, Button, CompositeTemplate, FlowBox,
 };
 
-use libadwaita::HeaderBar;
-
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/com/jakobwaibel/Rusant/call-section.ui")]
-pub struct CallSectionTemplate {
+#[template(resource = "/com/jakobwaibel/Rusant/rusant-call-pane.ui")]
+pub struct CallPaneTemplate {
     #[template_child]
     pub header_bar: TemplateChild<HeaderBar>,
 
@@ -44,10 +40,10 @@ pub struct CallSectionTemplate {
 }
 
 #[object_subclass]
-impl ObjectSubclass for CallSectionTemplate {
-    const NAME: &'static str = "CallSection";
+impl ObjectSubclass for CallPaneTemplate {
+    const NAME: &'static str = "CallPane";
 
-    type Type = CallSection;
+    type Type = CallPane;
     type ParentType = Box;
 
     fn class_init(my_class: &mut Self::Class) {
@@ -59,11 +55,11 @@ impl ObjectSubclass for CallSectionTemplate {
     }
 }
 
-impl ObjectImpl for CallSectionTemplate {
+impl ObjectImpl for CallPaneTemplate {
     fn constructed(&self) {
         self.parent_constructed();
 
-          let pipeline = gst::Pipeline::default();
+        let pipeline = gst::Pipeline::default();
 
         let src = gst::ElementFactory::make("v4l2src").build().unwrap();
 
@@ -167,5 +163,5 @@ impl ObjectImpl for CallSectionTemplate {
     }
 }
 
-impl WidgetImpl for CallSectionTemplate {}
-impl BoxImpl for CallSectionTemplate {}
+impl WidgetImpl for CallPaneTemplate {}
+impl BoxImpl for CallPaneTemplate {}
