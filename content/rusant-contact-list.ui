@@ -25,11 +25,21 @@
                                 <property name="title">Contacts</property>
                             </object>
                         </property>
+                        <child>
+                          <object class="GtkButton" id="cancel_button">
+                            <property name="visible">False</property>
+                            <property name="label" translatable="yes">_Cancel</property>
+                            <property name="use_underline">True</property>
+                            <!-- <signal name="notify::visible" handler="on_cancel_visible" object="MainWindow" after="yes" swapped="no"/> -->
+                            <!-- <property name="action-name">win.stop-editing-contact</property>
+                            <property name="action-target">true</property> -->
+                          </object>
+                        </child>
                         <child type="start">
                             <object class="GtkButton" id="add_button">
                                 <property name="tooltip-text" translatable="yes">Create new contact</property>
                                 <property name="icon-name">list-add-symbolic</property>
-                                <property name="action-name">win.new-contact</property>
+                                <!-- <property name="action-name">win.new-contact</property> -->
                             </object>
                         </child>
                         <child type="end">
@@ -47,6 +57,7 @@
                             <object class="GtkButton" id="selection_button">
                                 <property name="icon-name">selection-mode-symbolic</property>
                                 <property name="tooltip-text" translatable="yes">Select Items</property>
+                                <!-- <signal name="clicked" handler="on_selection_button_clicked"/> -->
                             </object>
                         </child>
                         <child type="end">
@@ -74,6 +85,31 @@
                         <style>
                             <class name="contacts-contact-list" />
                         </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkActionBar" id="actions_bar">
+                        <property name="revealed">False</property>
+                        <child>
+                        <object class="GtkButton" id="call_button">
+                            <property name="label" translatable="yes" comments="Call refers to the verb">Call</property>
+                            <property name="tooltip-text" translatable="yes">Start a group call with the selected contacts</property>
+                            <style>
+                                <class name="suggested-action" />
+                            </style>
+                            <!-- <property name="action-name">win.start-group-call</property> -->
+                        </object>
+                        </child>
+                        <child type="end">
+                        <object class="GtkButton" id="delete_button">
+                            <property name="focus_on_click">False</property>
+                            <property name="label" translatable="yes">Remove</property>
+                            <!-- <property name="action-name">win.delete-marked-contacts</property> -->
+                            <style>
+                                <class name="destructive-action"/>
+                            </style>
+                        </object>
+                        </child>
                     </object>
                 </child>
             </object>

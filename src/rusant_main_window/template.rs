@@ -1,10 +1,13 @@
 use super::MainWindow;
 use super::*;
 
+use std::cell::Cell;
+
 use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::ContactItem};
 use crate::rusant_call_pane::CallPane;
 use crate::rusant_contact_list::template::ContactListTemplate;
 use crate::rusant_contact_list::ContactList;
+use crate::utils::UiState;
 
 use glib::{
     self, object_subclass,
@@ -44,6 +47,8 @@ pub struct MainWindowTemplate {
 
     #[template_child]
     pub call_section: TemplateChild<CallPane>,
+
+    state: Cell<UiState>,
 }
 
 #[object_subclass]
