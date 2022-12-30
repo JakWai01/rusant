@@ -9,7 +9,7 @@
         <property name="can-navigate-back">True</property>
         <property name="visible-child">call_section</property>
         <child>
-          <object class="ContactPane" id="contact_list" />
+          <object class="ContactList" id="contact_list" />
         </child>
         <child>
           <object class="AdwLeafletPage">

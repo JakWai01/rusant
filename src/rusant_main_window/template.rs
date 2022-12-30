@@ -1,10 +1,10 @@
 use super::MainWindow;
 use super::*;
 
-use crate::rusant_call_pane::template::CallPaneTemplate;
+use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::ContactItem};
 use crate::rusant_call_pane::CallPane;
-use crate::rusant_contact_pane::template::ContactPaneTemplate;
-use crate::rusant_contact_pane::ContactPane;
+use crate::rusant_contact_list::template::ContactListTemplate;
+use crate::rusant_contact_list::ContactList;
 
 use glib::{
     self, object_subclass,
@@ -40,7 +40,7 @@ pub struct MainWindowTemplate {
     pub leaflet: TemplateChild<Leaflet>,
 
     #[template_child]
-    pub contact_list: TemplateChild<ContactPane>,
+    pub contact_list: TemplateChild<ContactList>,
 
     #[template_child]
     pub call_section: TemplateChild<CallPane>,
@@ -54,7 +54,7 @@ impl ObjectSubclass for MainWindowTemplate {
     type ParentType = ApplicationWindow;
 
     fn class_init(my_class: &mut Self::Class) {
-        ContactPane::ensure_type();
+        ContactList::ensure_type();
         CallPane::ensure_type();
 
         Self::bind_template(my_class);
@@ -73,7 +73,7 @@ impl ObjectImpl for MainWindowTemplate {
         let call_section_template = CallPaneTemplate::from_instance(&call_section);
 
         let contact_list = self.contact_list.get();
-        let contact_list_template = ContactPaneTemplate::from_instance(&contact_list);
+        let contact_list_template = ContactListTemplate::from_instance(&contact_list);
 
         self.leaflet.property_expression("folded").bind(
             &call_section_template.header_bar.get(),
@@ -92,6 +92,9 @@ impl ObjectImpl for MainWindowTemplate {
             "show-end-title-buttons",
             Widget::NONE,
         );
+
+        let contact_model = vec![ContactItem::new("Jakob"), ContactItem::new("Felicitas"), ContactItem::new("Daniel")];
+        self.contact_list.set_model(contact_model);
     }
 }
 

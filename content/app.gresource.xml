@@ -3,7 +3,7 @@
     <gresource prefix="/com/jakobwaibel/Rusant/">
         <file compressed="true" preprocess="xml-stripblanks">rusant-main-window.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">rusant-call-pane.ui</file>
-        <file compressed="true" preprocess="xml-stripblanks">rusant-contact-pane.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">rusant-contact-list.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">rusant-contact-item.ui</file>
         <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">rusant-help-overlay.ui</file>
         <file compressed="true">style.css</file>

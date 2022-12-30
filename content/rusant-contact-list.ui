@@ -14,7 +14,7 @@
             <attribute name="action">app.about</attribute>
         </item>
     </menu>
-    <template class="ContactPane" parent="GtkBox">
+    <template class="ContactList" parent="GtkBox">
         <child>
             <object class="GtkBox">
                 <property name="orientation">vertical</property>
@@ -67,19 +67,13 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkListBox" id="tasks_list">
+                    <object class="GtkListBox" id="list_box">
                         <property name="selection-mode">none</property>
                         <property name="vexpand">True</property>
                         <property name="hexpand">True</property>
                         <style>
                             <class name="contacts-contact-list" />
                         </style>
-                        <child>
-                            <object class="ContactItem" id="contact_item" />
-                        </child>
-                        <child>
-                            <object class="ContactItem" />
-                        </child>
                     </object>
                 </child>
             </object>

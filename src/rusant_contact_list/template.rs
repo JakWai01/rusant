@@ -1,4 +1,4 @@
-use super::ContactPane;
+use super::ContactList;
 
 use crate::rusant_contact_item::ContactItem;
 
@@ -20,24 +20,24 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, CompositeTemplate,
+    Box, CompositeTemplate, ListBox
 };
 
 #[derive(CompositeTemplate, Default)]
-#[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-pane.ui")]
-pub struct ContactPaneTemplate {
-    #[template_child]
-    pub contact_item: TemplateChild<ContactItem>,
-
+#[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-list.ui")]
+pub struct ContactListTemplate {
     #[template_child]
     pub header_bar: TemplateChild<HeaderBar>,
+
+    #[template_child]
+    pub list_box: TemplateChild<ListBox>,
 }
 
 #[object_subclass]
-impl ObjectSubclass for ContactPaneTemplate {
-    const NAME: &'static str = "ContactPane";
+impl ObjectSubclass for ContactListTemplate {
+    const NAME: &'static str = "ContactList";
 
-    type Type = ContactPane;
+    type Type = ContactList;
     type ParentType = Box;
 
     fn class_init(my_class: &mut Self::Class) {
@@ -51,11 +51,11 @@ impl ObjectSubclass for ContactPaneTemplate {
     }
 }
 
-impl ObjectImpl for ContactPaneTemplate {
+impl ObjectImpl for ContactListTemplate {
     fn constructed(&self) {
         self.parent_constructed();
     }
 }
 
-impl WidgetImpl for ContactPaneTemplate {}
-impl BoxImpl for ContactPaneTemplate {}
+impl WidgetImpl for ContactListTemplate {}
+impl BoxImpl for ContactListTemplate {}
