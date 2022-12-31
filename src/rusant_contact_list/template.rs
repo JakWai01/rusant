@@ -1,3 +1,5 @@
+use glib::clone;
+
 use super::ContactList;
 
 use crate::rusant_contact_item::ContactItem;
@@ -73,25 +75,27 @@ impl ObjectImpl for ContactListTemplate {
     fn constructed(&self) {
         self.parent_constructed();
 
-        let action_bar = self.action_bar.get();
+        self.selection_button.connect_clicked(clone!(@weak self as contact_list => move |_| {
+            contact_list.action_bar.set_revealed(true);
 
-        let add_button = self.add_button.get();
-        let title = self.title.get();
-        let selection_button = self.selection_button.get();
-        let menu = self.menu.get();
+            contact_list.add_button.set_visible(false);
+            contact_list.title.set_title("0 selected");
+            contact_list.selection_button.set_visible(false);
+            contact_list.menu.set_visible(false);
 
-        let select_cancel_button = self.select_cancel_button.get();
+            contact_list.select_cancel_button.set_visible(true);
+        }));
 
-        self.selection_button.connect_clicked(move |button| {
-            action_bar.set_revealed(true);
+        self.select_cancel_button.connect_clicked(clone!(@weak self as contact_list => move |_| {
+            contact_list.action_bar.set_revealed(false);
 
-            add_button.set_visible(false);
-            title.set_title("0 selected");
-            selection_button.set_visible(false);
-            menu.set_visible(false);
+            contact_list.add_button.set_visible(true);
+            contact_list.title.set_title("Contacts");
+            contact_list.selection_button.set_visible(true);
+            contact_list.menu.set_visible(true);
 
-            select_cancel_button.set_visible(true);
-        });
+            contact_list.select_cancel_button.set_visible(false);
+        }));
     }
 }
 
