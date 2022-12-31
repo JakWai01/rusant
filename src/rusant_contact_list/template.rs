@@ -28,6 +28,9 @@ use gtk::{
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-list.ui")]
 pub struct ContactListTemplate {
+    // #[template_child]
+    // pub contact_item: TemplateChild<ContactItem>,
+
     #[template_child]
     pub header_bar: TemplateChild<HeaderBar>,
 

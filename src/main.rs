@@ -5,7 +5,6 @@ mod rusant_main_window;
 mod ports;
 mod receiver;
 mod sender;
-mod utils;
 
 use rusant_main_window::MainWindow;
 

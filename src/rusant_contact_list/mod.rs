@@ -1,12 +1,12 @@
 pub mod template;
 
-use crate::rusant_contact_item::ContactItem;
+use crate::{rusant_contact_item::ContactItem, rusant_call_pane::CallPane};
 
 use self::template::ContactListTemplate;
 
-use gio::{ListStore, subclass::prelude::ObjectSubclassExt};
-use glib::{wrapper, StaticType, ObjectExt};
-use gtk::{Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget, SingleSelection, traits::WidgetExt};
+use gio::{ListStore, subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt}};
+use glib::{wrapper, StaticType, ObjectExt, clone};
+use gtk::{Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget, SingleSelection, traits::{WidgetExt, ButtonExt}};
 
 wrapper! {
     pub struct ContactList(ObjectSubclass<ContactListTemplate>)
@@ -42,10 +42,14 @@ impl ContactList {
 
             contact_item.avatar().set_text(Some(&name));
             contact_item.label().set_label(&name);
-             
+
             let result = contact_item.ancestor(Widget::static_type());
 
             result.unwrap()
-        });
+        });  
     }
+
+    // pub fn contact_item(&self) -> ContactItem {
+    //     self.imp().contact_item.get()
+    // }
 }

@@ -20,7 +20,19 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkBox">
+                    <object class="AdwStatusPage" id="placeholder">
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="title">Welcome</property>
+                        <property name="description" translatable="yes">Start a call by clicking on the appropriate button in the contacts list. You may also start a group call by selecting multiple contacts.</property>
+                        <property name="child">
+                            <object class="AdwClamp" id="clamp" />
+                        </property>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox" id="call_box">
+                        <property name="visible">False</property>
                         <property name="hexpand">True</property>
                         <property name="vexpand">True</property>
                         <property name="margin-start">48</property>
@@ -43,7 +55,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkActionBar" id="actions_bar">
+                    <object class="GtkActionBar" id="action_bar">
                         <child type="center">
                             <object class="GtkBox">
                                 <child>

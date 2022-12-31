@@ -24,4 +24,12 @@ impl ContactItem {
     pub fn label(&self) -> gtk::Label {
         self.imp().label.get()
     }
+
+    pub fn call(&self) -> gtk::Button {
+        self.imp().call.get()
+    }
+
+    pub fn video_call(&self) -> gtk::Button {
+        self.imp().video_call.get()
+    }
 }

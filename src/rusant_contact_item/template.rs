@@ -1,3 +1,5 @@
+use crate::rusant_main_window::MainWindow;
+
 use super::ContactItem;
 
 use std::cell::Cell;
@@ -8,16 +10,16 @@ use glib::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
         InitializingObject,
-    }, ParamSpec, once_cell::sync::Lazy, ParamSpecString, ParamFlags, Value, ToValue
+    }, ParamSpec, once_cell::sync::Lazy, ParamSpecString, ParamFlags, Value, ToValue, clone
 };
 
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
         prelude::{BoxImpl, WidgetImpl},
-        widget::CompositeTemplate,
+        widget::{CompositeTemplate, WidgetImplExt},
     },
-    Box, CompositeTemplate, TemplateChild, Label,
+    Box, CompositeTemplate, TemplateChild, Label, Button, traits::ButtonExt, ffi::gtk_widget_get_next_sibling
 };
 
 use libadwaita::Avatar;
@@ -33,6 +35,12 @@ pub struct ContactItemTemplate {
 
     #[template_child]
     pub label: TemplateChild<Label>,
+
+    #[template_child]
+    pub call: TemplateChild<Button>,
+
+    #[template_child]
+    pub video_call: TemplateChild<Button>,
 }
 
 #[object_subclass]
@@ -56,9 +64,16 @@ impl ObjectImpl for ContactItemTemplate {
         self.parent_constructed();
         
         let contact_name = self.name.take();
-        println!("{}", &contact_name);
         self.avatar.set_text(Some(&contact_name));
         self.label.set_label(&contact_name);
+
+        self.video_call.connect_clicked(move |_| {
+            println!("clicked!");
+        });
+
+        self.call.connect_clicked(clone!(@strong self as item => move |_| {
+            println!("call click!");
+        }));
     }
     
     fn properties() -> &'static [ParamSpec] {

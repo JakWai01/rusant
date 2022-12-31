@@ -7,8 +7,8 @@ use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::C
 use crate::rusant_call_pane::CallPane;
 use crate::rusant_contact_list::template::ContactListTemplate;
 use crate::rusant_contact_list::ContactList;
-use crate::utils::UiState;
 
+use glib::clone;
 use glib::{
     self, object_subclass,
     subclass::{
@@ -21,6 +21,7 @@ use glib::{
 
 use gst::prelude::*;
 
+use gtk::traits::{ButtonExt, WidgetExt};
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -46,7 +47,7 @@ pub struct MainWindowTemplate {
     pub contact_list: TemplateChild<ContactList>,
 
     #[template_child]
-    pub call_section: TemplateChild<CallPane>,
+    pub call_pane: TemplateChild<CallPane>,
 }
 
 #[object_subclass]
@@ -72,20 +73,20 @@ impl ObjectImpl for MainWindowTemplate {
     fn constructed(&self) {
         self.parent_constructed();
 
-        let call_section = self.call_section.get();
-        let call_section_template = CallPaneTemplate::from_instance(&call_section);
+        let call_pane = self.call_pane.get();
+        let call_pane_template = CallPaneTemplate::from_instance(&call_pane);
 
         let contact_list = self.contact_list.get();
         let contact_list_template = ContactListTemplate::from_instance(&contact_list);
 
         self.leaflet.property_expression("folded").bind(
-            &call_section_template.header_bar.get(),
+            &call_pane_template.header_bar.get(),
             "show-start-title-buttons",
             Widget::NONE,
         );
 
         self.leaflet.property_expression("folded").bind(
-            &call_section_template.back_button.get(),
+            &call_pane_template.back_button.get(),
             "visible",
             Widget::NONE,
         );
@@ -96,8 +97,15 @@ impl ObjectImpl for MainWindowTemplate {
             Widget::NONE,
         );
 
+        // Get data from data provider
         let contact_model = vec![ContactItem::new("Jakob"), ContactItem::new("Felicitas"), ContactItem::new("Daniel")];
         self.contact_list.set_model(contact_model);
+
+        // contact.call().connect_clicked(clone!(@weak self as win => move |_| {
+        //     // win.call_pane.get().call_box().set_visible(true);
+        //     // win.call_pane.get().placeholder().set_visible(false);
+        //     println!("Test");
+        // }));
     }
 }
 

@@ -2,7 +2,7 @@ use super::CallPane;
 
 use std::thread;
 
-use libadwaita::HeaderBar;
+use libadwaita::{HeaderBar, StatusPage};
 
 use glib::{
     self, object_subclass,
@@ -23,7 +23,7 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, Button, CompositeTemplate, FlowBox,
+    Box, Button, CompositeTemplate, FlowBox, ActionBar
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -37,6 +37,15 @@ pub struct CallPaneTemplate {
 
     #[template_child]
     pub grid: TemplateChild<FlowBox>,
+
+    #[template_child]
+    pub placeholder: TemplateChild<StatusPage>,
+
+    #[template_child]
+    pub call_box: TemplateChild<Box>,
+
+    #[template_child]
+    pub action_bar: TemplateChild<ActionBar>,
 }
 
 #[object_subclass]

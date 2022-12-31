@@ -2,7 +2,7 @@
 <interface>
     <template class="ContactItem" parent="GtkBox">
         <child>
-            <object class="GtkBox">
+            <object class="GtkBox" id="contact_item">
                 <property name="spacing">12</property>
                 <property name="orientation">horizontal</property>
                 <property name="margin-start">6</property>
@@ -19,7 +19,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkButton">
+                    <object class="GtkButton" id="call">
                         <property name="icon-name">call-start</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>
@@ -30,7 +30,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkButton">
+                    <object class="GtkButton" id="video_call">
                         <property name="icon-name">camera-video</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>
