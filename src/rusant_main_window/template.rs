@@ -47,8 +47,6 @@ pub struct MainWindowTemplate {
 
     #[template_child]
     pub call_section: TemplateChild<CallPane>,
-
-    state: Cell<UiState>,
 }
 
 #[object_subclass]

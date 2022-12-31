@@ -10,7 +10,7 @@ mod utils;
 use rusant_main_window::MainWindow;
 
 use config::Config;
-use glib::clone;
+use glib::{clone, ObjectExt, ParamSpec};
 use gtk::{
     gdk::Display, glib, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt,
     CssProvider, StyleContext,

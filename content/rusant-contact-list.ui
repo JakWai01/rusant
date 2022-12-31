@@ -21,20 +21,10 @@
                 <child>
                     <object class="AdwHeaderBar" id="header_bar">
                         <property name="title-widget">
-                            <object class="AdwWindowTitle">
+                            <object class="AdwWindowTitle" id="title">
                                 <property name="title">Contacts</property>
                             </object>
                         </property>
-                        <child>
-                          <object class="GtkButton" id="cancel_button">
-                            <property name="visible">False</property>
-                            <property name="label" translatable="yes">_Cancel</property>
-                            <property name="use_underline">True</property>
-                            <!-- <signal name="notify::visible" handler="on_cancel_visible" object="MainWindow" after="yes" swapped="no"/> -->
-                            <!-- <property name="action-name">win.stop-editing-contact</property>
-                            <property name="action-target">true</property> -->
-                          </object>
-                        </child>
                         <child type="start">
                             <object class="GtkButton" id="add_button">
                                 <property name="tooltip-text" translatable="yes">Create new contact</property>
@@ -88,7 +78,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkActionBar" id="actions_bar">
+                    <object class="GtkActionBar" id="action_bar">
                         <property name="revealed">False</property>
                         <child>
                         <object class="GtkButton" id="call_button">

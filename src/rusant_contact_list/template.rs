@@ -2,7 +2,7 @@ use super::ContactList;
 
 use crate::rusant_contact_item::ContactItem;
 
-use libadwaita::HeaderBar;
+use libadwaita::{HeaderBar, WindowTitle};
 
 use glib::{
     self, object_subclass,
@@ -20,7 +20,7 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, CompositeTemplate, ListBox
+    Box, CompositeTemplate, ListBox, Button, traits::{ButtonExt, WidgetExt}, ActionBar, MenuButton
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -31,6 +31,24 @@ pub struct ContactListTemplate {
 
     #[template_child]
     pub list_box: TemplateChild<ListBox>,
+
+    #[template_child]
+    pub selection_button: TemplateChild<Button>,
+
+    #[template_child]
+    pub action_bar: TemplateChild<ActionBar>,
+
+    #[template_child]
+    pub title: TemplateChild<WindowTitle>,
+
+    #[template_child]
+    pub select_cancel_button: TemplateChild<Button>,
+
+    #[template_child]
+    pub add_button: TemplateChild<Button>,
+
+    #[template_child]
+    pub menu: TemplateChild<MenuButton>,
 }
 
 #[object_subclass]
@@ -54,6 +72,26 @@ impl ObjectSubclass for ContactListTemplate {
 impl ObjectImpl for ContactListTemplate {
     fn constructed(&self) {
         self.parent_constructed();
+
+        let action_bar = self.action_bar.get();
+
+        let add_button = self.add_button.get();
+        let title = self.title.get();
+        let selection_button = self.selection_button.get();
+        let menu = self.menu.get();
+
+        let select_cancel_button = self.select_cancel_button.get();
+
+        self.selection_button.connect_clicked(move |button| {
+            action_bar.set_revealed(true);
+
+            add_button.set_visible(false);
+            title.set_title("0 selected");
+            selection_button.set_visible(false);
+            menu.set_visible(false);
+
+            select_cancel_button.set_visible(true);
+        });
     }
 }
 
