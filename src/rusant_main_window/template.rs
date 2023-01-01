@@ -99,7 +99,7 @@ impl ObjectImpl for MainWindowTemplate {
 
         // Get data from data provider
         let contact_model = vec![ContactItem::new("Jakob"), ContactItem::new("Felicitas"), ContactItem::new("Daniel")];
-        self.contact_list.set_model(contact_model);
+        self.contact_list.set_model(contact_model, &call_pane);
 
         // contact.call().connect_clicked(clone!(@weak self as win => move |_| {
         //     // win.call_pane.get().call_box().set_visible(true);

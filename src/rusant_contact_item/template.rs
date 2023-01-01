@@ -71,9 +71,9 @@ impl ObjectImpl for ContactItemTemplate {
             println!("clicked!");
         });
 
-        self.call.connect_clicked(clone!(@strong self as item => move |_| {
-            println!("call click!");
-        }));
+        // self.call.connect_clicked(clone!(@strong self as item => move |_| {
+        //     println!("call click!");
+        // }));
     }
     
     fn properties() -> &'static [ParamSpec] {

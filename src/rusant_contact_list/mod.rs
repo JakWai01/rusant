@@ -25,7 +25,7 @@ impl ContactList {
         glib::Object::new(&[])
     }
 
-    pub fn set_model(&self, model: Vec<ContactItem>) {
+    pub fn set_model(&self, model: Vec<ContactItem>, call_pane: &CallPane) {
         let template = ContactListTemplate::from_instance(self);
         let list_store_model = ListStore::new(ContactItem::static_type());
 
@@ -35,18 +35,18 @@ impl ContactList {
 
         let selection_model = SingleSelection::new(Some(&list_store_model));
 
-        template.list_box.bind_model(Some(&selection_model), |x| {
+        template.list_box.bind_model(Some(&selection_model), clone!(@strong call_pane => move |x| {
             let name: String = x.property("name");
             
             let contact_item = ContactItem::new(&name);
-
+            contact_item.handle_call_click(&call_pane);
             contact_item.avatar().set_text(Some(&name));
             contact_item.label().set_label(&name);
 
             let result = contact_item.ancestor(Widget::static_type());
 
             result.unwrap()
-        });  
+        }));  
     }
 
     // pub fn contact_item(&self) -> ContactItem {

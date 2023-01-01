@@ -1,10 +1,15 @@
 pub mod template;
 
+use crate::rusant_call_pane::CallPane;
+
 use self::template::ContactItemTemplate;
 
-use gio::subclass::prelude::ObjectSubclassIsExt;
-use glib::wrapper;
-use gtk::{Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget};
+use gio::subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt};
+use glib::{clone, wrapper};
+use gtk::{
+    traits::{ButtonExt, WidgetExt},
+    Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
+};
 
 wrapper! {
     pub struct ContactItem(ObjectSubclass<ContactItemTemplate>)
@@ -31,5 +36,15 @@ impl ContactItem {
 
     pub fn video_call(&self) -> gtk::Button {
         self.imp().video_call.get()
+    }
+
+    pub fn handle_call_click(&self, call_pane: &CallPane) {
+        let imp = ContactItemTemplate::from_instance(&self);
+        imp.call
+            .connect_clicked(clone!(@strong call_pane => move |_| {
+                println!("call click!");
+                call_pane.call_box().set_visible(true);
+                call_pane.placeholder().set_visible(false);
+            }));
     }
 }
