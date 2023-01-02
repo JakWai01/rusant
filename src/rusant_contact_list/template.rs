@@ -82,7 +82,7 @@ impl ObjectImpl for ContactListTemplate {
             contact_list.action_bar.set_revealed(true);
 
             contact_list.add_button.set_visible(false);
-            contact_list.title.set_title("0 selected");
+            contact_list.title.set_title("0 Selected");
             contact_list.selection_button.set_visible(false);
             contact_list.menu.set_visible(false);
 

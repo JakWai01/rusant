@@ -21,13 +21,14 @@
                 </child>
                 <child>
                     <object class="AdwStatusPage" id="placeholder">
+                        <property name="margin-start">48</property>
+                        <property name="margin-end">48</property>
+                        <property name="margin-top">48</property>
+                        <property name="margin-bottom">48</property>
                         <property name="hexpand">True</property>
                         <property name="vexpand">True</property>
                         <property name="title">Welcome</property>
                         <property name="description" translatable="yes">Start a call by clicking on the appropriate button in the contacts list. You may also start a group call by selecting multiple contacts.</property>
-                        <property name="child">
-                            <object class="AdwClamp" id="clamp" />
-                        </property>
                     </object>
                 </child>
                 <child>
@@ -56,22 +57,23 @@
                 </child>
                 <child>
                     <object class="GtkActionBar" id="action_bar">
+                        <property name="visible">False</property>
                         <child type="center">
                             <object class="GtkBox">
                                 <child>
-                                    <object class="GtkButton">
+                                    <object class="GtkButton" id="camera_video">
                                         <property name="margin-end">12</property>
                                         <property name="icon-name">camera-video</property>
                                         <property name="tooltip-text" translatable="yes">Play the
                                             Previous Song</property>
                                         <style>
                                             <class name="circular" />
-                                            <class name="suggested-action" />
+                                            <!-- <class name="suggested-action" /> -->
                                         </style>
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkButton">
+                                    <object class="GtkButton" id="audio_input_microphone">
                                         <property name="icon-name">audio-input-microphone</property>
                                         <property name="tooltip-text" translatable="yes">Play the
                                             Previous Song</property>
@@ -81,7 +83,7 @@
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkButton">
+                                    <object class="GtkButton" id="call_stop">
                                         <property name="margin-start">12</property>
                                         <property name="icon-name">call-stop</property>
                                         <property name="tooltip-text" translatable="yes">Play the

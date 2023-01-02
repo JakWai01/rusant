@@ -42,9 +42,19 @@ impl ContactItem {
         let imp = ContactItemTemplate::from_instance(&self);
         imp.call
             .connect_clicked(clone!(@strong call_pane => move |_| {
-                println!("call click!");
                 call_pane.call_box().set_visible(true);
                 call_pane.placeholder().set_visible(false);
+                call_pane.action_bar().set_visible(true);
+            }));
+    }
+
+    pub fn handle_video_call_click(&self, call_pane: &CallPane) {
+        let imp = ContactItemTemplate::from_instance(&self);
+        imp.video_call
+            .connect_clicked(clone!(@strong call_pane => move |_| {
+                call_pane.call_box().set_visible(true);
+                call_pane.placeholder().set_visible(false);
+                call_pane.action_bar().set_visible(true);
             }));
     }
 }

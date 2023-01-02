@@ -71,7 +71,6 @@
                     <object class="GtkListBox" id="list_box">
                         <property name="selection-mode">none</property>
                         <property name="vexpand">True</property>
-                        <property name="hexpand">True</property>
                         <style>
                             <class name="contacts-contact-list" />
                         </style>

@@ -11,7 +11,7 @@ use glib::{
         types::ObjectSubclass,
         InitializingObject,
     },
-    ObjectExt,
+    ObjectExt, clone,
 };
 
 use gst::{prelude::GstBinExtManual, traits::ElementExt};
@@ -23,7 +23,7 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, Button, CompositeTemplate, FlowBox, ActionBar
+    Box, Button, CompositeTemplate, FlowBox, ActionBar, traits::{ButtonExt, WidgetExt}
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -46,6 +46,15 @@ pub struct CallPaneTemplate {
 
     #[template_child]
     pub action_bar: TemplateChild<ActionBar>,
+
+    #[template_child]
+    pub camera_video: TemplateChild<Button>,
+
+    #[template_child]
+    pub audio_input_microphone: TemplateChild<Button>,
+
+    #[template_child]
+    pub call_stop: TemplateChild<Button>,
 }
 
 #[object_subclass]
@@ -67,6 +76,30 @@ impl ObjectSubclass for CallPaneTemplate {
 impl ObjectImpl for CallPaneTemplate {
     fn constructed(&self) {
         self.parent_constructed();
+
+        self.camera_video.connect_clicked(move |button| {
+            let css_class = "suggested-action";
+            if button.has_css_class(css_class) {
+                button.remove_css_class(css_class);
+            } else {
+                button.add_css_class(css_class);
+            }
+        });
+
+        self.audio_input_microphone.connect_clicked(move |button| {
+            let css_class = "suggested-action";
+            if button.has_css_class(css_class) {
+                button.remove_css_class(css_class);
+            } else {
+                button.add_css_class(css_class);
+            }
+        });
+
+        self.call_stop.connect_clicked(clone!(@weak self as this => move |_| {
+            this.placeholder.set_visible(true);
+            this.action_bar.set_visible(false);
+            this.call_box.set_visible(false);
+        }));
 
         let pipeline = gst::Pipeline::default();
 

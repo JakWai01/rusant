@@ -66,16 +66,8 @@ impl ObjectImpl for ContactItemTemplate {
         let contact_name = self.name.take();
         self.avatar.set_text(Some(&contact_name));
         self.label.set_label(&contact_name);
-
-        self.video_call.connect_clicked(move |_| {
-            println!("clicked!");
-        });
-
-        // self.call.connect_clicked(clone!(@strong self as item => move |_| {
-        //     println!("call click!");
-        // }));
     }
-    
+
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
             vec![

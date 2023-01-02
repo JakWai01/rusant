@@ -40,6 +40,7 @@ impl ContactList {
             
             let contact_item = ContactItem::new(&name);
             contact_item.handle_call_click(&call_pane);
+            contact_item.handle_video_call_click(&call_pane);
             contact_item.avatar().set_text(Some(&name));
             contact_item.label().set_label(&name);
 
