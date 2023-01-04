@@ -20,6 +20,7 @@
                 <property name="orientation">vertical</property>
                 <child>
                     <object class="AdwHeaderBar" id="header_bar">
+                        <property name="hexpand">False</property>
                         <property name="title-widget">
                             <object class="AdwWindowTitle" id="title">
                                 <property name="title">Contacts</property>
@@ -60,6 +61,21 @@
                     </object>
                 </child>
                 <child>
+                    <object class="GtkDialog" id="dialog1">
+                        <child type="action">
+                            <object class="GtkButton" id="button_cancel" />
+                        </child>
+                        <child type="action">
+                            <object class="GtkButton" id="button_ok">
+                            </object>
+                        </child>
+                        <action-widgets>
+                            <action-widget response="cancel">button_cancel</action-widget>
+                            <action-widget response="ok" default="true">button_ok</action-widget>
+                        </action-widgets>
+                    </object>
+                </child>
+                <child>
                     <object class="GtkSearchEntry" id="filter_entry">
                         <property name="placeholder-text" translatable="yes">Type to search</property>
                         <style>
@@ -80,24 +96,27 @@
                     <object class="GtkActionBar" id="action_bar">
                         <property name="revealed">False</property>
                         <child>
-                        <object class="GtkButton" id="call_button">
-                            <property name="label" translatable="yes" comments="Call refers to the verb">Call</property>
-                            <property name="tooltip-text" translatable="yes">Start a group call with the selected contacts</property>
-                            <style>
-                                <class name="suggested-action" />
-                            </style>
-                            <!-- <property name="action-name">win.start-group-call</property> -->
-                        </object>
+                            <object class="GtkButton" id="call_button">
+                                <property name="label" translatable="yes"
+                                    comments="Call refers to the verb">Call</property>
+                                <property name="tooltip-text" translatable="yes">Start a group call
+                                    with the selected contacts</property>
+                                <style>
+                                    <class name="suggested-action" />
+                                </style>
+                                <!-- <property name="action-name">win.start-group-call</property> -->
+                            </object>
                         </child>
                         <child type="end">
-                        <object class="GtkButton" id="delete_button">
-                            <property name="focus_on_click">False</property>
-                            <property name="label" translatable="yes">Remove</property>
-                            <!-- <property name="action-name">win.delete-marked-contacts</property> -->
-                            <style>
-                                <class name="destructive-action"/>
-                            </style>
-                        </object>
+                            <object class="GtkButton" id="delete_button">
+                                <property name="focus_on_click">False</property>
+                                <property name="label" translatable="yes">Remove</property>
+                                <!-- <property
+                                name="action-name">win.delete-marked-contacts</property> -->
+                                <style>
+                                    <class name="destructive-action" />
+                                </style>
+                            </object>
                         </child>
                     </object>
                 </child>

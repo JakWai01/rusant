@@ -185,7 +185,7 @@ impl ObjectImpl for CallPaneTemplate {
 
         self.grid.insert(&picture, 0);
         self.grid.insert(&picture_test, 1);
-        self.grid.insert(&picture_demo, 2);
+        // self.grid.insert(&picture_demo, 2);
 
         thread::spawn(move || {
             pipeline

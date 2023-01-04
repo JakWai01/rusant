@@ -5,8 +5,9 @@ use crate::{rusant_contact_item::ContactItem, rusant_call_pane::CallPane};
 use self::template::ContactListTemplate;
 
 use gio::{ListStore, subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt}};
-use glib::{wrapper, StaticType, ObjectExt, clone};
-use gtk::{Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget, SingleSelection, traits::{WidgetExt, ButtonExt}};
+use glib::{wrapper, StaticType, ObjectExt, clone, Cast};
+use gtk::{Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget, SingleSelection, traits::{WidgetExt, ButtonExt, GtkWindowExt, EditableExt}};
+use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt};
 
 wrapper! {
     pub struct ContactList(ObjectSubclass<ContactListTemplate>)
@@ -50,7 +51,27 @@ impl ContactList {
         }));  
     }
 
-    // pub fn contact_item(&self) -> ContactItem {
-    //     self.imp().contact_item.get()
-    // }
+    pub async fn show_add_contact_dialog(&self) {
+        let builder = gtk::Builder::from_resource("/com/jakobwaibel/Rusant/rusant-contact-dialog.ui");
+        let dialog = builder.object::<libadwaita::MessageDialog>("dialog").unwrap();
+        let entry = builder.object::<gtk::Entry>("entry").unwrap();
+
+        entry.connect_changed(clone!(@weak self as obj, @weak dialog => move |entry| {
+            let contact = entry.text();
+            dialog.set_response_enabled("add", true);
+
+            println!("{:?}", contact);
+        }));
+
+        dialog.set_transient_for(self.parent_window().as_ref());
+        if dialog.run_future().await == "add" {
+            println!("Add future result");
+        };
+    }
+
+    /// Returns the parent GtkWindow containing this widget.
+    fn parent_window(&self) -> Option<gtk::Window> {
+        self.root()?.downcast().ok()
+    }
+
 }

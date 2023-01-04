@@ -1,8 +1,9 @@
 use glib::clone;
+use gtk_macros::spawn;
 
 use super::ContactList;
 
-use crate::rusant_contact_item::ContactItem;
+use crate::{rusant_contact_item::ContactItem, rusant_contact_dialog::ContactDialog};
 
 use libadwaita::{HeaderBar, WindowTitle};
 
@@ -22,7 +23,7 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, CompositeTemplate, ListBox, Button, traits::{ButtonExt, WidgetExt}, ActionBar, MenuButton
+    Box, CompositeTemplate, ListBox, Button, traits::{ButtonExt, WidgetExt, GtkWindowExt}, ActionBar, MenuButton, ffi::gtk_builder_add_from_resource
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -67,6 +68,20 @@ impl ObjectSubclass for ContactListTemplate {
         ContactItem::ensure_type();
 
         Self::bind_template(my_class);
+
+        // my_class.show_add_contact_dialog().await;
+        // .add_button.connect_clicked(move |_| {
+        //     println!("clicked add button");
+        //     spawn!(clone!(@weak self as this => async move {
+        //         this.show_add_contact_dialog().await;
+        //     }));
+        // });
+
+        my_class.install_action("contacts.add", None, move |widget, _, _| {
+            spawn!(clone!(@weak widget => async move {
+                widget.show_add_contact_dialog().await;
+            }));
+        })
     }
 
     fn instance_init(obj: &InitializingObject<Self>) {
@@ -99,6 +114,11 @@ impl ObjectImpl for ContactListTemplate {
 
             contact_list.select_cancel_button.set_visible(false);
         }));
+
+        self.add_button.connect_clicked(move |button| {
+            println!("Add button clicked!");
+            button.activate_action("contacts.add", None).expect("The action does not exist");
+        });
     }
 }
 

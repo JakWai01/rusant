@@ -1,6 +1,7 @@
 mod rusant_call_pane;
 mod rusant_contact_list;
 mod rusant_contact_item;
+mod rusant_contact_dialog;
 mod rusant_main_window;
 mod ports;
 mod receiver;

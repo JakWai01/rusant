@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="AdwMessageDialog" id="dialog">
+    <property name="heading" translatable="yes">Create a Contact</property>
+    <property name="body" translatable="yes">Enter a name and a socket.</property>
+    <property name="default-response">add</property>
+    <property name="close-response">cancel</property>
+    <responses>
+      <response id="cancel" translatable="yes">_Cancel</response>
+      <response id="add" translatable="yes" appearance="suggested" enabled="false">_Add</response>
+    </responses>
+    <property name="extra-child">
+      <object class="GtkEntry" id="entry">
+        <property name="activates-default">True</property>
+      </object>
+    </property>
+  </object>
+</interface>
+<!-- <?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkDialog" id="create_folder_dialog">
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="use-header-bar">1</property>
+    <property name="width_request">450</property>
+    <child internal-child="content_area">
+      <object class="GtkBox" id="content_area">
+        <property name="orientation">vertical</property>
+        <property name="margin_top">18</property>
+        <property name="margin_bottom">12</property>
+        <property name="margin_start">18</property>
+        <property name="margin_end">18</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkLabel" id="name_label">
+            <property name="xalign">0</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="name_entry">
+            <accessibility>
+              <relation name="labelled-by">name_label</relation>
+            </accessibility>
+          </object>
+        </child>
+        <child>
+          <object class="GtkRevealer" id="error_revealer">
+            <property name="child">
+              <object class="GtkLabel" id="error_label">
+                <property name="margin_top">4</property>
+                <property name="margin_bottom">4</property>
+                <property name="xalign">0</property>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="cancel_button">
+        <property name="label" translatable="yes">Cancel</property>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="ok_button">
+        <property name="sensitive">False</property>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="ok" default="true">ok_button</action-widget>
+      <action-widget response="cancel">cancel_button</action-widget>
+    </action-widgets>
+  </object>
+</interface> -->
