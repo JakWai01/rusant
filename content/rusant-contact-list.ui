@@ -84,7 +84,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkListBox" id="list_box">
+                    <object class="GtkListBox" id="contacts_list">
                         <property name="selection-mode">none</property>
                         <property name="vexpand">True</property>
                         <style>

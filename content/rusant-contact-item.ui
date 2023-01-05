@@ -23,6 +23,7 @@
                         <property name="icon-name">call-start</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>
+                        <!-- <property name="visible">False</property> -->
                         <property name="hexpand">True</property>
                         <style>
                             <class name="circular" />
@@ -34,9 +35,23 @@
                         <property name="icon-name">camera-video</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>
+                        <!-- <property name="visible">False</property> -->
                         <property name="margin-end">12</property>
                         <style>
                             <class name="circular" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkCheckButton" id="selection">
+                        <property name="valign">center</property>
+                        <property name="halign">end</property>
+                        <property name="hexpand">True</property>
+                        <property name="visible">False</property>
+                        <!-- <property name="hexpand">True</property> -->
+                        <property name="margin-end">12</property>
+                        <style>
+                            <class name="selection-mode" />
                         </style>
                     </object>
                 </child>

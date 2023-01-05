@@ -1,5 +1,6 @@
 use glib::clone;
 use gtk_macros::spawn;
+use once_cell::sync::OnceCell;
 
 use super::ContactList;
 
@@ -29,14 +30,11 @@ use gtk::{
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-list.ui")]
 pub struct ContactListTemplate {
-    // #[template_child]
-    // pub contact_item: TemplateChild<ContactItem>,
-
     #[template_child]
     pub header_bar: TemplateChild<HeaderBar>,
 
     #[template_child]
-    pub list_box: TemplateChild<ListBox>,
+    pub contacts_list: TemplateChild<ListBox>,
 
     #[template_child]
     pub selection_button: TemplateChild<Button>,
@@ -55,6 +53,8 @@ pub struct ContactListTemplate {
 
     #[template_child]
     pub menu: TemplateChild<MenuButton>,
+
+    pub contacts: OnceCell<gio::ListStore>,
 }
 
 #[object_subclass]
@@ -68,14 +68,6 @@ impl ObjectSubclass for ContactListTemplate {
         ContactItem::ensure_type();
 
         Self::bind_template(my_class);
-
-        // my_class.show_add_contact_dialog().await;
-        // .add_button.connect_clicked(move |_| {
-        //     println!("clicked add button");
-        //     spawn!(clone!(@weak self as this => async move {
-        //         this.show_add_contact_dialog().await;
-        //     }));
-        // });
 
         my_class.install_action("contacts.add", None, move |widget, _, _| {
             spawn!(clone!(@weak widget => async move {
@@ -102,6 +94,10 @@ impl ObjectImpl for ContactListTemplate {
             contact_list.menu.set_visible(false);
 
             contact_list.select_cancel_button.set_visible(true);
+             
+            // contact_list.contact_item.selection().set_visible(true);
+            // contact_list.contact_item.call().set_visible(false);
+            // contact_list.contact_item.video_call().set_visible(false);
         }));
 
         self.select_cancel_button.connect_clicked(clone!(@weak self as contact_list => move |_| {
@@ -113,6 +109,10 @@ impl ObjectImpl for ContactListTemplate {
             contact_list.menu.set_visible(true);
 
             contact_list.select_cancel_button.set_visible(false);
+            
+            // contact_list.contact_item.selection().set_visible(false);
+            // contact_list.contact_item.call().set_visible(true);
+            // contact_list.contact_item.video_call().set_visible(true);
         }));
 
         self.add_button.connect_clicked(move |button| {

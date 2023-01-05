@@ -38,6 +38,10 @@ impl ContactItem {
         self.imp().video_call.get()
     }
 
+    pub fn  selection(&self) -> gtk::CheckButton {
+        self.imp().selection.get()
+    }
+
     pub fn handle_call_click(&self, call_pane: &CallPane) {
         let imp = ContactItemTemplate::from_instance(&self);
         imp.call
@@ -56,5 +60,17 @@ impl ContactItem {
                 call_pane.placeholder().set_visible(false);
                 call_pane.action_bar().set_visible(true);
             }));
+    }
+
+    pub fn enter_selection_mode(&self) {
+        self.call().set_visible(false);
+        self.video_call().set_visible(false);
+        self.selection().set_visible(true);
+    }
+
+    pub fn leave_selection_mode(&self) {
+        self.call().set_visible(true);
+        self.video_call().set_visible(true);
+        self.selection().set_visible(false);
     }
 }

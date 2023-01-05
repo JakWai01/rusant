@@ -1,12 +1,19 @@
 pub mod template;
 
-use crate::{rusant_contact_item::ContactItem, rusant_call_pane::CallPane};
+use crate::{rusant_call_pane::CallPane, rusant_contact_item::ContactItem};
 
 use self::template::ContactListTemplate;
 
-use gio::{ListStore, subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt}};
-use glib::{wrapper, StaticType, ObjectExt, clone, Cast};
-use gtk::{Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget, SingleSelection, traits::{WidgetExt, ButtonExt, GtkWindowExt, EditableExt}};
+use gio::{
+    subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt},
+    traits::ListModelExt,
+    ListStore,
+};
+use glib::{clone, wrapper, Cast, ObjectExt, StaticType};
+use gtk::{
+    traits::{ButtonExt, EditableExt, GtkWindowExt, WidgetExt},
+    Accessible, Box, Buildable, ConstraintTarget, Orientable, SingleSelection, Widget,
+};
 use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt};
 
 wrapper! {
@@ -27,33 +34,47 @@ impl ContactList {
     }
 
     pub fn set_model(&self, model: Vec<ContactItem>, call_pane: &CallPane) {
-        let template = ContactListTemplate::from_instance(self);
-        let list_store_model = ListStore::new(ContactItem::static_type());
+        let contacts = ListStore::new(ContactItem::static_type());
+
+        self.imp().contacts.set(contacts.clone()).expect("Could not set contacts");
 
         for element in model {
-            list_store_model.append(&element);
+            contacts.append(&element);
         }
 
-        let selection_model = SingleSelection::new(Some(&list_store_model));
+        self.imp().contacts_list.bind_model(
+            Some(&contacts),
+            clone!(@strong call_pane, @strong self as this => move |x| {
+                let name: String = x.property("name");
 
-        template.list_box.bind_model(Some(&selection_model), clone!(@strong call_pane => move |x| {
-            let name: String = x.property("name");
-            
-            let contact_item = ContactItem::new(&name);
-            contact_item.handle_call_click(&call_pane);
-            contact_item.handle_video_call_click(&call_pane);
-            contact_item.avatar().set_text(Some(&name));
-            contact_item.label().set_label(&name);
+                let contact_item = ContactItem::new(&name);
+                contact_item.handle_call_click(&call_pane);
+                contact_item.handle_video_call_click(&call_pane);
 
-            let result = contact_item.ancestor(Widget::static_type());
+                contact_item.avatar().set_text(Some(&name));
+                contact_item.label().set_label(&name);
 
-            result.unwrap()
-        }));  
+                let result = contact_item.ancestor(Widget::static_type());
+                
+                this.imp().selection_button.connect_clicked(clone!(@weak contact_item => move |_| {
+                    contact_item.enter_selection_mode();
+                }));
+
+                this.imp().select_cancel_button.connect_clicked(clone!(@weak contact_item => move |_| {
+                    contact_item.leave_selection_mode();
+                }));
+
+                result.unwrap()
+            }),
+        );
     }
 
     pub async fn show_add_contact_dialog(&self) {
-        let builder = gtk::Builder::from_resource("/com/jakobwaibel/Rusant/rusant-contact-dialog.ui");
-        let dialog = builder.object::<libadwaita::MessageDialog>("dialog").unwrap();
+        let builder =
+            gtk::Builder::from_resource("/com/jakobwaibel/Rusant/rusant-contact-dialog.ui");
+        let dialog = builder
+            .object::<libadwaita::MessageDialog>("dialog")
+            .unwrap();
         let entry = builder.object::<gtk::Entry>("entry").unwrap();
 
         entry.connect_changed(clone!(@weak self as obj, @weak dialog => move |entry| {
@@ -65,7 +86,7 @@ impl ContactList {
 
         dialog.set_transient_for(self.parent_window().as_ref());
         if dialog.run_future().await == "add" {
-            println!("Add future result");
+            println!("Add future result: {:?}", entry.text());
         };
     }
 
@@ -74,4 +95,16 @@ impl ContactList {
         self.root()?.downcast().ok()
     }
 
+    pub fn contacts(&self) -> gio::ListStore {
+        self.imp()
+            .contacts
+            .get()
+            .expect("`contacts` should be set in `setup_contacts`.")
+            .clone()
+    }
+
+    // Returns ListBoxRow (create_collection_row)
+    fn create_contact(&self, contact_item: &ContactItem) -> () {
+        unimplemented!()
+    }
 }

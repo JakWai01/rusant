@@ -19,7 +19,7 @@ use gtk::{
         prelude::{BoxImpl, WidgetImpl},
         widget::{CompositeTemplate, WidgetImplExt},
     },
-    Box, CompositeTemplate, TemplateChild, Label, Button, traits::ButtonExt, ffi::gtk_widget_get_next_sibling
+    Box, CompositeTemplate, TemplateChild, Label, Button, CheckButton, traits::ButtonExt, ffi::gtk_widget_get_next_sibling
 };
 
 use libadwaita::Avatar;
@@ -41,6 +41,9 @@ pub struct ContactItemTemplate {
 
     #[template_child]
     pub video_call: TemplateChild<Button>,
+
+    #[template_child]
+    pub selection: TemplateChild<CheckButton>,
 }
 
 #[object_subclass]
