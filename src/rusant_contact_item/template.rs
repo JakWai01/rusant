@@ -3,14 +3,17 @@ use crate::rusant_main_window::MainWindow;
 use super::ContactItem;
 
 use std::cell::Cell;
+use std::cell::RefCell;
 
+use glib::ParamSpecBoolean;
 use glib::{
     object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
         InitializingObject,
-    }, ParamSpec, once_cell::sync::Lazy, ParamSpecString, ParamFlags, Value, ToValue, clone
+    }, ParamSpec, once_cell::sync::Lazy, ParamSpecString, ParamFlags, Value, ToValue, clone,
+    Binding
 };
 
 use gtk::{
@@ -29,6 +32,7 @@ use libadwaita::subclass::prelude::WidgetClassSubclassExt;
 #[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-item.ui")]
 pub struct ContactItemTemplate {
     name: Cell<String>,
+    active: Cell<bool>,
 
     #[template_child]
     pub avatar: TemplateChild<Avatar>,
@@ -44,6 +48,8 @@ pub struct ContactItemTemplate {
 
     #[template_child]
     pub selection: TemplateChild<CheckButton>,
+
+    pub bindings: RefCell<Vec<Binding>>,
 }
 
 #[object_subclass]
@@ -74,7 +80,8 @@ impl ObjectImpl for ContactItemTemplate {
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
             vec![
-                ParamSpecString::new("name", "name", "The name of the contact", Some(""), ParamFlags::READWRITE)
+                ParamSpecString::new("name", "name", "The name of the contact", Some(""), ParamFlags::READWRITE),
+                ParamSpecBoolean::new("active", "active", "If the contact is currently marked", false, ParamFlags::READWRITE),
             ]
         });
         PROPERTIES.as_ref()
@@ -85,6 +92,10 @@ impl ObjectImpl for ContactItemTemplate {
             "name" => {
                 let name_string = value.get().expect("The value needs to be of type `String`.");
                 self.name.replace(name_string);
+            },
+            "active" => {
+                let active = value.get().expect("The value needs to be of type `bool`.");
+                self.active.replace(active);
             }
             _ => unimplemented!(),
         }
@@ -96,6 +107,12 @@ impl ObjectImpl for ContactItemTemplate {
                 let result = self.name.take();
 
                 self.name.set(result.clone());
+                result.to_value()
+            },
+            "active" => {
+                let result = self.active.take();
+
+                self.active.set(result.clone());
                 result.to_value()
             }
             _ => unimplemented!(),

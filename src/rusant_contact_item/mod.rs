@@ -1,14 +1,14 @@
 pub mod template;
 
-use crate::rusant_call_pane::CallPane;
+use crate::{rusant_call_pane::CallPane, rusant_contact_list::ContactList};
 
 use self::template::ContactItemTemplate;
 
 use gio::subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt};
-use glib::{clone, wrapper};
+use glib::{clone, wrapper, BindingFlags, ObjectExt, closure_local, closure};
 use gtk::{
-    traits::{ButtonExt, WidgetExt},
-    Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
+    traits::{ButtonExt, WidgetExt, CheckButtonExt},
+    Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget, ffi::gtk_check_button_get_active,
 };
 
 wrapper! {
@@ -38,7 +38,7 @@ impl ContactItem {
         self.imp().video_call.get()
     }
 
-    pub fn  selection(&self) -> gtk::CheckButton {
+    pub fn selection(&self) -> gtk::CheckButton {
         self.imp().selection.get()
     }
 
@@ -62,6 +62,21 @@ impl ContactItem {
             }));
     }
 
+    pub fn handle_selection_toggle(&self) {
+        let imp = ContactItemTemplate::from_instance(&self);
+        self.set_property("active", true);
+        imp.selection.connect_toggled(clone!(@weak self as this => move |_| {
+            println!("Toggled");
+            if this.property::<bool>("active") == true {
+                this.set_property("active", false)
+            } else {
+                this.set_property("active", true)
+            }
+
+            println!("{:?}", this.property::<bool>("active"));
+        }));
+    }
+
     pub fn enter_selection_mode(&self) {
         self.call().set_visible(false);
         self.video_call().set_visible(false);
@@ -72,5 +87,9 @@ impl ContactItem {
         self.call().set_visible(true);
         self.video_call().set_visible(true);
         self.selection().set_visible(false);
+    }
+
+    pub fn n_bindings(&self) -> i32 {
+        self.imp().bindings.borrow().len().try_into().unwrap()
     }
 }

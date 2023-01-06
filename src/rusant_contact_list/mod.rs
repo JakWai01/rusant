@@ -10,8 +10,9 @@ use gio::{
     ListStore,
 };
 use glib::{clone, wrapper, Cast, ObjectExt, StaticType};
+use glib::closure_local;
 use gtk::{
-    traits::{ButtonExt, EditableExt, GtkWindowExt, WidgetExt},
+    traits::{ButtonExt, EditableExt, GtkWindowExt, WidgetExt, CheckButtonExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, SingleSelection, Widget,
 };
 use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt};
@@ -64,6 +65,15 @@ impl ContactList {
                     contact_item.leave_selection_mode();
                 }));
 
+                // contact_item.selection().connect_toggled(|item| {
+                //     println!("Toggled");
+                // });
+
+                contact_item.handle_selection_toggle();
+
+                println!("{:?}", contact_item.selection().is_active());
+
+                println!("{:?}", contact_item.n_bindings());
                 result.unwrap()
             }),
         );

@@ -94,10 +94,6 @@ impl ObjectImpl for ContactListTemplate {
             contact_list.menu.set_visible(false);
 
             contact_list.select_cancel_button.set_visible(true);
-             
-            // contact_list.contact_item.selection().set_visible(true);
-            // contact_list.contact_item.call().set_visible(false);
-            // contact_list.contact_item.video_call().set_visible(false);
         }));
 
         self.select_cancel_button.connect_clicked(clone!(@weak self as contact_list => move |_| {
@@ -109,10 +105,6 @@ impl ObjectImpl for ContactListTemplate {
             contact_list.menu.set_visible(true);
 
             contact_list.select_cancel_button.set_visible(false);
-            
-            // contact_list.contact_item.selection().set_visible(false);
-            // contact_list.contact_item.call().set_visible(true);
-            // contact_list.contact_item.video_call().set_visible(true);
         }));
 
         self.add_button.connect_clicked(move |button| {
