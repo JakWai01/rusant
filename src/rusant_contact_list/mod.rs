@@ -96,6 +96,10 @@ impl ContactList {
         dialog.set_transient_for(self.parent_window().as_ref());
         if dialog.run_future().await == "add" {
             println!("Add future result: {:?}", entry.text());
+
+            // Add contact to contacts list
+            self.contacts().append(&ContactItem::new(&entry.text()));
+
         };
     }
 
