@@ -1,8 +1,10 @@
-use glib::{Value, ToValue};
+use gio::traits::ListModelExt;
+use glib::{Value, ToValue, Cast};
 use glib::{clone, ParamSpec, ParamSpecString, ParamFlags, ParamSpecInt};
 use gtk_macros::spawn;
 use once_cell::sync::{OnceCell, Lazy};
 use std::cell::Cell;
+use std::cell::RefCell;
 
 use super::ContactList;
 
@@ -57,6 +59,9 @@ pub struct ContactListTemplate {
 
     #[template_child]
     pub menu: TemplateChild<MenuButton>,
+
+    #[template_child]
+    pub delete_button: TemplateChild<Button>,
 
     pub contacts: OnceCell<gio::ListStore>,
 
@@ -121,6 +126,32 @@ impl ObjectImpl for ContactListTemplate {
                 .activate_action("contacts.add", None)
                 .expect("The action does not exist");
         });
+
+        self.delete_button.connect_clicked(clone!(@weak self as this => move |button| {
+            println!("Remove button clicked!");
+
+            let contacts = this.contacts.get().expect("`contacts` should be set in `set_model`.");
+            let mut position = 0;
+
+            while let Some(item) = contacts.item(position) {
+                let contact_item = item.downcast_ref::<ContactItem>().expect("The object needs to be of type `ContactItem`.");
+                let index = contacts.find(contact_item).expect("Nope");
+                println!("The item is at index: {}", index);
+
+                println!("{:?} is currently active: {:?}", contact_item.get_name(), contact_item.get_active());
+                
+                if contact_item.get_active() == true {
+                    contacts.remove(position);
+                    this.selected.replace(this.selected.take() - 1);
+                } else {
+                    position += 1;
+                }
+            }
+
+            this.title.set_title(format!("{:?} Selected", this.selected.take()).as_str());
+
+            println!("{:?}", contacts.n_items());
+        }));
     }
 
     fn properties() -> &'static [ParamSpec] {

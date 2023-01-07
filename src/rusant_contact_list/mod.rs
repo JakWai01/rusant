@@ -16,6 +16,7 @@ use gtk::{
     Accessible, Box, Buildable, ConstraintTarget, Orientable, SingleSelection, Widget,
 };
 use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt, WindowTitle};
+use once_cell::sync::OnceCell;
 
 wrapper! {
     pub struct ContactList(ObjectSubclass<ContactListTemplate>)
@@ -36,19 +37,20 @@ impl ContactList {
 
     pub fn set_model(&self, model: Vec<ContactItem>, call_pane: &CallPane) {
         let contacts = ListStore::new(ContactItem::static_type());
-
+        
         self.imp()
             .contacts
             .set(contacts.clone())
             .expect("Could not set contacts");
-
+        
         for element in model {
             contacts.append(&element);
         }
 
         self.imp().contacts_list.bind_model(
             Some(&contacts),
-            clone!(@strong call_pane, @strong self as this => move |x| {
+            // Constructor for new contacts
+            clone!(@strong call_pane, @weak self as this, @weak contacts => @default-panic, move |x| {
                 let name: String = x.property("name");
 
                 let contact_item = ContactItem::new(&name);
@@ -70,9 +72,6 @@ impl ContactList {
 
                 contact_item.handle_selection_toggle(&this);
 
-                println!("{:?}", contact_item.selection().is_active());
-
-                println!("{:?}", contact_item.n_bindings());
                 result.unwrap()
             }),
         );
@@ -97,7 +96,6 @@ impl ContactList {
         if dialog.run_future().await == "add" {
             println!("Add future result: {:?}", entry.text());
 
-            // Add contact to contacts list
             self.contacts().append(&ContactItem::new(&entry.text()));
 
         };
@@ -114,11 +112,6 @@ impl ContactList {
             .get()
             .expect("`contacts` should be set in `setup_contacts`.")
             .clone()
-    }
-
-    // Returns ListBoxRow (create_collection_row)
-    fn create_contact(&self, contact_item: &ContactItem) -> () {
-        unimplemented!()
     }
 
     pub fn inc_n_selected(&self) -> i32{
@@ -138,5 +131,4 @@ impl ContactList {
     pub fn title(&self) -> WindowTitle {
         self.imp().title.get()
     }
-    
 }

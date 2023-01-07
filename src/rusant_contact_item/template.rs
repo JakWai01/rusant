@@ -75,9 +75,9 @@ impl ObjectImpl for ContactItemTemplate {
     fn constructed(&self) {
         self.parent_constructed();
 
-        let contact_name = self.name.take();
-        self.avatar.set_text(Some(&contact_name));
-        self.label.set_label(&contact_name);
+        // let contact_name = self.name.take();
+        // self.avatar.set_text(Some(&contact_name));
+        // self.label.set_label(&contact_name);
     }
 
     fn properties() -> &'static [ParamSpec] {

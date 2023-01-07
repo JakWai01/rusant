@@ -4,8 +4,8 @@ use crate::{rusant_call_pane::CallPane, rusant_contact_list::ContactList};
 
 use self::template::ContactItemTemplate;
 
-use gio::subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt};
-use glib::{clone, closure, closure_local, wrapper, BindingFlags, ObjectExt};
+use gio::{subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt, ObjectImpl}, traits::ListModelExt};
+use glib::{clone, closure, closure_local, wrapper, BindingFlags, ObjectExt, Cast};
 use gtk::{
     ffi::gtk_check_button_get_active,
     traits::{ButtonExt, CheckButtonExt, WidgetExt},
@@ -62,25 +62,31 @@ impl ContactItem {
                 call_pane.action_bar().set_visible(true);
             }));
     }
-
+    
     pub fn handle_selection_toggle(&self, contact_list: &ContactList) {
-        let imp = ContactItemTemplate::from_instance(&self);
-        self.set_property("active", false);
-        imp.selection
-            .connect_toggled(clone!(@weak self as this, @strong contact_list => move |_| {
-                println!("Toggled");
-                if this.property::<bool>("active") == true {
-                    this.set_property("active", false);
-                    contact_list.dec_n_selected();
-                } else {
-                    this.set_property("active", true);
-                    contact_list.inc_n_selected();
-                }
+        self.selection().connect_toggled(clone!(@strong self as this, @strong contact_list => move |_| {
+            println!("CheckButton click");
+            
+            let mut position = 0;
+            while let Some(item) = contact_list.contacts().item(position) {
+                let contact_item = item.downcast_ref::<ContactItem>().expect("The object needs to be of type `ContactItem`.");
 
-                println!("{:?}", this.property::<bool>("active"));
-                println!("{:?}", contact_list.get_n_selected());
-                contact_list.title().set_title(format!("{} Selected", contact_list.get_n_selected()).as_str());
-            }));
+                if contact_item.get_name() == this.get_name() {
+                    if contact_item.property::<bool>("active") == true {
+                        contact_item.set_property("active", false);
+                        contact_list.dec_n_selected();
+                    } else {
+                        contact_item.set_property("active", true);
+                        contact_list.inc_n_selected();
+                    }
+                    break
+                } else {
+                    position += 1;
+                } 
+            }
+            
+            contact_list.title().set_title(format!("{} Selected", contact_list.get_n_selected()).as_str());
+        }));
     }
 
     pub fn enter_selection_mode(&self) {
@@ -97,5 +103,13 @@ impl ContactItem {
 
     pub fn n_bindings(&self) -> i32 {
         self.imp().bindings.borrow().len().try_into().unwrap()
+    }
+
+    pub fn get_active(&self) -> bool {
+        self.property::<bool>("active")
+    }
+
+    pub fn get_name(&self) -> String {
+        self.property("name")
     }
 }
