@@ -7,26 +7,29 @@ use std::cell::RefCell;
 
 use glib::ParamSpecBoolean;
 use glib::{
-    object_subclass,
+    clone, object_subclass,
+    once_cell::sync::Lazy,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
         InitializingObject,
-    }, ParamSpec, once_cell::sync::Lazy, ParamSpecString, ParamFlags, Value, ToValue, clone,
-    Binding
+    },
+    Binding, ParamFlags, ParamSpec, ParamSpecString, ToValue, Value,
 };
 
 use gtk::{
+    ffi::gtk_widget_get_next_sibling,
     prelude::InitializingWidgetExt,
     subclass::{
         prelude::{BoxImpl, WidgetImpl},
         widget::{CompositeTemplate, WidgetImplExt},
     },
-    Box, CompositeTemplate, TemplateChild, Label, Button, CheckButton, traits::ButtonExt, ffi::gtk_widget_get_next_sibling
+    traits::ButtonExt,
+    Box, Button, CheckButton, CompositeTemplate, Label, TemplateChild,
 };
 
-use libadwaita::Avatar;
 use libadwaita::subclass::prelude::WidgetClassSubclassExt;
+use libadwaita::Avatar;
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-item.ui")]
@@ -71,7 +74,7 @@ impl ObjectSubclass for ContactItemTemplate {
 impl ObjectImpl for ContactItemTemplate {
     fn constructed(&self) {
         self.parent_constructed();
-        
+
         let contact_name = self.name.take();
         self.avatar.set_text(Some(&contact_name));
         self.label.set_label(&contact_name);
@@ -80,8 +83,20 @@ impl ObjectImpl for ContactItemTemplate {
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
             vec![
-                ParamSpecString::new("name", "name", "The name of the contact", Some(""), ParamFlags::READWRITE),
-                ParamSpecBoolean::new("active", "active", "If the contact is currently marked", false, ParamFlags::READWRITE),
+                ParamSpecString::new(
+                    "name",
+                    "name",
+                    "The name of the contact",
+                    Some(""),
+                    ParamFlags::READWRITE,
+                ),
+                ParamSpecBoolean::new(
+                    "active",
+                    "active",
+                    "If the contact is currently marked",
+                    false,
+                    ParamFlags::READWRITE,
+                ),
             ]
         });
         PROPERTIES.as_ref()
@@ -90,9 +105,11 @@ impl ObjectImpl for ContactItemTemplate {
     fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
         match pspec.name() {
             "name" => {
-                let name_string = value.get().expect("The value needs to be of type `String`.");
+                let name_string = value
+                    .get()
+                    .expect("The value needs to be of type `String`.");
                 self.name.replace(name_string);
-            },
+            }
             "active" => {
                 let active = value.get().expect("The value needs to be of type `bool`.");
                 self.active.replace(active);
@@ -108,7 +125,7 @@ impl ObjectImpl for ContactItemTemplate {
 
                 self.name.set(result.clone());
                 result.to_value()
-            },
+            }
             "active" => {
                 let result = self.active.take();
 

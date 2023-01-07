@@ -2,7 +2,7 @@ mod template;
 
 use template::MainWindowTemplate;
 
-use glib::{wrapper, Object, ParamSpec, Cast};
+use glib::{wrapper, Cast, Object, ParamSpec};
 use gtk::{
     gio::{ActionGroup, ActionMap},
     Accessible, ApplicationWindow, Buildable, ConstraintTarget, Native, Root, ShortcutManager,

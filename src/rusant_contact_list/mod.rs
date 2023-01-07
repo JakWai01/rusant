@@ -9,10 +9,10 @@ use gio::{
     traits::ListModelExt,
     ListStore,
 };
-use glib::{clone, wrapper, Cast, ObjectExt, StaticType};
 use glib::closure_local;
+use glib::{clone, wrapper, Cast, ObjectExt, StaticType};
 use gtk::{
-    traits::{ButtonExt, EditableExt, GtkWindowExt, WidgetExt, CheckButtonExt},
+    traits::{ButtonExt, CheckButtonExt, EditableExt, GtkWindowExt, WidgetExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, SingleSelection, Widget,
 };
 use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt};
@@ -37,7 +37,10 @@ impl ContactList {
     pub fn set_model(&self, model: Vec<ContactItem>, call_pane: &CallPane) {
         let contacts = ListStore::new(ContactItem::static_type());
 
-        self.imp().contacts.set(contacts.clone()).expect("Could not set contacts");
+        self.imp()
+            .contacts
+            .set(contacts.clone())
+            .expect("Could not set contacts");
 
         for element in model {
             contacts.append(&element);
@@ -56,7 +59,7 @@ impl ContactList {
                 contact_item.label().set_label(&name);
 
                 let result = contact_item.ancestor(Widget::static_type());
-                
+
                 this.imp().selection_button.connect_clicked(clone!(@weak contact_item => move |_| {
                     contact_item.enter_selection_mode();
                 }));
@@ -64,10 +67,6 @@ impl ContactList {
                 this.imp().select_cancel_button.connect_clicked(clone!(@weak contact_item => move |_| {
                     contact_item.leave_selection_mode();
                 }));
-
-                // contact_item.selection().connect_toggled(|item| {
-                //     println!("Toggled");
-                // });
 
                 contact_item.handle_selection_toggle();
 

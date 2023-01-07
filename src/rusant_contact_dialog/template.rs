@@ -1,11 +1,10 @@
-
 use glib::{
     object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
         InitializingObject,
-    }
+    },
 };
 
 use gtk::{
@@ -14,14 +13,14 @@ use gtk::{
         prelude::{BoxImpl, WidgetImpl},
         widget::CompositeTemplate,
     },
-    Box, CompositeTemplate
+    Box, CompositeTemplate,
 };
 
 use super::ContactDialog;
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/jakobwaibel/Rusant/rusant-contact-dialog.ui")]
-pub struct ContactDialogTemplate{}
+pub struct ContactDialogTemplate {}
 
 #[object_subclass]
 impl ObjectSubclass for ContactDialogTemplate {

@@ -4,7 +4,7 @@ use once_cell::sync::OnceCell;
 
 use super::ContactList;
 
-use crate::{rusant_contact_item::ContactItem, rusant_contact_dialog::ContactDialog};
+use crate::{rusant_contact_dialog::ContactDialog, rusant_contact_item::ContactItem};
 
 use libadwaita::{HeaderBar, WindowTitle};
 
@@ -19,12 +19,14 @@ use glib::{
 };
 
 use gtk::{
+    ffi::gtk_builder_add_from_resource,
     prelude::InitializingWidgetExt,
     subclass::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, CompositeTemplate, ListBox, Button, traits::{ButtonExt, WidgetExt, GtkWindowExt}, ActionBar, MenuButton, ffi::gtk_builder_add_from_resource
+    traits::{ButtonExt, GtkWindowExt, WidgetExt},
+    ActionBar, Box, Button, CompositeTemplate, ListBox, MenuButton,
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -85,31 +87,35 @@ impl ObjectImpl for ContactListTemplate {
     fn constructed(&self) {
         self.parent_constructed();
 
-        self.selection_button.connect_clicked(clone!(@weak self as contact_list => move |_| {
-            contact_list.action_bar.set_revealed(true);
+        self.selection_button
+            .connect_clicked(clone!(@weak self as contact_list => move |_| {
+                contact_list.action_bar.set_revealed(true);
 
-            contact_list.add_button.set_visible(false);
-            contact_list.title.set_title("0 Selected");
-            contact_list.selection_button.set_visible(false);
-            contact_list.menu.set_visible(false);
+                contact_list.add_button.set_visible(false);
+                contact_list.title.set_title("0 Selected");
+                contact_list.selection_button.set_visible(false);
+                contact_list.menu.set_visible(false);
 
-            contact_list.select_cancel_button.set_visible(true);
-        }));
+                contact_list.select_cancel_button.set_visible(true);
+            }));
 
-        self.select_cancel_button.connect_clicked(clone!(@weak self as contact_list => move |_| {
-            contact_list.action_bar.set_revealed(false);
+        self.select_cancel_button
+            .connect_clicked(clone!(@weak self as contact_list => move |_| {
+                contact_list.action_bar.set_revealed(false);
 
-            contact_list.add_button.set_visible(true);
-            contact_list.title.set_title("Contacts");
-            contact_list.selection_button.set_visible(true);
-            contact_list.menu.set_visible(true);
+                contact_list.add_button.set_visible(true);
+                contact_list.title.set_title("Contacts");
+                contact_list.selection_button.set_visible(true);
+                contact_list.menu.set_visible(true);
 
-            contact_list.select_cancel_button.set_visible(false);
-        }));
+                contact_list.select_cancel_button.set_visible(false);
+            }));
 
         self.add_button.connect_clicked(move |button| {
             println!("Add button clicked!");
-            button.activate_action("contacts.add", None).expect("The action does not exist");
+            button
+                .activate_action("contacts.add", None)
+                .expect("The action does not exist");
         });
     }
 }

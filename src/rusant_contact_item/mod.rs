@@ -5,10 +5,11 @@ use crate::{rusant_call_pane::CallPane, rusant_contact_list::ContactList};
 use self::template::ContactItemTemplate;
 
 use gio::subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt};
-use glib::{clone, wrapper, BindingFlags, ObjectExt, closure_local, closure};
+use glib::{clone, closure, closure_local, wrapper, BindingFlags, ObjectExt};
 use gtk::{
-    traits::{ButtonExt, WidgetExt, CheckButtonExt},
-    Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget, ffi::gtk_check_button_get_active,
+    ffi::gtk_check_button_get_active,
+    traits::{ButtonExt, CheckButtonExt, WidgetExt},
+    Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
 };
 
 wrapper! {
@@ -64,17 +65,18 @@ impl ContactItem {
 
     pub fn handle_selection_toggle(&self) {
         let imp = ContactItemTemplate::from_instance(&self);
-        self.set_property("active", true);
-        imp.selection.connect_toggled(clone!(@weak self as this => move |_| {
-            println!("Toggled");
-            if this.property::<bool>("active") == true {
-                this.set_property("active", false)
-            } else {
-                this.set_property("active", true)
-            }
+        self.set_property("active", false);
+        imp.selection
+            .connect_toggled(clone!(@weak self as this => move |_| {
+                println!("Toggled");
+                if this.property::<bool>("active") == true {
+                    this.set_property("active", false)
+                } else {
+                    this.set_property("active", true)
+                }
 
-            println!("{:?}", this.property::<bool>("active"));
-        }));
+                println!("{:?}", this.property::<bool>("active"));
+            }));
     }
 
     pub fn enter_selection_mode(&self) {

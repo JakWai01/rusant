@@ -5,13 +5,13 @@ use std::thread;
 use libadwaita::{HeaderBar, StatusPage};
 
 use glib::{
-    self, object_subclass,
+    self, clone, object_subclass,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
         types::ObjectSubclass,
         InitializingObject,
     },
-    ObjectExt, clone,
+    ObjectExt,
 };
 
 use gst::{prelude::GstBinExtManual, traits::ElementExt};
@@ -23,7 +23,8 @@ use gtk::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    Box, Button, CompositeTemplate, FlowBox, ActionBar, traits::{ButtonExt, WidgetExt}
+    traits::{ButtonExt, WidgetExt},
+    ActionBar, Box, Button, CompositeTemplate, FlowBox,
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -95,11 +96,12 @@ impl ObjectImpl for CallPaneTemplate {
             }
         });
 
-        self.call_stop.connect_clicked(clone!(@weak self as this => move |_| {
-            this.placeholder.set_visible(true);
-            this.action_bar.set_visible(false);
-            this.call_box.set_visible(false);
-        }));
+        self.call_stop
+            .connect_clicked(clone!(@weak self as this => move |_| {
+                this.placeholder.set_visible(true);
+                this.action_bar.set_visible(false);
+                this.call_box.set_visible(false);
+            }));
 
         let pipeline = gst::Pipeline::default();
 
