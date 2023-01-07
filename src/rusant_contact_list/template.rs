@@ -63,6 +63,9 @@ pub struct ContactListTemplate {
     #[template_child]
     pub delete_button: TemplateChild<Button>,
 
+    #[template_child]
+    pub call_button: TemplateChild<Button>,
+
     pub contacts: OnceCell<gio::ListStore>,
 
     selected: Cell<i32>,
@@ -127,10 +130,10 @@ impl ObjectImpl for ContactListTemplate {
                 .expect("The action does not exist");
         });
 
-        self.delete_button.connect_clicked(clone!(@weak self as this => move |button| {
+        self.delete_button.connect_clicked(clone!(@weak self as contact_list => move |button| {
             println!("Remove button clicked!");
 
-            let contacts = this.contacts.get().expect("`contacts` should be set in `set_model`.");
+            let contacts = contact_list.contacts.get().expect("`contacts` should be set in `set_model`.");
             let mut position = 0;
 
             while let Some(item) = contacts.item(position) {
@@ -142,15 +145,35 @@ impl ObjectImpl for ContactListTemplate {
                 
                 if contact_item.get_active() == true {
                     contacts.remove(position);
-                    this.selected.replace(this.selected.take() - 1);
+                    contact_list.selected.replace(contact_list.selected.take() - 1);
                 } else {
                     position += 1;
                 }
             }
 
-            this.title.set_title(format!("{:?} Selected", this.selected.take()).as_str());
+            contact_list.title.set_title(format!("{:?} Selected", contact_list.selected.take()).as_str());
 
             println!("{:?}", contacts.n_items());
+
+            contact_list.action_bar.set_revealed(false);
+
+            contact_list.add_button.set_visible(true);
+            contact_list.title.set_title("Contacts");
+            contact_list.selection_button.set_visible(true);
+            contact_list.menu.set_visible(true);
+
+            contact_list.select_cancel_button.set_visible(false);
+        }));
+
+        self.call_button.connect_clicked(clone!(@weak self as contact_list => move |_| {
+            contact_list.action_bar.set_revealed(false);
+
+            contact_list.add_button.set_visible(true);
+            contact_list.title.set_title("Contacts");
+            contact_list.selection_button.set_visible(true);
+            contact_list.menu.set_visible(true);
+
+            contact_list.select_cancel_button.set_visible(false);
         }));
     }
 

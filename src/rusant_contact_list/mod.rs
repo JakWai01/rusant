@@ -70,6 +70,14 @@ impl ContactList {
                     contact_item.leave_selection_mode();
                 }));
 
+                this.imp().delete_button.connect_clicked(clone!(@weak contact_item => move |_| {
+                    contact_item.leave_selection_mode();
+                }));
+
+                this.imp().call_button.connect_clicked(clone!(@weak contact_item => move |_| {
+                    contact_item.leave_selection_mode();
+                }));
+
                 contact_item.handle_selection_toggle(&this);
 
                 result.unwrap()
