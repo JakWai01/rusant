@@ -1,6 +1,8 @@
-use glib::clone;
+use glib::{Value, ToValue};
+use glib::{clone, ParamSpec, ParamSpecString, ParamFlags, ParamSpecInt};
 use gtk_macros::spawn;
-use once_cell::sync::OnceCell;
+use once_cell::sync::{OnceCell, Lazy};
+use std::cell::Cell;
 
 use super::ContactList;
 
@@ -57,6 +59,8 @@ pub struct ContactListTemplate {
     pub menu: TemplateChild<MenuButton>,
 
     pub contacts: OnceCell<gio::ListStore>,
+
+    selected: Cell<i32>,
 }
 
 #[object_subclass]
@@ -92,7 +96,7 @@ impl ObjectImpl for ContactListTemplate {
                 contact_list.action_bar.set_revealed(true);
 
                 contact_list.add_button.set_visible(false);
-                contact_list.title.set_title("0 Selected");
+                contact_list.title.set_title(format!("{} Selected", contact_list.selected.get()).as_str());
                 contact_list.selection_button.set_visible(false);
                 contact_list.menu.set_visible(false);
 
@@ -117,6 +121,46 @@ impl ObjectImpl for ContactListTemplate {
                 .activate_action("contacts.add", None)
                 .expect("The action does not exist");
         });
+    }
+
+    fn properties() -> &'static [ParamSpec] {
+        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
+            vec![
+                ParamSpecInt::new(
+                    "selected",
+                    "selected",
+                    "How many contacts are selected",
+                    0,
+                    // TODO: The maximum should be the number of contacts,
+                    65535,
+                    0,
+                    ParamFlags::READWRITE,
+                )
+            ]
+        });
+        PROPERTIES.as_ref()
+    }
+
+    fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
+        match pspec.name() {
+            "selected" => {
+                let selected = value.get().expect("The value needs to be of type 'i32'.");
+                self.selected.replace(selected);
+            },
+            _ => unimplemented!(),
+        }
+    }
+
+    fn property(&self, _id: usize, pspec: &ParamSpec) -> Value {
+        match pspec.name() {
+            "selected" => {
+                let result = self.selected.take();
+
+                self.selected.set(result.clone());
+                result.to_value()
+            }
+            _ => unimplemented!(),
+        }
     }
 }
 

@@ -15,7 +15,7 @@ use gtk::{
     traits::{ButtonExt, CheckButtonExt, EditableExt, GtkWindowExt, WidgetExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, SingleSelection, Widget,
 };
-use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt};
+use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt, WindowTitle};
 
 wrapper! {
     pub struct ContactList(ObjectSubclass<ContactListTemplate>)
@@ -68,7 +68,7 @@ impl ContactList {
                     contact_item.leave_selection_mode();
                 }));
 
-                contact_item.handle_selection_toggle();
+                contact_item.handle_selection_toggle(&this);
 
                 println!("{:?}", contact_item.selection().is_active());
 
@@ -116,4 +116,23 @@ impl ContactList {
     fn create_contact(&self, contact_item: &ContactItem) -> () {
         unimplemented!()
     }
+
+    pub fn inc_n_selected(&self) -> i32{
+        self.set_property("selected", self.property::<i32>("selected") + 1);
+        self.property("selected")
+    }
+
+    pub fn dec_n_selected(&self) -> i32 {
+        self.set_property("selected", self.property::<i32>("selected") - 1);
+        self.property("selected")
+    }
+
+    pub fn get_n_selected(&self) -> i32 {
+        self.property("selected")
+    }
+
+    pub fn title(&self) -> WindowTitle {
+        self.imp().title.get()
+    }
+    
 }

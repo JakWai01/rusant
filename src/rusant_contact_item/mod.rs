@@ -63,19 +63,23 @@ impl ContactItem {
             }));
     }
 
-    pub fn handle_selection_toggle(&self) {
+    pub fn handle_selection_toggle(&self, contact_list: &ContactList) {
         let imp = ContactItemTemplate::from_instance(&self);
         self.set_property("active", false);
         imp.selection
-            .connect_toggled(clone!(@weak self as this => move |_| {
+            .connect_toggled(clone!(@weak self as this, @strong contact_list => move |_| {
                 println!("Toggled");
                 if this.property::<bool>("active") == true {
-                    this.set_property("active", false)
+                    this.set_property("active", false);
+                    contact_list.dec_n_selected();
                 } else {
-                    this.set_property("active", true)
+                    this.set_property("active", true);
+                    contact_list.inc_n_selected();
                 }
 
                 println!("{:?}", this.property::<bool>("active"));
+                println!("{:?}", contact_list.get_n_selected());
+                contact_list.title().set_title(format!("{} Selected", contact_list.get_n_selected()).as_str());
             }));
     }
 
