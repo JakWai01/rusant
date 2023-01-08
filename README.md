@@ -9,7 +9,6 @@ Rusant is an open-source video conferencing software.
 ## Todo
 
 - Add muxer/demuxer to gstreamer in order to support audio
-- Add logging
 - Add tooltip texts
 
 ## License

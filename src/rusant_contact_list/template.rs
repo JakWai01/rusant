@@ -2,6 +2,7 @@ use gio::traits::ListModelExt;
 use glib::{clone, ParamFlags, ParamSpec, ParamSpecInt};
 use glib::{Cast, ToValue, Value};
 use gtk_macros::spawn;
+use log::{debug, info};
 use once_cell::sync::{Lazy, OnceCell};
 use std::cell::Cell;
 
@@ -101,6 +102,8 @@ impl ObjectImpl for ContactListTemplate {
         // Handle click on selection_button button
         self.selection_button
             .connect_clicked(clone!(@weak self as contact_list => move |_| {
+                info!("Button selection_button was clicked");
+
                 contact_list.action_bar.set_revealed(true);
 
                 contact_list.add_button.set_visible(false);
@@ -114,6 +117,8 @@ impl ObjectImpl for ContactListTemplate {
         // Handle click on select_cancel_button button
         self.select_cancel_button
             .connect_clicked(clone!(@weak self as contact_list => move |_| {
+                info!("Button select_cancel_button was clicked");
+
                 contact_list.action_bar.set_revealed(false);
 
                 contact_list.add_button.set_visible(true);
@@ -126,6 +131,8 @@ impl ObjectImpl for ContactListTemplate {
 
         // Handle click on add_button button
         self.add_button.connect_clicked(move |button| {
+            info!("Button add_button was clicked");
+
             button
                 .activate_action("contacts.add", None)
                 .expect("The action does not exist");
@@ -133,6 +140,8 @@ impl ObjectImpl for ContactListTemplate {
 
         // Handle click on delete_button button
         self.delete_button.connect_clicked(clone!(@weak self as contact_list => move |button| {
+            info!("Button delete_button was clicked");
+
             let contacts = contact_list.contacts.get().expect("`contacts` should be set in `set_model`.");
 
             let mut position = 0;
@@ -146,6 +155,8 @@ impl ObjectImpl for ContactListTemplate {
                 if contact_item.get_active() == true {
                     contacts.remove(position);
                     contact_list.selected.replace(contact_list.selected.take() - 1);
+
+                    debug!("Removed contact: {}", contact_item.get_name());
                 } else {
                     position += 1;
                 }
@@ -166,6 +177,8 @@ impl ObjectImpl for ContactListTemplate {
         // Handle click on call_button button
         self.call_button
             .connect_clicked(clone!(@weak self as contact_list => move |_| {
+                info!("Button call_button was clicked");
+
                 contact_list.action_bar.set_revealed(false);
 
                 contact_list.add_button.set_visible(true);

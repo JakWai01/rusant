@@ -7,6 +7,7 @@ mod rusant_contact_list;
 mod rusant_main_window;
 mod sender;
 
+use log::info;
 use rusant_main_window::MainWindow;
 
 use config::Config;
@@ -113,7 +114,11 @@ fn main() {
         }
     }
 
-    std::process::exit(app.run());
+    info!("Starting application");
+
+    std::process::exit(
+        app.run()
+    );
 }
 
 /// Build the user interface
@@ -127,6 +132,8 @@ fn build_ui(app: &Application) {
     );
 
     let window = MainWindow::new(app);
+
+    info!("Building UI");
 
     window.show();
 }
@@ -147,6 +154,8 @@ fn show_about(app: &Application) {
         .license_type(gtk::License::Agpl30)
         .build();
 
+    info!("Showing about page");
+
     dialog.present();
 }
 
@@ -157,6 +166,8 @@ fn show_preferences(app: &Application) {
     let dialog = libadwaita::PreferencesWindow::builder()
         .transient_for(&window)
         .build();
+
+    info!("Showing preferences");
 
     dialog.present();
 }

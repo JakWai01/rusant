@@ -13,6 +13,7 @@ use gtk::{
     traits::{ButtonExt, CheckButtonExt, WidgetExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
 };
+use log::{info, debug};
 
 wrapper! {
     pub struct ContactItem(ObjectSubclass<ContactItemTemplate>)
@@ -57,6 +58,8 @@ impl ContactItem {
 
         imp.call
             .connect_clicked(clone!(@strong call_pane => move |_| {
+                info!("Button call was clicked");
+
                 call_pane.call_box().set_visible(true);
                 call_pane.placeholder().set_visible(false);
                 call_pane.action_bar().set_visible(true);
@@ -69,6 +72,8 @@ impl ContactItem {
 
         imp.video_call
             .connect_clicked(clone!(@strong call_pane => move |_| {
+                info!("Button video_call was clicked");
+
                 call_pane.call_box().set_visible(true);
                 call_pane.placeholder().set_visible(false);
                 call_pane.action_bar().set_visible(true);
@@ -78,6 +83,7 @@ impl ContactItem {
     /// Handle toggle on selection CheckBox  
     pub fn handle_selection_toggle(&self, contact_list: &ContactList) {
         self.selection().connect_toggled(clone!(@strong self as this, @strong contact_list => move |_| {
+            info!("Button `handle_selection_toggle` was toggled");
 
             let mut position = 0;
 
@@ -87,14 +93,17 @@ impl ContactItem {
 
                 // Compare contacts by name
                 if contact_item.get_name() == this.get_name() {
-
                     // Check if contact is currenlty selected
                     if contact_item.property::<bool>("active") == true {
+                        debug!("Contact {} was just selected", contact_item.get_name());
+
                         contact_item.set_property("active", false);
 
                         // Decrement n_selected in order to represent the number of selected contacts
                         contact_list.dec_n_selected();
                     } else {
+                        debug!("Contact {} was just unselected", contact_item.get_name());
+
                         contact_item.set_property("active", true);
 
                         // Increment n_selected in order to represent the number of selected contacts
@@ -108,6 +117,8 @@ impl ContactItem {
 
             // Adjust the title to represent the number of selected contacts
             contact_list.title().set_title(format!("{} Selected", contact_list.get_n_selected()).as_str());
+
+            debug!("Updated `title` of `contact_list` to: {}", contact_list.get_n_selected());
         }));
     }
 

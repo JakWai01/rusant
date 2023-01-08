@@ -1,4 +1,5 @@
 use gst::prelude::*;
+use log::info;
 
 pub trait Sender {
     fn send(&self) {}
@@ -48,6 +49,8 @@ impl<'a> SenderPipeline<'a> {
 
     /// Build the pipeline
     pub fn build(&self) -> gst::Pipeline {
+        info!("Initializing sender pipeline");
+
         // Initialize Gstreamer pipeline
         let pipeline = gst::Pipeline::new(Some("Sender"));
 

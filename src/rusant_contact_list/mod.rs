@@ -11,6 +11,7 @@ use gtk::{
     Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
 };
 use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt, WindowTitle};
+use log::{info, debug};
 
 wrapper! {
     pub struct ContactList(ObjectSubclass<ContactListTemplate>)
@@ -63,21 +64,29 @@ impl ContactList {
 
                 // Handle click on selection_button
                 this.imp().selection_button.connect_clicked(clone!(@weak contact_item => move |_| {
+                    info!("Button selection_button was clicked");
+
                     contact_item.enter_selection_mode();
                 }));
 
                 // Handle click on select_cancel_button
                 this.imp().select_cancel_button.connect_clicked(clone!(@weak contact_item => move |_| {
+                    info!("Button select_cancel_button was clicked");
+
                     contact_item.leave_selection_mode();
                 }));
 
                 // Handle click on delete_button button
                 this.imp().delete_button.connect_clicked(clone!(@weak contact_item => move |_| {
+                    info!("Button delete_button was clicked");
+
                     contact_item.leave_selection_mode();
                 }));
 
                 // Handle click on call_button button
                 this.imp().call_button.connect_clicked(clone!(@weak contact_item => move |_| {
+                    info!("Button call_button was clicked");
+
                     contact_item.leave_selection_mode();
                 }));
 
@@ -90,6 +99,8 @@ impl ContactList {
 
     /// Handle dialog that shows up when creating a new contact
     pub async fn show_add_contact_dialog(&self) {
+        info!("Showing dialog to add new contact");
+
         let builder =
             gtk::Builder::from_resource("/com/jakobwaibel/Rusant/rusant-contact-dialog.ui");
 
@@ -108,6 +119,8 @@ impl ContactList {
 
         // Handle click on the add button contained in the dialog
         if dialog.run_future().await == "add" {
+            debug!("Adding new contact: {}", entry.text());
+
             self.contacts().append(&ContactItem::new(&entry.text()));
         };
     }

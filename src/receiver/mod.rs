@@ -1,5 +1,6 @@
 use gst::prelude::*;
 use gtk::gdk;
+use log::info;
 
 /// Receiver part of the gstreamer pipeline
 pub struct ReceiverPipeline<'a> {
@@ -15,6 +16,8 @@ impl<'a> ReceiverPipeline<'a> {
 
     /// Build the pipeline
     pub fn build(&self) -> (gst::Pipeline, gdk::Paintable) {
+        info!("Initializing receiver pipeline");
+
         // Initialize Gstreamer pipeline
         let pipeline = gst::Pipeline::new(None);
 

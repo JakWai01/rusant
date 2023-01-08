@@ -26,6 +26,7 @@ use gtk::{
     traits::{ButtonExt, WidgetExt},
     ActionBar, Box, Button, CompositeTemplate, FlowBox,
 };
+use log::info;
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/jakobwaibel/Rusant/rusant-call-pane.ui")]
@@ -81,6 +82,8 @@ impl ObjectImpl for CallPaneTemplate {
 
         // Handle click on camera_video button
         self.camera_video.connect_clicked(move |button| {
+            info!("Button `camera_video` was clicked");
+
             let css_class = "suggested-action";
 
             // Check if the button currently has the `suggested-action` css class
@@ -93,6 +96,8 @@ impl ObjectImpl for CallPaneTemplate {
 
         // Handle click on audio_input_microphone button
         self.audio_input_microphone.connect_clicked(move |button| {
+            info!("Button `audio_input_microphone was clicked");
+
             let css_class = "suggested-action";
 
             // Check if button currently has the `suggested-action` css class
@@ -106,6 +111,7 @@ impl ObjectImpl for CallPaneTemplate {
         // Handle click on call_stop button
         self.call_stop
             .connect_clicked(clone!(@weak self as this => move |_| {
+                info!("Button `call_stop` was clicked");
 
                 // Hide call and show placeholder
                 this.placeholder.set_visible(true);
@@ -113,7 +119,7 @@ impl ObjectImpl for CallPaneTemplate {
                 this.call_box.set_visible(false);
             }));
 
-        // Initialize testing gstreamer pipeline
+        // Initialize testing gstreamer pipeline - This section should be removed later on
         let pipeline = gst::Pipeline::default();
 
         let src = gst::ElementFactory::make("v4l2src").build().unwrap();

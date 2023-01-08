@@ -1,3 +1,5 @@
+use log::debug;
+
 /// Representing the ports used the gstreamer pipeline
 pub struct PortPool {
     listening_port_pool: Vec<i32>,
@@ -26,6 +28,9 @@ impl PortPool {
             // Port does not exist so far and can be allocated
             None => {
                 self.listening_port_pool.push(port);
+
+                debug!("Allocating port {} as a listening port", port);
+
                 Ok(())
             }
         }
@@ -38,6 +43,9 @@ impl PortPool {
             // Port was allocated and can be removed
             Some(x) => {
                 self.listening_port_pool.remove(x);
+
+                debug!("Freeing port {}", port);
+
                 Ok(())
             }
 
