@@ -1,14 +1,13 @@
 use gio::traits::ListModelExt;
 use glib::{Value, ToValue, Cast};
-use glib::{clone, ParamSpec, ParamSpecString, ParamFlags, ParamSpecInt};
+use glib::{clone, ParamSpec, ParamFlags, ParamSpecInt};
 use gtk_macros::spawn;
 use once_cell::sync::{OnceCell, Lazy};
 use std::cell::Cell;
-use std::cell::RefCell;
 
 use super::ContactList;
 
-use crate::{rusant_contact_dialog::ContactDialog, rusant_contact_item::ContactItem};
+use crate::{rusant_contact_item::ContactItem};
 
 use libadwaita::{HeaderBar, WindowTitle};
 
@@ -23,13 +22,12 @@ use glib::{
 };
 
 use gtk::{
-    ffi::gtk_builder_add_from_resource,
     prelude::InitializingWidgetExt,
     subclass::{
         prelude::{BoxImpl, TemplateChild, WidgetImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    traits::{ButtonExt, GtkWindowExt, WidgetExt},
+    traits::{ButtonExt, WidgetExt},
     ActionBar, Box, Button, CompositeTemplate, ListBox, MenuButton,
 };
 
@@ -87,7 +85,7 @@ impl ObjectSubclass for ContactListTemplate {
             spawn!(clone!(@weak widget => async move {
                 widget.show_add_contact_dialog().await;
             }));
-        })
+        });
     }
 
     fn instance_init(obj: &InitializingObject<Self>) {
@@ -185,7 +183,6 @@ impl ObjectImpl for ContactListTemplate {
                     "selected",
                     "How many contacts are selected",
                     0,
-                    // TODO: The maximum should be the number of contacts,
                     65535,
                     0,
                     ParamFlags::READWRITE,

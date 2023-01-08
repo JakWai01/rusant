@@ -4,10 +4,9 @@ use crate::{rusant_call_pane::CallPane, rusant_contact_list::ContactList};
 
 use self::template::ContactItemTemplate;
 
-use gio::{subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt, ObjectImpl}, traits::ListModelExt};
-use glib::{clone, closure, closure_local, wrapper, BindingFlags, ObjectExt, Cast};
+use gio::{subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt}, traits::ListModelExt};
+use glib::{clone, wrapper, ObjectExt, Cast};
 use gtk::{
-    ffi::gtk_check_button_get_active,
     traits::{ButtonExt, CheckButtonExt, WidgetExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
 };

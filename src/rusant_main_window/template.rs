@@ -1,14 +1,11 @@
 use super::MainWindow;
 use super::*;
 
-use std::cell::Cell;
-
 use crate::rusant_call_pane::CallPane;
 use crate::rusant_contact_list::template::ContactListTemplate;
 use crate::rusant_contact_list::ContactList;
 use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::ContactItem};
 
-use glib::clone;
 use glib::{
     self, object_subclass,
     subclass::{
@@ -21,7 +18,6 @@ use glib::{
 
 use gst::prelude::*;
 
-use gtk::traits::{ButtonExt, WidgetExt};
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -97,19 +93,13 @@ impl ObjectImpl for MainWindowTemplate {
             Widget::NONE,
         );
 
-        // Get data from data provider
         let contact_model = vec![
             ContactItem::new("Jakob"),
             ContactItem::new("Felicitas"),
             ContactItem::new("Daniel"),
         ];
-        self.contact_list.set_model(contact_model, &call_pane);
 
-        // contact.call().connect_clicked(clone!(@weak self as win => move |_| {
-        //     // win.call_pane.get().call_box().set_visible(true);
-        //     // win.call_pane.get().placeholder().set_visible(false);
-        //     println!("Test");
-        // }));
+        self.contact_list.set_model(contact_model, &call_pane);
     }
 }
 

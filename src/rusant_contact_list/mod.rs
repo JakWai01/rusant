@@ -5,18 +5,15 @@ use crate::{rusant_call_pane::CallPane, rusant_contact_item::ContactItem};
 use self::template::ContactListTemplate;
 
 use gio::{
-    subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt},
-    traits::ListModelExt,
+    subclass::prelude::ObjectSubclassIsExt,
     ListStore,
 };
-use glib::closure_local;
 use glib::{clone, wrapper, Cast, ObjectExt, StaticType};
 use gtk::{
-    traits::{ButtonExt, CheckButtonExt, EditableExt, GtkWindowExt, WidgetExt},
-    Accessible, Box, Buildable, ConstraintTarget, Orientable, SingleSelection, Widget,
+    traits::{ButtonExt, EditableExt, GtkWindowExt, WidgetExt},
+    Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
 };
 use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt, WindowTitle};
-use once_cell::sync::OnceCell;
 
 wrapper! {
     pub struct ContactList(ObjectSubclass<ContactListTemplate>)
@@ -49,7 +46,6 @@ impl ContactList {
 
         self.imp().contacts_list.bind_model(
             Some(&contacts),
-            // Constructor for new contacts
             clone!(@strong call_pane, @weak self as this, @weak contacts => @default-panic, move |x| {
                 let name: String = x.property("name");
 
@@ -109,7 +105,7 @@ impl ContactList {
         };
     }
 
-    /// Returns the parent GtkWindow containing this widget.
+    // Returns the parent GtkWindow containing this widget.
     fn parent_window(&self) -> Option<gtk::Window> {
         self.root()?.downcast().ok()
     }

@@ -30,7 +30,6 @@
                             <object class="GtkButton" id="add_button">
                                 <property name="tooltip-text" translatable="yes">Create new contact</property>
                                 <property name="icon-name">list-add-symbolic</property>
-                                <!-- <property name="action-name">win.new-contact</property> -->
                             </object>
                         </child>
                         <child type="end">
@@ -48,7 +47,6 @@
                             <object class="GtkButton" id="selection_button">
                                 <property name="icon-name">selection-mode-symbolic</property>
                                 <property name="tooltip-text" translatable="yes">Select Items</property>
-                                <!-- <signal name="clicked" handler="on_selection_button_clicked"/> -->
                             </object>
                         </child>
                         <child type="end">
@@ -112,15 +110,12 @@
                                 <style>
                                     <class name="suggested-action" />
                                 </style>
-                                <!-- <property name="action-name">win.start-group-call</property> -->
                             </object>
                         </child>
                         <child type="end">
                             <object class="GtkButton" id="delete_button">
                                 <property name="focus_on_click">False</property>
                                 <property name="label" translatable="yes">Remove</property>
-                                <!-- <property
-                                name="action-name">win.delete-marked-contacts</property> -->
                                 <style>
                                     <class name="destructive-action" />
                                 </style>

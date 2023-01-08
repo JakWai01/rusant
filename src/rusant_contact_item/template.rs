@@ -1,5 +1,3 @@
-use crate::rusant_main_window::MainWindow;
-
 use super::ContactItem;
 
 use std::cell::Cell;
@@ -7,7 +5,7 @@ use std::cell::RefCell;
 
 use glib::ParamSpecBoolean;
 use glib::{
-    clone, object_subclass,
+    object_subclass,
     once_cell::sync::Lazy,
     subclass::{
         object::{ObjectImpl, ObjectImplExt},
@@ -18,13 +16,11 @@ use glib::{
 };
 
 use gtk::{
-    ffi::gtk_widget_get_next_sibling,
     prelude::InitializingWidgetExt,
     subclass::{
         prelude::{BoxImpl, WidgetImpl},
-        widget::{CompositeTemplate, WidgetImplExt},
+        widget::CompositeTemplate,
     },
-    traits::ButtonExt,
     Box, Button, CheckButton, CompositeTemplate, Label, TemplateChild,
 };
 
@@ -74,10 +70,6 @@ impl ObjectSubclass for ContactItemTemplate {
 impl ObjectImpl for ContactItemTemplate {
     fn constructed(&self) {
         self.parent_constructed();
-
-        // let contact_name = self.name.take();
-        // self.avatar.set_text(Some(&contact_name));
-        // self.label.set_label(&contact_name);
     }
 
     fn properties() -> &'static [ParamSpec] {
