@@ -1,10 +1,19 @@
 # rusant
 
+Rusant is an open-source video conferencing software.
+
+## Overview
+
+🚧 This project is a work-in-progress! Instructions will be added as soon as it is usable. 🚧
+
 ## Todo
 
-- Add option to add/remove contacts
 - Add muxer/demuxer to gstreamer in order to support audio
-- Evaluate what encoding can be used best
-- Test if the `keep-aspect-ratio` property only works if the gstreamer pipeline can be set to `Playing` state
 - Add logging
 - Add tooltip texts
+
+## License
+
+rusant (c) 2022 Jakob Waibel and contributors
+
+SPDX-License-Identifier: AGPL-3.0License
