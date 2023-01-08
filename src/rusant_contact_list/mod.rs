@@ -163,6 +163,7 @@ impl ContactList {
         self.imp().title.get()
     }
 
+    /// Handle click on call_button button 
     pub fn handle_call_button_click(&self, call_pane: &CallPane) {
         self.imp()
             .call_button

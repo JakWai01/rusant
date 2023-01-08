@@ -173,21 +173,6 @@ impl ObjectImpl for ContactListTemplate {
 
             contact_list.select_cancel_button.set_visible(false);
         }));
-
-        // Handle click on call_button button
-        // self.call_button
-        //     .connect_clicked(clone!(@weak self as contact_list => move |_| {
-        //         info!("Button call_button was clicked");
-
-        //         contact_list.action_bar.set_revealed(false);
-
-        //         contact_list.add_button.set_visible(true);
-        //         contact_list.title.set_title("Contacts");
-        //         contact_list.selection_button.set_visible(true);
-        //         contact_list.menu.set_visible(true);
-
-        //         contact_list.select_cancel_button.set_visible(false);
-        //     }));
     }
 
     /// Get properties defiend for ContactList
