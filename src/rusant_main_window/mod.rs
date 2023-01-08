@@ -18,6 +18,7 @@ wrapper! {
 }
 
 impl MainWindow {
+    /// Initialize a new MainWindow
     pub fn new(app: &Application) -> Self {
         Object::new(&[("application", app)])
     }

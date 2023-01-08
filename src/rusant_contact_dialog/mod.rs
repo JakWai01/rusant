@@ -18,6 +18,7 @@ impl Default for ContactDialog {
 }
 
 impl ContactDialog {
+    /// Initialize a new ContactDialog
     pub fn new() -> Self {
         glib::Object::new(&[])
     }

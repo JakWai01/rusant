@@ -19,18 +19,22 @@ impl Default for CallPane {
 }
 
 impl CallPane {
+    /// Initialize new CallPane
     pub fn new() -> Self {
         glib::Object::new(&[])
     }
 
+    /// Get the placeholder widget
     pub fn placeholder(&self) -> libadwaita::StatusPage {
         self.imp().placeholder.get()
     }
 
+    /// Get the call_box widget
     pub fn call_box(&self) -> gtk::Box {
         self.imp().call_box.get()
     }
 
+    /// Get the action_bar widget
     pub fn action_bar(&self) -> gtk::ActionBar {
         self.imp().action_bar.get()
     }

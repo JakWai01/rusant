@@ -4,8 +4,11 @@ use crate::{rusant_call_pane::CallPane, rusant_contact_list::ContactList};
 
 use self::template::ContactItemTemplate;
 
-use gio::{subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt}, traits::ListModelExt};
-use glib::{clone, wrapper, ObjectExt, Cast};
+use gio::{
+    subclass::prelude::{ObjectSubclassExt, ObjectSubclassIsExt},
+    traits::ListModelExt,
+};
+use glib::{clone, wrapper, Cast, ObjectExt};
 use gtk::{
     traits::{ButtonExt, CheckButtonExt, WidgetExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
@@ -18,32 +21,40 @@ wrapper! {
 }
 
 impl ContactItem {
+    /// Initialize a new ContactItem
     pub fn new(name: &str) -> Self {
         glib::Object::new(&[("name", &name)])
     }
 
+    /// Get avatar widget
     pub fn avatar(&self) -> libadwaita::Avatar {
         self.imp().avatar.get()
     }
 
+    /// Get label widget
     pub fn label(&self) -> gtk::Label {
         self.imp().label.get()
     }
 
+    /// Get call widget
     pub fn call(&self) -> gtk::Button {
         self.imp().call.get()
     }
 
+    /// Get video_call widget
     pub fn video_call(&self) -> gtk::Button {
         self.imp().video_call.get()
     }
 
+    /// Get selection widget
     pub fn selection(&self) -> gtk::CheckButton {
         self.imp().selection.get()
     }
 
+    /// Handle click on handle_call_click button
     pub fn handle_call_click(&self, call_pane: &CallPane) {
         let imp = ContactItemTemplate::from_instance(&self);
+
         imp.call
             .connect_clicked(clone!(@strong call_pane => move |_| {
                 call_pane.call_box().set_visible(true);
@@ -52,8 +63,10 @@ impl ContactItem {
             }));
     }
 
+    /// Handle click on handle_video_call_click button
     pub fn handle_video_call_click(&self, call_pane: &CallPane) {
         let imp = ContactItemTemplate::from_instance(&self);
+
         imp.video_call
             .connect_clicked(clone!(@strong call_pane => move |_| {
                 call_pane.call_box().set_visible(true);
@@ -61,33 +74,44 @@ impl ContactItem {
                 call_pane.action_bar().set_visible(true);
             }));
     }
-    
+
+    /// Handle toggle on selection CheckBox  
     pub fn handle_selection_toggle(&self, contact_list: &ContactList) {
         self.selection().connect_toggled(clone!(@strong self as this, @strong contact_list => move |_| {
-            println!("CheckButton click");
-            
+
             let mut position = 0;
+
+            // Iterate through all contacts and check if the contact is selected
             while let Some(item) = contact_list.contacts().item(position) {
                 let contact_item = item.downcast_ref::<ContactItem>().expect("The object needs to be of type `ContactItem`.");
 
+                // Compare contacts by name
                 if contact_item.get_name() == this.get_name() {
+
+                    // Check if contact is currenlty selected
                     if contact_item.property::<bool>("active") == true {
                         contact_item.set_property("active", false);
+
+                        // Decrement n_selected in order to represent the number of selected contacts
                         contact_list.dec_n_selected();
                     } else {
                         contact_item.set_property("active", true);
+
+                        // Increment n_selected in order to represent the number of selected contacts
                         contact_list.inc_n_selected();
                     }
                     break
                 } else {
                     position += 1;
-                } 
+                }
             }
-            
+
+            // Adjust the title to represent the number of selected contacts
             contact_list.title().set_title(format!("{} Selected", contact_list.get_n_selected()).as_str());
         }));
     }
 
+    /// Hide/Show certain widgets when entering selection mode
     pub fn enter_selection_mode(&self) {
         self.call().set_visible(false);
         self.video_call().set_visible(false);

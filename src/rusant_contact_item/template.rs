@@ -68,10 +68,12 @@ impl ObjectSubclass for ContactItemTemplate {
 }
 
 impl ObjectImpl for ContactItemTemplate {
+    /// Construct a new ContactItem
     fn constructed(&self) {
         self.parent_constructed();
     }
 
+    /// Get properties defined for ContactItem
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
             vec![
@@ -94,34 +96,40 @@ impl ObjectImpl for ContactItemTemplate {
         PROPERTIES.as_ref()
     }
 
+    /// Set value for a given property defined for ContactItem
     fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
         match pspec.name() {
             "name" => {
                 let name_string = value
                     .get()
                     .expect("The value needs to be of type `String`.");
+
                 self.name.replace(name_string);
             }
             "active" => {
                 let active = value.get().expect("The value needs to be of type `bool`.");
+
                 self.active.replace(active);
             }
             _ => unimplemented!(),
         }
     }
 
+    /// Get value of a given property defined for ContactItem
     fn property(&self, _id: usize, pspec: &ParamSpec) -> Value {
         match pspec.name() {
             "name" => {
                 let result = self.name.take();
 
                 self.name.set(result.clone());
+
                 result.to_value()
             }
             "active" => {
                 let result = self.active.take();
 
                 self.active.set(result.clone());
+
                 result.to_value()
             }
             _ => unimplemented!(),

@@ -1,13 +1,13 @@
 use gio::traits::ListModelExt;
-use glib::{Value, ToValue, Cast};
-use glib::{clone, ParamSpec, ParamFlags, ParamSpecInt};
+use glib::{clone, ParamFlags, ParamSpec, ParamSpecInt};
+use glib::{Cast, ToValue, Value};
 use gtk_macros::spawn;
-use once_cell::sync::{OnceCell, Lazy};
+use once_cell::sync::{Lazy, OnceCell};
 use std::cell::Cell;
 
 use super::ContactList;
 
-use crate::{rusant_contact_item::ContactItem};
+use crate::rusant_contact_item::ContactItem;
 
 use libadwaita::{HeaderBar, WindowTitle};
 
@@ -94,9 +94,11 @@ impl ObjectSubclass for ContactListTemplate {
 }
 
 impl ObjectImpl for ContactListTemplate {
+    /// Construct a new ContactList
     fn constructed(&self) {
         self.parent_constructed();
 
+        // Handle click on selection_button button
         self.selection_button
             .connect_clicked(clone!(@weak self as contact_list => move |_| {
                 contact_list.action_bar.set_revealed(true);
@@ -109,6 +111,7 @@ impl ObjectImpl for ContactListTemplate {
                 contact_list.select_cancel_button.set_visible(true);
             }));
 
+        // Handle click on select_cancel_button button
         self.select_cancel_button
             .connect_clicked(clone!(@weak self as contact_list => move |_| {
                 contact_list.action_bar.set_revealed(false);
@@ -121,26 +124,25 @@ impl ObjectImpl for ContactListTemplate {
                 contact_list.select_cancel_button.set_visible(false);
             }));
 
+        // Handle click on add_button button
         self.add_button.connect_clicked(move |button| {
-            println!("Add button clicked!");
             button
                 .activate_action("contacts.add", None)
                 .expect("The action does not exist");
         });
 
+        // Handle click on delete_button button
         self.delete_button.connect_clicked(clone!(@weak self as contact_list => move |button| {
-            println!("Remove button clicked!");
-
             let contacts = contact_list.contacts.get().expect("`contacts` should be set in `set_model`.");
+
             let mut position = 0;
 
+            // Iterate through all contacts
             while let Some(item) = contacts.item(position) {
                 let contact_item = item.downcast_ref::<ContactItem>().expect("The object needs to be of type `ContactItem`.");
                 let index = contacts.find(contact_item).expect("Nope");
-                println!("The item is at index: {}", index);
 
-                println!("{:?} is currently active: {:?}", contact_item.get_name(), contact_item.get_active());
-                
+                // Check if the current contact is selected
                 if contact_item.get_active() == true {
                     contacts.remove(position);
                     contact_list.selected.replace(contact_list.selected.take() - 1);
@@ -151,8 +153,6 @@ impl ObjectImpl for ContactListTemplate {
 
             contact_list.title.set_title(format!("{:?} Selected", contact_list.selected.take()).as_str());
 
-            println!("{:?}", contacts.n_items());
-
             contact_list.action_bar.set_revealed(false);
 
             contact_list.add_button.set_visible(true);
@@ -163,45 +163,48 @@ impl ObjectImpl for ContactListTemplate {
             contact_list.select_cancel_button.set_visible(false);
         }));
 
-        self.call_button.connect_clicked(clone!(@weak self as contact_list => move |_| {
-            contact_list.action_bar.set_revealed(false);
+        // Handle click on call_button button
+        self.call_button
+            .connect_clicked(clone!(@weak self as contact_list => move |_| {
+                contact_list.action_bar.set_revealed(false);
 
-            contact_list.add_button.set_visible(true);
-            contact_list.title.set_title("Contacts");
-            contact_list.selection_button.set_visible(true);
-            contact_list.menu.set_visible(true);
+                contact_list.add_button.set_visible(true);
+                contact_list.title.set_title("Contacts");
+                contact_list.selection_button.set_visible(true);
+                contact_list.menu.set_visible(true);
 
-            contact_list.select_cancel_button.set_visible(false);
-        }));
+                contact_list.select_cancel_button.set_visible(false);
+            }));
     }
 
+    /// Get properties defiend for ContactList
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
-            vec![
-                ParamSpecInt::new(
-                    "selected",
-                    "selected",
-                    "How many contacts are selected",
-                    0,
-                    65535,
-                    0,
-                    ParamFlags::READWRITE,
-                )
-            ]
+            vec![ParamSpecInt::new(
+                "selected",
+                "selected",
+                "How many contacts are selected",
+                0,
+                65535,
+                0,
+                ParamFlags::READWRITE,
+            )]
         });
         PROPERTIES.as_ref()
     }
 
+    /// Set value for a given propery defined for ContactList
     fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
         match pspec.name() {
             "selected" => {
                 let selected = value.get().expect("The value needs to be of type 'i32'.");
                 self.selected.replace(selected);
-            },
+            }
             _ => unimplemented!(),
         }
     }
 
+    /// Get value of a given property defined for ContactList
     fn property(&self, _id: usize, pspec: &ParamSpec) -> Value {
         match pspec.name() {
             "selected" => {

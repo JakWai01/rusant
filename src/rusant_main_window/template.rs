@@ -66,6 +66,7 @@ impl ObjectSubclass for MainWindowTemplate {
 }
 
 impl ObjectImpl for MainWindowTemplate {
+    /// Construct a new MainWindow
     fn constructed(&self) {
         self.parent_constructed();
 
@@ -75,30 +76,35 @@ impl ObjectImpl for MainWindowTemplate {
         let contact_list = self.contact_list.get();
         let contact_list_template = ContactListTemplate::from_instance(&contact_list);
 
+        // Define show-start-title-buttons property for call_pane
         self.leaflet.property_expression("folded").bind(
             &call_pane_template.header_bar.get(),
             "show-start-title-buttons",
             Widget::NONE,
         );
 
+        // Define visible property for call_pane
         self.leaflet.property_expression("folded").bind(
             &call_pane_template.back_button.get(),
             "visible",
             Widget::NONE,
         );
 
+        // Define show-end-title-buttons for contact_list
         self.leaflet.property_expression("folded").bind(
             &contact_list_template.header_bar.get(),
             "show-end-title-buttons",
             Widget::NONE,
         );
 
+        // Define initial contacts
         let contact_model = vec![
             ContactItem::new("Jakob"),
             ContactItem::new("Felicitas"),
             ContactItem::new("Daniel"),
         ];
 
+        // Define the model contained in the ContactList
         self.contact_list.set_model(contact_model, &call_pane);
     }
 }

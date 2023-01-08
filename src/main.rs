@@ -40,6 +40,7 @@ fn main() {
         .unwrap();
 
     let name = &config.get("name").unwrap();
+
     let app_id = &config.get("app_id").unwrap();
 
     // Check if video device exists
@@ -57,6 +58,7 @@ fn main() {
 
     // Initialize variables
     glib::set_application_name(name);
+
     gtk::Window::set_default_icon_name(app_id);
 
     gtk::init().unwrap();
@@ -69,6 +71,7 @@ fn main() {
 
     // Load the CSS file and add it to the provider
     let provider = CssProvider::new();
+
     provider.load_from_resource("/com/jakobwaibel/Rusant/style.css");
 
     // Add the provider to the default screen
@@ -86,7 +89,9 @@ fn main() {
 
     // Run application
     app.connect_activate(build_ui);
+
     let actions = gio::SimpleActionGroup::new();
+
     app.set_action_group(Some(&actions));
 
     setup_accels(&app);
@@ -109,13 +114,9 @@ fn main() {
     }
 
     std::process::exit(app.run());
-
-    // Deinitialize GStreamer
-    // unsafe {
-    //     gst::deinit();
-    // }
 }
 
+/// Build the user interface
 fn build_ui(app: &Application) {
     let content = libadwaita::gtk::Box::new(Orientation::Vertical, 0);
 
@@ -130,12 +131,12 @@ fn build_ui(app: &Application) {
     window.show();
 }
 
+/// Show the about page
 fn show_about(app: &Application) {
     let window = app.active_window().unwrap();
 
     let dialog = libadwaita::AboutWindow::builder()
         .transient_for(&window)
-        // .application_icon("rusant")
         .application_name("Rusant")
         .developer_name("Jakob Waibel")
         .version("0.0.1")
@@ -149,14 +150,18 @@ fn show_about(app: &Application) {
     dialog.present();
 }
 
+/// Show the preferences page
 fn show_preferences(app: &Application) {
     let window = app.active_window().unwrap();
+
     let dialog = libadwaita::PreferencesWindow::builder()
         .transient_for(&window)
         .build();
+
     dialog.present();
 }
 
+/// Setup keyboard shortcuts
 fn setup_accels(app: &Application) {
     app.set_accels_for_action("win.show-help-overlay", &["<primary>question"]);
 }

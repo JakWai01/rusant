@@ -4,12 +4,14 @@ pub trait Sender {
     fn send(&self) {}
 }
 
+/// Sender part of the gstreamer pipeline
 pub struct SenderPipeline<'a> {
     host: &'a str,
     port: i32,
 }
 
 impl<'a> Sender for SenderPipeline<'a> {
+    /// Start sender pipeline
     fn send(&self) {
         let pipeline = self.build();
 
@@ -39,10 +41,12 @@ impl<'a> Sender for SenderPipeline<'a> {
 }
 
 impl<'a> SenderPipeline<'a> {
+    /// Initialize a new SenderPipeline
     pub fn new(host: &'a str, port: i32) -> Self {
         SenderPipeline { host, port }
     }
 
+    /// Build the pipeline
     pub fn build(&self) -> gst::Pipeline {
         // Initialize Gstreamer pipeline
         let pipeline = gst::Pipeline::new(Some("Sender"));
@@ -54,7 +58,9 @@ impl<'a> SenderPipeline<'a> {
         let rtpjpegpay = gst::ElementFactory::make("rtpjpegpay").build().unwrap();
         let udpsink = gst::ElementFactory::make("udpsink").build().unwrap();
 
+        // Initialize caps
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
+
         filter.set_property("caps", &caps);
 
         // v4l2src.set_caps(Some(&video_caps));

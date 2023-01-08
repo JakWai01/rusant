@@ -4,10 +4,7 @@ use crate::{rusant_call_pane::CallPane, rusant_contact_item::ContactItem};
 
 use self::template::ContactListTemplate;
 
-use gio::{
-    subclass::prelude::ObjectSubclassIsExt,
-    ListStore,
-};
+use gio::{subclass::prelude::ObjectSubclassIsExt, ListStore};
 use glib::{clone, wrapper, Cast, ObjectExt, StaticType};
 use gtk::{
     traits::{ButtonExt, EditableExt, GtkWindowExt, WidgetExt},
@@ -28,48 +25,58 @@ impl Default for ContactList {
 }
 
 impl ContactList {
+    /// Initialize a new ContactList
     pub fn new() -> Self {
         glib::Object::new(&[])
     }
 
+    /// Initialize elements of the ContactList
     pub fn set_model(&self, model: Vec<ContactItem>, call_pane: &CallPane) {
         let contacts = ListStore::new(ContactItem::static_type());
-        
+
         self.imp()
             .contacts
             .set(contacts.clone())
             .expect("Could not set contacts");
-        
+
+        // Add contacts specified in the model argument to contacts
         for element in model {
             contacts.append(&element);
         }
 
+        // Constructor for new item in contacts
         self.imp().contacts_list.bind_model(
             Some(&contacts),
             clone!(@strong call_pane, @weak self as this, @weak contacts => @default-panic, move |x| {
                 let name: String = x.property("name");
 
                 let contact_item = ContactItem::new(&name);
+
                 contact_item.handle_call_click(&call_pane);
                 contact_item.handle_video_call_click(&call_pane);
 
+                // Set name property of avatar and label
                 contact_item.avatar().set_text(Some(&name));
                 contact_item.label().set_label(&name);
 
                 let result = contact_item.ancestor(Widget::static_type());
 
+                // Handle click on selection_button
                 this.imp().selection_button.connect_clicked(clone!(@weak contact_item => move |_| {
                     contact_item.enter_selection_mode();
                 }));
 
+                // Handle click on select_cancel_button
                 this.imp().select_cancel_button.connect_clicked(clone!(@weak contact_item => move |_| {
                     contact_item.leave_selection_mode();
                 }));
 
+                // Handle click on delete_button button
                 this.imp().delete_button.connect_clicked(clone!(@weak contact_item => move |_| {
                     contact_item.leave_selection_mode();
                 }));
 
+                // Handle click on call_button button
                 this.imp().call_button.connect_clicked(clone!(@weak contact_item => move |_| {
                     contact_item.leave_selection_mode();
                 }));
@@ -81,35 +88,36 @@ impl ContactList {
         );
     }
 
+    /// Handle dialog that shows up when creating a new contact
     pub async fn show_add_contact_dialog(&self) {
         let builder =
             gtk::Builder::from_resource("/com/jakobwaibel/Rusant/rusant-contact-dialog.ui");
+
         let dialog = builder
             .object::<libadwaita::MessageDialog>("dialog")
             .unwrap();
+
         let entry = builder.object::<gtk::Entry>("entry").unwrap();
 
+        // Connect to changed signal
         entry.connect_changed(clone!(@weak self as obj, @weak dialog => move |entry| {
-            let contact = entry.text();
             dialog.set_response_enabled("add", true);
-
-            println!("{:?}", contact);
         }));
 
         dialog.set_transient_for(self.parent_window().as_ref());
+
+        // Handle click on the add button contained in the dialog
         if dialog.run_future().await == "add" {
-            println!("Add future result: {:?}", entry.text());
-
             self.contacts().append(&ContactItem::new(&entry.text()));
-
         };
     }
 
-    // Returns the parent GtkWindow containing this widget.
+    /// Returns the parent GtkWindow containing this widget.
     fn parent_window(&self) -> Option<gtk::Window> {
         self.root()?.downcast().ok()
     }
 
+    /// Get contacts
     pub fn contacts(&self) -> gio::ListStore {
         self.imp()
             .contacts
@@ -118,20 +126,24 @@ impl ContactList {
             .clone()
     }
 
-    pub fn inc_n_selected(&self) -> i32{
+    /// Increment n_selected by one
+    pub fn inc_n_selected(&self) -> i32 {
         self.set_property("selected", self.property::<i32>("selected") + 1);
         self.property("selected")
     }
 
+    /// Decrement n_selected by one
     pub fn dec_n_selected(&self) -> i32 {
         self.set_property("selected", self.property::<i32>("selected") - 1);
         self.property("selected")
     }
 
+    /// Get the current value of n_selected
     pub fn get_n_selected(&self) -> i32 {
         self.property("selected")
     }
 
+    /// Get title widget
     pub fn title(&self) -> WindowTitle {
         self.imp().title.get()
     }

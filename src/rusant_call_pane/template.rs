@@ -75,11 +75,15 @@ impl ObjectSubclass for CallPaneTemplate {
 }
 
 impl ObjectImpl for CallPaneTemplate {
+    /// Construct a new CallPane
     fn constructed(&self) {
         self.parent_constructed();
 
+        // Handle click on camera_video button
         self.camera_video.connect_clicked(move |button| {
             let css_class = "suggested-action";
+
+            // Check if the button currently has the `suggested-action` css class
             if button.has_css_class(css_class) {
                 button.remove_css_class(css_class);
             } else {
@@ -87,8 +91,11 @@ impl ObjectImpl for CallPaneTemplate {
             }
         });
 
+        // Handle click on audio_input_microphone button
         self.audio_input_microphone.connect_clicked(move |button| {
             let css_class = "suggested-action";
+
+            // Check if button currently has the `suggested-action` css class
             if button.has_css_class(css_class) {
                 button.remove_css_class(css_class);
             } else {
@@ -96,13 +103,17 @@ impl ObjectImpl for CallPaneTemplate {
             }
         });
 
+        // Handle click on call_stop button
         self.call_stop
             .connect_clicked(clone!(@weak self as this => move |_| {
+
+                // Hide call and show placeholder
                 this.placeholder.set_visible(true);
                 this.action_bar.set_visible(false);
                 this.call_box.set_visible(false);
             }));
 
+        // Initialize testing gstreamer pipeline
         let pipeline = gst::Pipeline::default();
 
         let src = gst::ElementFactory::make("v4l2src").build().unwrap();
