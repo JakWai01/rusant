@@ -6,6 +6,10 @@ mod rusant_contact_item;
 mod rusant_contact_list;
 mod rusant_main_window;
 mod sender;
+mod greeter;
+mod login;
+
+
 
 use log::info;
 use rusant_main_window::MainWindow;

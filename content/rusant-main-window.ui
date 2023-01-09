@@ -5,23 +5,39 @@
     <property name="height-request">500</property>
     <property name="title" translatable="no">Rusant</property>
     <child>
-      <object class="AdwLeaflet" id="leaflet">
-        <property name="can-navigate-back">True</property>
-        <property name="visible-child">call_pane</property>
+      <object class="AdwToastOverlay" id="toast_overlay">
         <child>
-          <object class="ContactList" id="contact_list" />
-        </child>
-        <child>
-          <object class="AdwLeafletPage">
-            <property name="navigatable">False</property>
-            <property name="child">
-              <object class="GtkSeparator" />
-            </property>
+          <object class="GtkStack" id="main_stack">
+            <property name="visible-child">leaflet</property>
+            <property name="transition-type">crossfade</property>
+            <child>
+              <object class="Greeter" id="greeter" />
+            </child>
+            <child>
+              <object class="Login" id="login" />
+            </child>
+            <child>
+              <object class="AdwLeaflet" id="leaflet">
+                <property name="can-navigate-back">True</property>
+                <property name="visible-child">call_pane</property>
+                <child>
+                  <object class="ContactList" id="contact_list" />
+                </child>
+                <child>
+                  <object class="AdwLeafletPage">
+                    <property name="navigatable">False</property>
+                    <property name="child">
+                      <object class="GtkSeparator" />
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="CallPane" id="call_pane" />
+                </child>
+              </object>
+            </child>
           </object>
         </child>
-        <child>
-          <object class="CallPane" id="call_pane"/>
-        </child> 
       </object>
     </child>
   </template>

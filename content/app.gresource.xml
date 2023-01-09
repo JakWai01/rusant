@@ -6,6 +6,8 @@
         <file compressed="true" preprocess="xml-stripblanks">rusant-contact-list.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">rusant-contact-item.ui</file>
         <file compressed="true" preprocess="xml-stripblanks">rusant-contact-dialog.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">rusant-greeter.ui</file>
+        <file compressed="true" preprocess="xml-stripblanks">rusant-login.ui</file>
         <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">rusant-help-overlay.ui</file>
         <file compressed="true">style.css</file>
     </gresource>
