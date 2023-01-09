@@ -1,3 +1,4 @@
+use super::ContactList;
 use gio::traits::ListModelExt;
 use glib::{clone, ParamFlags, ParamSpec, ParamSpecInt};
 use glib::{Cast, ToValue, Value};
@@ -5,8 +6,6 @@ use gtk_macros::spawn;
 use log::{debug, info};
 use once_cell::sync::{Lazy, OnceCell};
 use std::cell::Cell;
-
-use super::ContactList;
 
 use crate::rusant_contact_item::ContactItem;
 
@@ -29,7 +28,7 @@ use gtk::{
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
     traits::{ButtonExt, WidgetExt},
-    ActionBar, Box, Button, CompositeTemplate, ListBox, MenuButton,
+    ActionBar, Box, Button, CompositeTemplate, ListBox, MenuButton, SearchEntry,
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -64,6 +63,9 @@ pub struct ContactListTemplate {
 
     #[template_child]
     pub call_button: TemplateChild<Button>,
+
+    #[template_child]
+    pub search_bar: TemplateChild<SearchEntry>,
 
     pub contacts: OnceCell<gio::ListStore>,
 
@@ -149,7 +151,6 @@ impl ObjectImpl for ContactListTemplate {
             // Iterate through all contacts
             while let Some(item) = contacts.item(position) {
                 let contact_item = item.downcast_ref::<ContactItem>().expect("The object needs to be of type `ContactItem`.");
-                let index = contacts.find(contact_item).expect("Nope");
 
                 // Check if the current contact is selected
                 if contact_item.get_active() == true {

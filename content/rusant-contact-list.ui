@@ -74,7 +74,7 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkSearchEntry" id="filter_entry">
+                    <object class="GtkSearchEntry" id="search_bar">
                         <property name="placeholder-text" translatable="yes">Type to search</property>
                         <style>
                             <class name="contacts-filter-entry" />

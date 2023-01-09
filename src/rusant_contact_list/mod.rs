@@ -8,7 +8,7 @@ use gio::{subclass::prelude::ObjectSubclassIsExt, ListStore};
 use glib::{clone, wrapper, Cast, ObjectExt, StaticType};
 use gtk::{
     traits::{ButtonExt, EditableExt, GtkWindowExt, WidgetExt},
-    Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
+    Accessible, Box, Buildable, ConstraintTarget, Orientable, SearchEntry, Widget,
 };
 use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt, WindowTitle};
 use log::{debug, info};
@@ -89,6 +89,19 @@ impl ContactList {
 
                     contact_item.leave_selection_mode();
                 }));
+                
+                // Handle contact search
+                this.imp().search_bar.connect_search_changed(clone!(@weak this, @weak contact_item, @strong name => move |entry| {
+                    debug!("Search changed: {}", entry.text());
+
+                    if name.to_lowercase().contains(entry.text().as_str().to_lowercase().as_str()) {
+                        debug!("Found match: {}", name);
+
+                        contact_item.set_visible(true);
+                    } else {
+                        contact_item.set_visible(false);
+                    }
+                }));
 
                 this.handle_call_button_click(&call_pane);
 
@@ -163,11 +176,10 @@ impl ContactList {
         self.imp().title.get()
     }
 
-    /// Handle click on call_button button 
+    /// Handle click on call_button button
     pub fn handle_call_button_click(&self, call_pane: &CallPane) {
-        self.imp()
-            .call_button
-            .connect_clicked(clone!(@weak self as contact_list, @weak call_pane => move |_| {
+        self.imp().call_button.connect_clicked(
+            clone!(@weak self as contact_list, @weak call_pane => move |_| {
                 info!("Button call_button was clicked");
 
                 contact_list.imp().action_bar.set_revealed(false);
@@ -182,6 +194,11 @@ impl ContactList {
                 call_pane.call_box().set_visible(true);
                 call_pane.placeholder().set_visible(false);
                 call_pane.action_bar().set_visible(true);
-            }));
+            }),
+        );
+    }
+
+    pub fn search_bar(&self) -> SearchEntry {
+        self.imp().search_bar.get()
     }
 }

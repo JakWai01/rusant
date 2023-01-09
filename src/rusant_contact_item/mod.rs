@@ -13,7 +13,7 @@ use gtk::{
     traits::{ButtonExt, CheckButtonExt, WidgetExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
 };
-use log::{info, debug};
+use log::{debug, info};
 
 wrapper! {
     pub struct ContactItem(ObjectSubclass<ContactItemTemplate>)

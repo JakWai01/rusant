@@ -116,9 +116,7 @@ fn main() {
 
     info!("Starting application");
 
-    std::process::exit(
-        app.run()
-    );
+    std::process::exit(app.run());
 }
 
 /// Build the user interface
