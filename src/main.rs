@@ -8,6 +8,7 @@ mod rusant_main_window;
 mod sender;
 mod greeter;
 mod login;
+mod register;
 
 
 

@@ -2,11 +2,14 @@ use gio::{subclass::prelude::ObjectSubclassIsExt, traits::NetworkMonitorExt};
 use glib::Cast;
 use gtk::subclass::widget::WidgetClassSubclassExt;
 use gtk::subclass::widget::CompositeTemplate;
+use gtk::traits::WidgetExt;
+
+use crate::rusant_main_window::MainWindow;
 
 mod imp {
     use gio::subclass::prelude::{ObjectSubclass, ObjectImpl, ObjectImplExt, ObjectSubclassExt};
     use glib::{subclass::InitializingObject, clone};
-    use gtk::{CompositeTemplate, TemplateChild, subclass::widget::WidgetImpl, prelude::InitializingWidgetExt};
+    use gtk::{CompositeTemplate, TemplateChild, subclass::widget::WidgetImpl, prelude::InitializingWidgetExt, traits::ButtonExt};
     use libadwaita::subclass::prelude::BinImpl;
 
     use super::*;
@@ -14,11 +17,14 @@ mod imp {
     #[derive(Debug, Default, CompositeTemplate)]
     #[template(resource = "/com/jakobwaibel/Rusant/rusant-greeter.ui")]
     pub struct Greeter {
-        #[template_child]
-        pub back_button: TemplateChild<gtk::Button>,
+        // #[template_child]
+        // pub back_button: TemplateChild<gtk::Button>,
 
         #[template_child]
         pub login_button: TemplateChild<gtk::Button>,
+
+        #[template_child]
+        pub register_button: TemplateChild<gtk::Button>,
     }
 
     #[glib::object_subclass]
@@ -40,6 +46,14 @@ mod imp {
     impl ObjectImpl for Greeter {
         fn constructed(&self) {
             self.parent_constructed();
+
+            self.login_button.connect_clicked(clone!(@weak self as this => move |_| {
+                this.obj().parent_window().switch_to_login_page();
+            }));
+
+            self.register_button.connect_clicked(clone!(@weak self as this => move |_| {
+                this.obj().parent_window().switch_to_register_page();
+            }));
         }
     }
 
@@ -60,5 +74,9 @@ impl Greeter {
 
     pub fn default_widget(&self) -> gtk::Widget {
         self.imp().login_button.get().upcast()
+    }
+
+    fn parent_window(&self) -> MainWindow {
+        self.root().and_then(|root| root.downcast().ok()).expect("Login needs to have a parent window")
     }
 }

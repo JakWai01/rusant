@@ -8,13 +8,16 @@
       <object class="AdwToastOverlay" id="toast_overlay">
         <child>
           <object class="GtkStack" id="main_stack">
-            <property name="visible-child">leaflet</property>
-            <property name="transition-type">crossfade</property>
+            <property name="visible-child">greeter</property>
+            <property name="transition-type">slide-left</property>
             <child>
               <object class="Greeter" id="greeter" />
             </child>
             <child>
               <object class="Login" id="login" />
+            </child>
+            <child>
+              <object class="Register" id="register" />
             </child>
             <child>
               <object class="AdwLeaflet" id="leaflet">

@@ -11,13 +11,6 @@
                 <property name="title">Rusant</property>
               </object>
             </property>
-            <child type="start">
-              <object class="GtkButton" id="back_button">
-                <property name="action-name">app.show-sessions</property>
-                <property name="visible" bind-source="back_button" bind-property="sensitive" bind-flags="sync-create"/>
-                <property name="icon-name">go-previous-symbolic</property>
-              </object>
-            </child>
           </object>
         </child>
         <child>
@@ -57,7 +50,7 @@
                                     <property name="justify">center</property>
                                     <property name="label">Welcome to Rusant</property>
                                     <style>
-                                      <class name="title-1"/>
+                                      <class name="title-1" />
                                     </style>
                                   </object>
                                 </child>
@@ -77,22 +70,20 @@
                                 <child>
                                   <object class="GtkButton" id="login_button">
                                     <style>
-                                      <class name="pill"/>
-                                      <class name="suggested-action"/>
+                                      <class name="pill" />
+                                      <class name="suggested-action" />
                                     </style>
                                     <property name="label" translatable="true">_Log in</property>
                                     <property name="use-underline">true</property>
-                                    <property name="action-name">app.show-login</property>
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkButton">
+                                  <object class="GtkButton" id="register_button">
                                     <style>
-                                      <class name="pill"/>
+                                      <class name="pill" />
                                     </style>
                                     <property name="label" translatable="true">_Create Account</property>
                                     <property name="use-underline">true</property>
-                                    <property name="action-name">app.create-account</property>
                                   </object>
                                 </child>
                               </object>

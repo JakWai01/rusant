@@ -12,8 +12,8 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/jakobwaibel/Rusant/rusant-login.ui")]
-    pub struct Login {
+    #[template(resource = "/com/jakobwaibel/Rusant/rusant-register.ui")]
+    pub struct Register {
         #[template_child]
         pub next_button: TemplateChild<gtk::Button>,
 
@@ -25,9 +25,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for Login {
-        const NAME: &'static str = "Login";
-        type Type = super::Login;
+    impl ObjectSubclass for Register {
+        const NAME: &'static str = "Register";
+        type Type = super::Register;
         type ParentType = libadwaita::Bin;
 
         fn class_init(klass: &mut Self::Class) {
@@ -39,7 +39,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for Login {
+    impl ObjectImpl for Register {
         fn constructed(&self) {
             self.parent_constructed();
 
@@ -53,17 +53,17 @@ mod imp {
         }
     }
 
-    impl WidgetImpl for Login {}
+    impl WidgetImpl for Register {}
 
-    impl BinImpl for Login {}
+    impl BinImpl for Register {}
 }
 
 glib::wrapper! {
-    pub struct Login(ObjectSubclass<imp::Login>)
+    pub struct Register(ObjectSubclass<imp::Register>)
         @extends gtk::Widget, libadwaita::Bin, @implements gtk::Accessible;
 }
 
-impl Login {
+impl Register {
     pub fn new() -> Self {
         glib::Object::new(&[])
     }
@@ -71,7 +71,7 @@ impl Login {
     fn parent_window(&self) -> MainWindow {
         self.root()
             .and_then(|root| root.downcast().ok())
-            .expect("Login needs to have a parent window")
+            .expect("Register needs to have a parent window")
     }
 
     pub fn default_widget(&self) -> gtk::Widget {

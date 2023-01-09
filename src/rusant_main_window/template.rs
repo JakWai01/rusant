@@ -7,6 +7,7 @@ use crate::rusant_contact_list::ContactList;
 use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::ContactItem};
 use crate::greeter::Greeter;
 use crate::login::Login;
+use crate::register::Register;
 
 use glib::{
     self, object_subclass,
@@ -27,7 +28,7 @@ use gtk::{
         prelude::{TemplateChild, WidgetImpl, WindowImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    CompositeTemplate,
+    CompositeTemplate, Stack
 };
 
 use libadwaita::{
@@ -42,16 +43,22 @@ pub struct MainWindowTemplate {
     pub leaflet: TemplateChild<Leaflet>,
 
     #[template_child]
+    pub greeter: TemplateChild<Greeter>,
+
+    #[template_child]
+    pub login: TemplateChild<Login>,
+
+    #[template_child]
+    pub register: TemplateChild<Register>,
+    
+    #[template_child]
     pub contact_list: TemplateChild<ContactList>,
 
     #[template_child]
     pub call_pane: TemplateChild<CallPane>,
 
     #[template_child]
-    pub greeter: TemplateChild<Greeter>,
-
-    #[template_child]
-    pub login: TemplateChild<Login>,
+    pub main_stack: TemplateChild<Stack>,
 }
 
 #[object_subclass]
