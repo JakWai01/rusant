@@ -37,7 +37,7 @@ impl ObjectImpl for RegisterTemplate {
         self.parent_constructed();
 
         self.next_button.connect_clicked(clone!(@weak self as this => move |_| {
-            this.obj().parent_window().switch_to_leaflet();
+            this.obj().parent_window().switch_to_login_page();
         }));
         
         self.back_button.connect_clicked(clone!(@weak self as this => move |_| {
