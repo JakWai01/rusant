@@ -5,9 +5,9 @@ use crate::rusant_call_pane::CallPane;
 use crate::rusant_contact_list::template::ContactListTemplate;
 use crate::rusant_contact_list::ContactList;
 use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::ContactItem};
-use crate::greeter::Greeter;
-use crate::login::Login;
-use crate::register::Register;
+use crate::rusant_greeter::Greeter;
+use crate::rusant_login::Login;
+use crate::rusant_register::Register;
 
 use glib::{
     self, object_subclass,
