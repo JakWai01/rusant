@@ -17,9 +17,10 @@ use config::Config;
 use glib::clone;
 use gtk::{
     gdk::Display, glib, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt,
-    CssProvider, StyleContext,
+    CssProvider, StyleContext, Window,
 };
 use gtk_macros::action;
+// use webkit2gtk::{WebContext, WebView, WebViewExt, SettingsExt, WebContextExt};
 use std::collections::HashMap;
 use std::path::Path;
 

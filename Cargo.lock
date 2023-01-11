@@ -1077,6 +1077,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4217ad341ebadf8d8e724e264f13e593e0648f5b3e94b3896a5df283be015ecc"
 
 [[package]]
+name = "javascriptcore5-rs"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd8313cebdffad7932ac262fd452ce12a8489dfdad6b642cd96c730a8fcaf011"
+dependencies = [
+ "bitflags",
+ "glib",
+ "javascriptcore5-rs-sys",
+]
+
+[[package]]
+name = "javascriptcore5-rs-sys"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1ce89ec7de6265cfa2783e934bf3628c06ecaed029b90c0509b0b792811dbe0"
+dependencies = [
+ "glib-sys 0.16.3",
+ "gobject-sys 0.16.3",
+ "libc",
+ "system-deps",
+]
+
+[[package]]
 name = "js-sys"
 version = "0.3.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1531,6 +1554,7 @@ dependencies = [
  "pretty_env_logger",
  "regex",
  "rss",
+ "webkit2gtk5",
 ]
 
 [[package]]
@@ -1661,6 +1685,19 @@ name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
+
+[[package]]
+name = "soup3-sys"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "014bbeb1c4cdb30739dc181e8d98b7908f124d9555843afa89b5570aaf4ec62b"
+dependencies = [
+ "gio-sys",
+ "glib-sys 0.16.3",
+ "gobject-sys 0.16.3",
+ "libc",
+ "system-deps",
+]
 
 [[package]]
 name = "spin"
@@ -1846,6 +1883,44 @@ checksum = "bcda906d8be16e728fd5adc5b729afad4e444e106ab28cd1c7256e54fa61510f"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "webkit2gtk5"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "42da6fb3081c4344993f93df84b735920ddb0db4679b423e32599c067d0ffaaf"
+dependencies = [
+ "bitflags",
+ "cairo-rs",
+ "gdk4",
+ "gio",
+ "glib",
+ "gtk4",
+ "javascriptcore5-rs",
+ "libc",
+ "once_cell",
+ "webkit2gtk5-sys",
+]
+
+[[package]]
+name = "webkit2gtk5-sys"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab365bcade4be14fb779de0a8ca99958f2e54a93087caa32b413d3a233b209c8"
+dependencies = [
+ "bitflags",
+ "cairo-sys-rs",
+ "gdk4-sys",
+ "gio-sys",
+ "glib-sys 0.16.3",
+ "gobject-sys 0.16.3",
+ "gtk4-sys",
+ "javascriptcore5-rs-sys",
+ "libc",
+ "pkg-config",
+ "soup3-sys",
+ "system-deps",
 ]
 
 [[package]]
