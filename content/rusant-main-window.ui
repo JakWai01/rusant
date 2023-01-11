@@ -14,12 +14,6 @@
               <object class="Greeter" id="greeter" />
             </child>
             <child>
-              <object class="Login" id="login" />
-            </child>
-            <child>
-              <object class="Register" id="register" />
-            </child>
-            <child>
               <object class="AdwLeaflet" id="leaflet">
                 <property name="can-navigate-back">True</property>
                 <property name="visible-child">call_pane</property>

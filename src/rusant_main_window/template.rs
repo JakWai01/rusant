@@ -6,8 +6,6 @@ use crate::rusant_contact_list::template::ContactListTemplate;
 use crate::rusant_contact_list::ContactList;
 use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::ContactItem};
 use crate::rusant_greeter::Greeter;
-use crate::rusant_login::Login;
-use crate::rusant_register::Register;
 
 use glib::{
     self, object_subclass,
@@ -45,12 +43,6 @@ pub struct MainWindowTemplate {
     #[template_child]
     pub greeter: TemplateChild<Greeter>,
 
-    #[template_child]
-    pub login: TemplateChild<Login>,
-
-    #[template_child]
-    pub register: TemplateChild<Register>,
-    
     #[template_child]
     pub contact_list: TemplateChild<ContactList>,
 

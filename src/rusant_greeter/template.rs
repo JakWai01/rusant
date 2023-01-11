@@ -11,14 +11,8 @@ use super::*;
 #[derive(Debug, Default, CompositeTemplate)]
 #[template(resource = "/com/jakobwaibel/Rusant/rusant-greeter.ui")]
 pub struct GreeterTemplate {
-    // #[template_child]
-    // pub back_button: TemplateChild<gtk::Button>,
-
     #[template_child]
     pub login_button: TemplateChild<gtk::Button>,
-
-    #[template_child]
-    pub register_button: TemplateChild<gtk::Button>,
 }
 
 #[glib::object_subclass]
@@ -61,13 +55,15 @@ impl ObjectImpl for GreeterTemplate {
             
             app.connect_shutdown(move |_| {
                 info!("Window was closed. Successfully authenticated!");
+                
+                /*
+                 * This is the success case if the authentication worked
+                 * Later, this handler should close the application window
+                 */
+                this.obj().parent_window().switch_to_leaflet();
             });
 
             app.run();
-        }));
-
-        self.register_button.connect_clicked(clone!(@weak self as this => move |_| {
-            this.obj().parent_window().switch_to_register_page();
         }));
     }
 }

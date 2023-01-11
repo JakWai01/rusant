@@ -24,11 +24,6 @@ impl MainWindow {
         Object::new(&[("application", app)])
     }
 
-    pub fn switch_to_login_page(&self) {
-        let imp = self.imp();
-        imp.main_stack.set_visible_child(&*imp.login);
-    }
-
     pub fn switch_to_greeter_page(&self) {
         let imp = self.imp();
         imp.main_stack.set_visible_child(&*imp.greeter);
@@ -37,10 +32,5 @@ impl MainWindow {
     pub fn switch_to_leaflet(&self) {
         let imp = self.imp();
         imp.main_stack.set_visible_child(&*imp.leaflet);
-    }
-
-    pub fn switch_to_register_page(&self) {
-        let imp = self.imp();
-        imp.main_stack.set_visible_child(&*imp.register);
     }
 }
