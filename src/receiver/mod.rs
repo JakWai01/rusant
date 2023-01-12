@@ -22,12 +22,13 @@ impl<'a> ReceiverPipeline<'a> {
         let pipeline = gst::Pipeline::new(None);
 
         // Initialize pads
-        let src = gst::ElementFactory::make("udpsrc")
-            .property("address", self.address)
+        let src = gst::ElementFactory::make("tcpclientsrc")
+            .property("host", self.address)
             .property("port", self.port)
             .build()
             .unwrap();
         let filter = gst::ElementFactory::make("capsfilter").build().unwrap();
+        let rtpstreamdepay = gst::ElementFactory::make("rtpstreamdepay").build().unwrap();
         let rtpjpegdepay = gst::ElementFactory::make("rtpjpegdepay").build().unwrap();
         let jpegdec = gst::ElementFactory::make("jpegdec").build().unwrap();
         let sink = gst::ElementFactory::make("gtk4paintablesink")
@@ -36,8 +37,8 @@ impl<'a> ReceiverPipeline<'a> {
 
         // Initialize Caps
         let caps = gst::Caps::new_simple(
-            "application/x-rtp",
-            &[("encoding-name", &"JPEG"), ("payload", &26i32)],
+            "application/x-rtp-stream",
+            &[("encoding-name", &"JPEG")],
         );
         filter.set_property("caps", &caps);
 
@@ -46,11 +47,11 @@ impl<'a> ReceiverPipeline<'a> {
 
         // Add pads
         pipeline
-            .add_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink])
+            .add_many(&[&src, &filter, &rtpstreamdepay, &rtpjpegdepay, &jpegdec, &sink])
             .unwrap();
 
         // Link pads
-        gst::Element::link_many(&[&src, &filter, &rtpjpegdepay, &jpegdec, &sink]).unwrap();
+        gst::Element::link_many(&[&src, &filter, &rtpstreamdepay, &rtpjpegdepay, &jpegdec, &sink]).unwrap();
 
         (pipeline, paintable)
     }

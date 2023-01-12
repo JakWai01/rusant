@@ -18,8 +18,9 @@ use gtk::{
     CssProvider, StyleContext, Window,
 };
 use gtk_macros::action;
+use sender::Sender;
 // use webkit2gtk::{WebContext, WebView, WebViewExt, SettingsExt, WebContextExt};
-use std::collections::HashMap;
+use std::{collections::HashMap, thread};
 use std::path::Path;
 
 use gtk::gio::resources_register_include;
@@ -119,6 +120,8 @@ fn main() {
     info!("Starting application");
 
     std::process::exit(app.run());
+    
+
 }
 
 /// Build the user interface

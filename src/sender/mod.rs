@@ -59,24 +59,24 @@ impl<'a> SenderPipeline<'a> {
         let filter = gst::ElementFactory::make("capsfilter").build().unwrap();
         let jpegenc = gst::ElementFactory::make("jpegenc").build().unwrap();
         let rtpjpegpay = gst::ElementFactory::make("rtpjpegpay").build().unwrap();
-        let udpsink = gst::ElementFactory::make("udpsink").build().unwrap();
+        let rtpstreampay = gst::ElementFactory::make("rtpstreampay").build().unwrap();
+        let udpsink = gst::ElementFactory::make("tcpserversink").build().unwrap();
 
         // Initialize caps
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
 
         filter.set_property("caps", &caps);
 
-        // v4l2src.set_caps(Some(&video_caps));
         udpsink.set_property("host", self.host);
         udpsink.set_property("port", self.port);
 
         // Add pads
         pipeline
-            .add_many(&[&v4l2src, &filter, &jpegenc, &rtpjpegpay, &udpsink])
+            .add_many(&[&v4l2src, &filter, &jpegenc, &rtpjpegpay, &rtpstreampay, &udpsink])
             .unwrap();
 
         // Link pads
-        gst::Element::link_many(&[&v4l2src, &filter, &jpegenc, &rtpjpegpay, &udpsink]).unwrap();
+        gst::Element::link_many(&[&v4l2src, &filter, &jpegenc, &rtpjpegpay, &rtpstreampay, &udpsink]).unwrap();
 
         pipeline
     }
