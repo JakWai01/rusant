@@ -85,9 +85,9 @@ impl ContactItem {
                     let sender = sender::VideoSenderPipeline::new("127.0.0.1", 3000);
                     // sender.build();
 
-                    thread::spawn(move || {
-                        sender.send();
-                    });
+                    // thread::spawn(move || {
+                    sender.send();
+                    // });
 
                     let receiver = receiver::VideoReceiverPipeline::new("127.0.0.1", 3000);
                     let (pipeline, paintable) = receiver.build();
@@ -107,7 +107,8 @@ impl ContactItem {
                     let audio_sender = sender::AudioSenderPipeline::new("127.0.0.1", 3001);
                     audio_sender.build();
 
-                    thread::spawn(move || audio_sender.send());
+                    // thread::spawn(move || audio_sender.send());
+                    audio_sender.send();
 
                     let audio_receiver = receiver::AudioReceiverPipeline::new("127.0.0.1", 3001);
 
@@ -135,6 +136,7 @@ impl ContactItem {
 
                         audio_pipeline.set_state(gst::State::Null).expect("Unable to nullify");
                         pipeline.set_state(gst::State::Null).expect("Unable to nullify video");
+                        
                     }));
                 }));
     }

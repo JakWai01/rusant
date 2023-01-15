@@ -23,26 +23,6 @@ impl<'a> Sender for VideoSenderPipeline<'a> {
 
         // Start pipeline
         pipeline.set_state(gst::State::Playing).unwrap();
-
-        let bus = pipeline
-            .bus()
-            .expect("Pipeline without bus. Shouldn't happen!");
-        
-        // Listen on bus for events
-        for msg in bus.iter_timed(gst::ClockTime::NONE) {
-            use gst::MessageView;
-
-            match msg.view() {
-                MessageView::Eos(..) => break,
-                MessageView::Error(_err) => {
-                    pipeline.set_state(gst::State::Null).unwrap();
-                }
-                _ => (),
-            }
-        }
-
-        // Stop pipeline
-        pipeline.set_state(gst::State::Null).unwrap();
     }
 }
 
@@ -53,23 +33,6 @@ impl<'a> Sender for AudioSenderPipeline<'a> {
 
         // Start pipeline
         pipeline.set_state(gst::State::Playing).unwrap();
-
-        let bus = pipeline
-            .bus()
-            .expect("Pipeline without bus. Shouldn't happen!");
-
-        // Listen on bus for events
-        for msg in bus.iter_timed(gst::ClockTime::NONE) {
-            use gst::MessageView;
-
-            match msg.view() {
-                MessageView::Eos(..) => break,
-                MessageView::Error(_err) => {
-                    pipeline.set_state(gst::State::Null).unwrap();
-                }
-                _ => (),
-            }
-        }
     }
 }
 
