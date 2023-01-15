@@ -118,20 +118,20 @@ impl ObjectImpl for CallPaneTemplate {
         });
 
         // Handle click on call_stop button
-        self.call_stop
-            .connect_clicked(clone!(@weak self as this => move |_| {
-                info!("Button `call_stop` was clicked");
+        // self.call_stop
+        //     .connect_clicked(clone!(@weak self as this => move |_| {
+        //         info!("Button `call_stop` was clicked");
 
-                // Hide call and show placeholder
-                this.placeholder.set_visible(true);
-                this.action_bar.set_visible(false);
-                this.call_box.set_visible(false);
+        //         // Hide call and show placeholder
+        //         this.placeholder.set_visible(true);
+        //         this.action_bar.set_visible(false);
+        //         this.call_box.set_visible(false);
 
-                // Empty the grid when stopping a call
-                while let Some(child) = this.grid.child_at_index(0) {
-                    this.grid.remove(&child);
-                }
-            }));
+        //         // Empty the grid when stopping a call
+        //         while let Some(child) = this.grid.child_at_index(0) {
+        //             this.grid.remove(&child);
+        //         }
+        //     }));
 
         
     }

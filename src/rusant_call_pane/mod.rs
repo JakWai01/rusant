@@ -42,4 +42,8 @@ impl CallPane {
     pub fn grid(&self) -> gtk::FlowBox {
         self.imp().grid.get()
     }
+
+    pub fn call_stop(&self) -> gtk::Button {
+        self.imp().call_stop.get()
+    }
 }

@@ -27,7 +27,7 @@ impl<'a> Sender for VideoSenderPipeline<'a> {
         let bus = pipeline
             .bus()
             .expect("Pipeline without bus. Shouldn't happen!");
-
+        
         // Listen on bus for events
         for msg in bus.iter_timed(gst::ClockTime::NONE) {
             use gst::MessageView;

@@ -98,11 +98,11 @@ impl ContactItem {
 
                     call_pane.grid().insert(&picture, 0);
 
-                    thread::spawn(move || {
-                        pipeline
-                            .set_state(gst::State::Playing)
-                            .expect("Unable to set the pipeline to the `Playing` state");
-                    });
+                    // thread::spawn(move || {
+                    pipeline
+                        .set_state(gst::State::Playing)
+                        .expect("Unable to set the pipeline to the `Playing` state");
+                    // });
 
                     let audio_sender = sender::AudioSenderPipeline::new("127.0.0.1", 3001);
                     audio_sender.build();
@@ -113,11 +113,29 @@ impl ContactItem {
 
                     let audio_pipeline = audio_receiver.build();
 
-                    thread::spawn(move || {
-                        audio_pipeline
-                            .set_state(gst::State::Playing)
-                            .expect("Unable to set the audio pipeline to the `Playing` state");
-                    });
+                    // thread::spawn(move || {
+                    audio_pipeline 
+                        .set_state(gst::State::Playing)
+                        .expect("Unable to set the audio pipeline to the `Playing` state");
+                    // });
+
+                    // audio_pipeline.set_state(gst::State::Null).expect("Unable to nullify");
+                    call_pane.call_stop().connect_clicked(clone!(@weak call_pane => move |_| {
+                        info!("Button `call_stop` was clicked");
+
+                        // Hide call and show placeholder
+                        call_pane.placeholder().set_visible(true);
+                        call_pane.action_bar().set_visible(false);
+                        call_pane.call_box().set_visible(false);
+
+                        // Empty the grid when stopping a call
+                        while let Some(child) = call_pane.grid().child_at_index(0) {
+                            call_pane.grid().remove(&child);
+                        }
+
+                        audio_pipeline.set_state(gst::State::Null).expect("Unable to nullify");
+                        pipeline.set_state(gst::State::Null).expect("Unable to nullify video");
+                    }));
                 }));
     }
 
