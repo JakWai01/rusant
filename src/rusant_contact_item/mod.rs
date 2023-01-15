@@ -5,8 +5,7 @@ use std::thread;
 use crate::{
     receiver,
     rusant_call_pane::CallPane,
-    rusant_contact_list::ContactList,
-    sender::{self, Sender},
+    rusant_contact_list::ContactList, sender,
 };
 
 use self::template::ContactItemTemplate;
@@ -86,7 +85,8 @@ impl ContactItem {
                     // sender.build();
 
                     // thread::spawn(move || {
-                    sender.send();
+                    sender.build();
+                    sender.start();
                     // });
 
                     let receiver = receiver::VideoReceiverPipeline::new("127.0.0.1", 3000);
@@ -108,7 +108,7 @@ impl ContactItem {
                     audio_sender.build();
 
                     // thread::spawn(move || audio_sender.send());
-                    audio_sender.send();
+                    audio_sender.start();
 
                     let audio_receiver = receiver::AudioReceiverPipeline::new("127.0.0.1", 3001);
 
@@ -136,7 +136,8 @@ impl ContactItem {
 
                         audio_pipeline.set_state(gst::State::Null).expect("Unable to nullify");
                         pipeline.set_state(gst::State::Null).expect("Unable to nullify video");
-                        
+                        sender.stop();
+                        audio_sender.stop(); 
                     }));
                 }));
     }

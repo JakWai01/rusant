@@ -1,53 +1,46 @@
 use gst::prelude::*;
 use log::info;
 
-pub trait Sender {
-    fn send(&self) {}
-}
-
 /// Sender part of the gstreamer pipeline
 pub struct VideoSenderPipeline<'a> {
     host: &'a str,
     port: i32,
+    pipeline: gst::Pipeline,
 }
 
 pub struct AudioSenderPipeline<'a> {
     host: &'a str,
     port: i32,
+    pipeline: gst::Pipeline,
 }
 
-impl<'a> Sender for VideoSenderPipeline<'a> {
-    /// Start sender pipeline
-    fn send(&self) {
-        let pipeline = self.build();
 
-        // Start pipeline
-        pipeline.set_state(gst::State::Playing).unwrap();
-    }
-}
-
-impl<'a> Sender for AudioSenderPipeline<'a> {
-    /// Start sender pipeline
-    fn send(&self) {
-        let pipeline = self.build();
-
-        // Start pipeline
-        pipeline.set_state(gst::State::Playing).unwrap();
-    }
-}
 
 impl<'a> VideoSenderPipeline<'a> {
     /// Initialize a new VideoSenderPipeline
     pub fn new(host: &'a str, port: i32) -> Self {
-        VideoSenderPipeline { host, port }
+        VideoSenderPipeline { host, port, pipeline: gst::Pipeline::new(Some("VideoSender")) }
+    }
+    
+    /// Start sender pipeline
+    pub fn start(&self) {
+        // let pipeline = self.build();
+
+        // Start pipeline
+        self.pipeline.set_state(gst::State::Playing).unwrap();
+    }
+
+    /// Stop sender pipeline
+    pub fn stop(&self) {
+        self.pipeline.set_state(gst::State::Null).unwrap();
     }
 
     /// Build the pipeline
-    pub fn build(&self) -> gst::Pipeline {
+    pub fn build(&self) {
         info!("Initializing video sender pipeline");
 
         // Initialize Gstreamer pipeline
-        let pipeline = gst::Pipeline::new(Some("VideoSender"));
+        // let pipeline = self.pipeline;
 
         // Initialize pads
         let v4l2src = gst::ElementFactory::make("v4l2src").build().unwrap();
@@ -66,7 +59,7 @@ impl<'a> VideoSenderPipeline<'a> {
         udpsink.set_property("port", self.port);
 
         // Add pads
-        pipeline
+        self.pipeline
             .add_many(&[
                 &v4l2src,
                 &filter,
@@ -88,22 +81,34 @@ impl<'a> VideoSenderPipeline<'a> {
         ])
         .unwrap();
 
-        pipeline
+        // self.pipeline = pipeline;
     }
 }
 
 impl<'a> AudioSenderPipeline<'a> {
     /// Initialize a new AudioSenderPipeline
     pub fn new(host: &'a str, port: i32) -> Self {
-        AudioSenderPipeline { host, port }
+        AudioSenderPipeline { host, port, pipeline: gst::Pipeline::new(Some("AudioSender")) }
+    }
+    
+    /// Start sender pipeline
+    pub fn start(&self) {
+        // let pipeline = self.build();
+
+        // Start pipeline
+        self.pipeline.set_state(gst::State::Playing).unwrap();
+    }
+
+    pub fn stop(&self) {
+        self.pipeline.set_state(gst::State::Null).unwrap();
     }
 
     /// Build the pipeline
-    pub fn build(&self) -> gst::Pipeline {
+    pub fn build(&self) {
         info!("Initializing audio sender pipeline");
 
         // Initialize Gstreamer pipeline
-        let pipeline = gst::Pipeline::new(Some("AudioSender"));
+        // let pipeline = gst::Pipeline::new(Some("AudioSender"));
 
         // Initialize pads
         let src = gst::ElementFactory::make("alsasrc").build().unwrap();
@@ -123,7 +128,7 @@ impl<'a> AudioSenderPipeline<'a> {
         sink.set_property("host", self.host);
         sink.set_property("port", self.port);
 
-        pipeline
+        self.pipeline
             .add_many(&[
                 &src,
                 &filter,
@@ -144,6 +149,6 @@ impl<'a> AudioSenderPipeline<'a> {
         ])
         .unwrap();
 
-        pipeline
+        // self.pipeline = pipeline
     }
 }

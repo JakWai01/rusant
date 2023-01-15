@@ -18,7 +18,6 @@ use gtk::{
     CssProvider, StyleContext, Window,
 };
 use gtk_macros::action;
-use sender::Sender;
 // use webkit2gtk::{WebContext, WebView, WebViewExt, SettingsExt, WebContextExt};
 use std::{collections::HashMap, thread};
 use std::path::Path;

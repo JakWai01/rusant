@@ -1,6 +1,5 @@
 use crate::{
     receiver,
-    sender::{self, Sender},
 };
 
 use super::CallPane;
