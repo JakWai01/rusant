@@ -14,8 +14,6 @@ pub struct AudioSenderPipeline<'a> {
     pipeline: gst::Pipeline,
 }
 
-
-
 impl<'a> VideoSenderPipeline<'a> {
     /// Initialize a new VideoSenderPipeline
     pub fn new(host: &'a str, port: i32) -> Self {

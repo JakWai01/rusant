@@ -82,15 +82,12 @@ impl ContactItem {
                     * It just has to be started once a call starts but this can be anywhere.
                     */
                     let sender = sender::VideoSenderPipeline::new("127.0.0.1", 3000);
-                    // sender.build();
-
-                    // thread::spawn(move || {
                     sender.build();
                     sender.start();
-                    // });
 
                     let receiver = receiver::VideoReceiverPipeline::new("127.0.0.1", 3000);
-                    let (pipeline, paintable) = receiver.build();
+                    let paintable = receiver.build();
+                    receiver.start();
 
                     let picture = gtk::Picture::new();
                     picture.set_paintable(Some(&paintable));
@@ -98,29 +95,14 @@ impl ContactItem {
 
                     call_pane.grid().insert(&picture, 0);
 
-                    // thread::spawn(move || {
-                    pipeline
-                        .set_state(gst::State::Playing)
-                        .expect("Unable to set the pipeline to the `Playing` state");
-                    // });
-
                     let audio_sender = sender::AudioSenderPipeline::new("127.0.0.1", 3001);
                     audio_sender.build();
-
-                    // thread::spawn(move || audio_sender.send());
                     audio_sender.start();
 
                     let audio_receiver = receiver::AudioReceiverPipeline::new("127.0.0.1", 3001);
+                    audio_receiver.build();
+                    audio_receiver.start();
 
-                    let audio_pipeline = audio_receiver.build();
-
-                    // thread::spawn(move || {
-                    audio_pipeline 
-                        .set_state(gst::State::Playing)
-                        .expect("Unable to set the audio pipeline to the `Playing` state");
-                    // });
-
-                    // audio_pipeline.set_state(gst::State::Null).expect("Unable to nullify");
                     call_pane.call_stop().connect_clicked(clone!(@weak call_pane => move |_| {
                         info!("Button `call_stop` was clicked");
 
@@ -134,10 +116,10 @@ impl ContactItem {
                             call_pane.grid().remove(&child);
                         }
 
-                        audio_pipeline.set_state(gst::State::Null).expect("Unable to nullify");
-                        pipeline.set_state(gst::State::Null).expect("Unable to nullify video");
+                        audio_receiver.stop();
+                        receiver.stop();
                         sender.stop();
-                        audio_sender.stop(); 
+                        audio_sender.stop();
                     }));
                 }));
     }

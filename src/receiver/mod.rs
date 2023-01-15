@@ -7,25 +7,35 @@ use log::info;
 pub struct VideoReceiverPipeline<'a> {
     address: &'a str,
     port: i32,
+    pipeline: gst::Pipeline,
 }
 
 pub struct AudioReceiverPipeline<'a> {
     address: &'a str,
     port: i32,
+    pipeline: gst::Pipeline,
 }
 
 impl<'a> VideoReceiverPipeline<'a> {
     /// Initialize a new VideoReceiverPipeline
     pub fn new(address: &'a str, port: i32) -> Self {
-        VideoReceiverPipeline { address, port }
+        VideoReceiverPipeline { address, port, pipeline: gst::Pipeline::new(Some("VideoReceiver")) }
+    }
+
+    pub fn start(&self) {
+        self.pipeline.set_state(gst::State::Playing).unwrap();
+    }
+
+    pub fn stop(&self) {
+        self.pipeline.set_state(gst::State::Null).unwrap();
     }
 
     /// Build the pipeline
-    pub fn build(&self) -> (gst::Pipeline, gdk::Paintable) {
+    pub fn build(&self) -> gdk::Paintable {
         info!("Initializing video receiver pipeline");
 
         // Initialize Gstreamer pipeline
-        let pipeline = gst::Pipeline::new(None);
+        let pipeline = &self.pipeline;
 
         // Initialize pads
         let src = gst::ElementFactory::make("tcpclientsrc")
@@ -71,22 +81,30 @@ impl<'a> VideoReceiverPipeline<'a> {
         ])
         .unwrap();
 
-        (pipeline, paintable)
+        paintable
     }
 }
 
 impl<'a> AudioReceiverPipeline<'a> {
     /// Initialize a new AudioReceiverPipeline
     pub fn new(address: &'a str, port: i32) -> Self {
-        AudioReceiverPipeline { address, port }
+        AudioReceiverPipeline { address, port, pipeline: gst::Pipeline::new(Some("AudioReceiver")) }
+    }
+
+    pub fn start(&self) {
+        self.pipeline.set_state(gst::State::Playing).unwrap();
+    }
+
+    pub fn stop(&self) {
+        self.pipeline.set_state(gst::State::Null).unwrap();
     }
 
     /// Build the pipeline
-    pub fn build(&self) -> gst::Pipeline {
+    pub fn build(&self) {
         info!("Initializing audio receiver pipeline");
 
         // Initialize Gstreamer pipeline
-        let pipeline = gst::Pipeline::new(Some("Audio"));
+        let pipeline = &self.pipeline;
 
         // Initialize pads
         let src = gst::ElementFactory::make("tcpclientsrc").build().unwrap();
@@ -218,6 +236,5 @@ impl<'a> AudioReceiverPipeline<'a> {
                 );
             }
         });
-        pipeline
     }
 }
