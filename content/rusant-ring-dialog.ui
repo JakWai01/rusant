@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="AdwMessageDialog" id="dialog">
+    <property name="heading" translatable="yes">Jakob is calling</property>
+    <!-- <property name="body" translatable="yes">NAME is calling you from IP</property> -->
+    <property name="default-response">accept</property>
+    <property name="close-response">cancel</property>
+    <responses>
+      <response id="cancel" translatable="yes" appearance="destructive">Decline</response>
+      <response id="accept" translatable="yes" appearance="suggested" enabled="true">Accept</response>
+    </responses>
+  </object>
+</interface>

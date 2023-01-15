@@ -10,9 +10,11 @@ use gio::{
 };
 use glib::{clone, wrapper, Cast, ObjectExt};
 use gtk::{
-    traits::{ButtonExt, CheckButtonExt, WidgetExt},
+    traits::{ButtonExt, CheckButtonExt, GtkWindowExt, WidgetExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
 };
+use gtk_macros::spawn;
+use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt};
 use log::{debug, info};
 
 wrapper! {
@@ -57,13 +59,42 @@ impl ContactItem {
         let imp = ContactItemTemplate::from_instance(&self);
 
         imp.call
-            .connect_clicked(clone!(@strong call_pane => move |_| {
+            .connect_clicked(clone!(@strong call_pane, @weak self as this => move |_| {
                 info!("Button call was clicked");
 
                 call_pane.call_box().set_visible(true);
                 call_pane.placeholder().set_visible(false);
                 call_pane.action_bar().set_visible(true);
+
+                spawn!(clone!(@weak this => async move {
+                    this.show_ring_dialog().await;
+                }));
             }));
+    }
+
+    pub async fn show_ring_dialog(&self) {
+        info!("Showing ring dialog");
+
+        let builder = gtk::Builder::from_resource("/com/jakobwaibel/Rusant/rusant-ring-dialog.ui");
+
+        let dialog = builder
+            .object::<libadwaita::MessageDialog>("dialog")
+            .unwrap();
+
+        dialog.set_transient_for(self.parent_window().as_ref());
+
+        // dialog.set_response_enabled("accept", true);
+        
+        if dialog.run_future().await == "accept" {
+            debug!("Accepting call");
+
+            println!("Accepting the call");
+        }
+    }
+
+    /// Returns the parent GtkWindow containing this widget.
+    fn parent_window(&self) -> Option<gtk::Window> {
+        self.root()?.downcast().ok()
     }
 
     /// Handle click on handle_video_call_click button
