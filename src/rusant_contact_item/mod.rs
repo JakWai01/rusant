@@ -1,6 +1,13 @@
 pub mod template;
 
-use crate::{rusant_call_pane::CallPane, rusant_contact_list::ContactList};
+use std::thread;
+
+use crate::{
+    receiver,
+    rusant_call_pane::CallPane,
+    rusant_contact_list::ContactList,
+    sender::{self, Sender},
+};
 
 use self::template::ContactItemTemplate;
 
@@ -9,6 +16,7 @@ use gio::{
     traits::ListModelExt,
 };
 use glib::{clone, wrapper, Cast, ObjectExt};
+use gst::traits::ElementExt;
 use gtk::{
     traits::{ButtonExt, CheckButtonExt, GtkWindowExt, WidgetExt},
     Accessible, Box, Buildable, ConstraintTarget, Orientable, Widget,
@@ -60,16 +68,57 @@ impl ContactItem {
 
         imp.call
             .connect_clicked(clone!(@strong call_pane, @weak self as this => move |_| {
-                info!("Button call was clicked");
+                    info!("Button call was clicked");
 
-                call_pane.call_box().set_visible(true);
-                call_pane.placeholder().set_visible(false);
-                call_pane.action_bar().set_visible(true);
+                    call_pane.call_box().set_visible(true);
+                    call_pane.placeholder().set_visible(false);
+                    call_pane.action_bar().set_visible(true);
 
-                spawn!(clone!(@weak this => async move {
-                    this.show_ring_dialog().await;
+                    spawn!(clone!(@weak this => async move {
+                        this.show_ring_dialog().await;
+                    }));
+
+                    /*
+                    * This part does not necessarily need to be here.
+                    * It just has to be started once a call starts but this can be anywhere.
+                    */
+                    let sender = sender::VideoSenderPipeline::new("127.0.0.1", 3000);
+                    // sender.build();
+
+                    thread::spawn(move || {
+                        sender.send();
+                    });
+
+                    let receiver = receiver::VideoReceiverPipeline::new("127.0.0.1", 3000);
+                    let (pipeline, paintable) = receiver.build();
+
+                    let picture = gtk::Picture::new();
+                    picture.set_paintable(Some(&paintable));
+                    picture.set_keep_aspect_ratio(true);
+
+                    call_pane.grid().insert(&picture, 0);
+
+                    thread::spawn(move || {
+                        pipeline
+                            .set_state(gst::State::Playing)
+                            .expect("Unable to set the pipeline to the `Playing` state");
+                    });
+
+                    let audio_sender = sender::AudioSenderPipeline::new("127.0.0.1", 3001);
+                    audio_sender.build();
+
+                    thread::spawn(move || audio_sender.send());
+
+                    let audio_receiver = receiver::AudioReceiverPipeline::new("127.0.0.1", 3001);
+
+                    let audio_pipeline = audio_receiver.build();
+
+                    thread::spawn(move || {
+                        audio_pipeline
+                            .set_state(gst::State::Playing)
+                            .expect("Unable to set the audio pipeline to the `Playing` state");
+                    });
                 }));
-            }));
     }
 
     pub async fn show_ring_dialog(&self) {
@@ -84,7 +133,7 @@ impl ContactItem {
         dialog.set_transient_for(self.parent_window().as_ref());
 
         // dialog.set_response_enabled("accept", true);
-        
+
         if dialog.run_future().await == "accept" {
             debug!("Accepting call");
 

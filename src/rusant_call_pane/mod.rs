@@ -38,4 +38,8 @@ impl CallPane {
     pub fn action_bar(&self) -> gtk::ActionBar {
         self.imp().action_bar.get()
     }
+
+    pub fn grid(&self) -> gtk::FlowBox {
+        self.imp().grid.get()
+    }
 }

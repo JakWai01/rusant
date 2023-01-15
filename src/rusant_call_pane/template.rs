@@ -9,6 +9,7 @@ use std::thread;
 
 use anyhow::Error;
 use derive_more::{Display, Error};
+use gio::subclass::prelude::ObjectSubclassExt;
 use glib::{
     self, clone, object_subclass,
     subclass::{
@@ -125,48 +126,14 @@ impl ObjectImpl for CallPaneTemplate {
                 this.placeholder.set_visible(true);
                 this.action_bar.set_visible(false);
                 this.call_box.set_visible(false);
+
+                // Empty the grid when stopping a call
+                while let Some(child) = this.grid.child_at_index(0) {
+                    this.grid.remove(&child);
+                }
             }));
 
-        /*
-         * This part does not necessarily need to be here.
-         * It just has to be started once a call starts but this can be anywhere.
-         */
-        let sender = sender::VideoSenderPipeline::new("127.0.0.1", 3000);
-        // sender.build();
-
-        thread::spawn(move || {
-            sender.send();
-        });
-
-        let receiver = receiver::VideoReceiverPipeline::new("127.0.0.1", 3000);
-        let (pipeline, paintable) = receiver.build();
-
-        let picture = gtk::Picture::new();
-        picture.set_paintable(Some(&paintable));
-        picture.set_keep_aspect_ratio(true);
-
-        self.grid.insert(&picture, 0);
-
-        thread::spawn(move || {
-            pipeline
-                .set_state(gst::State::Playing)
-                .expect("Unable to set the pipeline to the `Playing` state");
-        });
-
-        let audio_sender = sender::AudioSenderPipeline::new("127.0.0.1", 3001);
-        audio_sender.build();
-
-        thread::spawn(move || audio_sender.send());
-
-        let audio_receiver = receiver::AudioReceiverPipeline::new("127.0.0.1", 3001);
-
-        let audio_pipeline = audio_receiver.build();
-
-        thread::spawn(move || {
-            audio_pipeline
-                .set_state(gst::State::Playing)
-                .expect("Unable to set the audio pipeline to the `Playing` state");
-        });
+        
     }
 }
 
