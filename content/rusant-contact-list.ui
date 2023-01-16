@@ -37,6 +37,7 @@
                                 <property name="valign">center</property>
                                 <property name="halign">center</property>
                                 <property name="menu-model">menu</property>
+                                <property name="tooltip-text" translatable="yes">Menu</property>
                                 <property name="icon-name">open-menu-symbolic</property>
                                 <style>
                                     <class name="circular" />
@@ -116,6 +117,7 @@
                             <object class="GtkButton" id="delete_button">
                                 <property name="focus_on_click">False</property>
                                 <property name="label" translatable="yes">Remove</property>
+                                <property name="tooltip-text" translatable="yes">Remove selected contacts</property>
                                 <style>
                                     <class name="destructive-action" />
                                 </style>

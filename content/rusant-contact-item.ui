@@ -20,6 +20,7 @@
                 </child>
                 <child>
                     <object class="GtkButton" id="call">
+                        <property name="tooltip-text" translatable="yes">Start a voice call</property>
                         <property name="icon-name">call-start</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>
@@ -31,6 +32,7 @@
                 </child>
                 <child>
                     <object class="GtkButton" id="video_call">
+                        <property name="tooltip-text" translatable="yes">Start a video call</property>
                         <property name="icon-name">camera-video</property>
                         <property name="valign">center</property>
                         <property name="halign">end</property>

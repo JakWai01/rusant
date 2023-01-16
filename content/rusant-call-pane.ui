@@ -62,10 +62,9 @@
                             <object class="GtkBox">
                                 <child>
                                     <object class="GtkButton" id="camera_video">
+                                        <property name="tooltip-text" translatable="yes">Toggle camera</property>
                                         <property name="margin-end">12</property>
                                         <property name="icon-name">camera-video</property>
-                                        <property name="tooltip-text" translatable="yes">Play the
-                                            Previous Song</property>
                                         <style>
                                             <class name="circular" />
                                             <!-- <class name="suggested-action" /> -->
@@ -74,9 +73,8 @@
                                 </child>
                                 <child>
                                     <object class="GtkButton" id="audio_input_microphone">
+                                        <property name="tooltip-text" translatable="yes">Toggle microphone</property>
                                         <property name="icon-name">audio-input-microphone</property>
-                                        <property name="tooltip-text" translatable="yes">Play the
-                                            Previous Song</property>
                                         <style>
                                             <class name="circular" />
                                         </style>
@@ -84,10 +82,9 @@
                                 </child>
                                 <child>
                                     <object class="GtkButton" id="call_stop">
+                                        <property name="tooltip-text" translatable="yes">End call</property>
                                         <property name="margin-start">12</property>
                                         <property name="icon-name">call-stop</property>
-                                        <property name="tooltip-text" translatable="yes">Play the
-                                            Previous Song</property>
                                         <style>
                                             <class name="circular" />
                                             <class name="destructive-action" />
