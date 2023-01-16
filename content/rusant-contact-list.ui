@@ -101,7 +101,7 @@
                 <child>
                     <object class="GtkActionBar" id="action_bar">
                         <property name="revealed">False</property>
-                        <child>
+                        <!-- <child>
                             <object class="GtkButton" id="call_button">
                                 <property name="label" translatable="yes"
                                     comments="Call refers to the verb">Call</property>
@@ -111,7 +111,7 @@
                                     <class name="suggested-action" />
                                 </style>
                             </object>
-                        </child>
+                        </child> -->
                         <child type="end">
                             <object class="GtkButton" id="delete_button">
                                 <property name="focus_on_click">False</property>

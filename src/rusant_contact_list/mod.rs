@@ -84,11 +84,11 @@ impl ContactList {
                 }));
 
                 // Handle click on call_button button
-                this.imp().call_button.connect_clicked(clone!(@weak contact_item, @weak this, @weak call_pane => move |_| {
-                    info!("Button call_button was clicked");
+                // this.imp().call_button.connect_clicked(clone!(@weak contact_item, @weak this, @weak call_pane => move |_| {
+                //     info!("Button call_button was clicked");
 
-                    contact_item.leave_selection_mode();
-                }));
+                //     contact_item.leave_selection_mode();
+                // }));
                 
                 // Handle contact search
                 this.imp().search_bar.connect_search_changed(clone!(@weak this, @weak contact_item, @strong name => move |entry| {
@@ -103,7 +103,7 @@ impl ContactList {
                     }
                 }));
 
-                this.handle_call_button_click(&call_pane);
+                // this.handle_call_button_click(&call_pane);
 
                 contact_item.handle_selection_toggle(&this);
 
@@ -177,26 +177,26 @@ impl ContactList {
     }
 
     /// Handle click on call_button button
-    pub fn handle_call_button_click(&self, call_pane: &CallPane) {
-        self.imp().call_button.connect_clicked(
-            clone!(@weak self as contact_list, @weak call_pane => move |_| {
-                info!("Button call_button was clicked");
+    // pub fn handle_call_button_click(&self, call_pane: &CallPane) {
+    //     self.imp().call_button.connect_clicked(
+    //         clone!(@weak self as contact_list, @weak call_pane => move |_| {
+    //             info!("Button call_button was clicked");
 
-                contact_list.imp().action_bar.set_revealed(false);
+    //             contact_list.imp().action_bar.set_revealed(false);
 
-                contact_list.imp().add_button.set_visible(true);
-                contact_list.imp().title.set_title("Contacts");
-                contact_list.imp().selection_button.set_visible(true);
-                contact_list.imp().menu.set_visible(true);
+    //             contact_list.imp().add_button.set_visible(true);
+    //             contact_list.imp().title.set_title("Contacts");
+    //             contact_list.imp().selection_button.set_visible(true);
+    //             contact_list.imp().menu.set_visible(true);
 
-                contact_list.imp().select_cancel_button.set_visible(false);
+    //             contact_list.imp().select_cancel_button.set_visible(false);
 
-                call_pane.call_box().set_visible(true);
-                call_pane.placeholder().set_visible(false);
-                call_pane.action_bar().set_visible(true);
-            }),
-        );
-    }
+    //             call_pane.call_box().set_visible(true);
+    //             call_pane.placeholder().set_visible(false);
+    //             call_pane.action_bar().set_visible(true);
+    //         }),
+    //     );
+    // }
 
     pub fn search_bar(&self) -> SearchEntry {
         self.imp().search_bar.get()
