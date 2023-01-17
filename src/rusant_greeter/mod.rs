@@ -2,8 +2,8 @@ mod template;
 
 use gio::{subclass::prelude::ObjectSubclassIsExt, traits::NetworkMonitorExt};
 use glib::Cast;
-use gtk::subclass::widget::WidgetClassSubclassExt;
 use gtk::subclass::widget::CompositeTemplate;
+use gtk::subclass::widget::WidgetClassSubclassExt;
 use gtk::traits::WidgetExt;
 
 use crate::rusant_main_window::MainWindow;
@@ -24,6 +24,8 @@ impl Greeter {
     }
 
     fn parent_window(&self) -> MainWindow {
-        self.root().and_then(|root| root.downcast().ok()).expect("Login needs to have a parent window")
+        self.root()
+            .and_then(|root| root.downcast().ok())
+            .expect("Login needs to have a parent window")
     }
 }

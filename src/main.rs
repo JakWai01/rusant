@@ -4,9 +4,9 @@ mod rusant_call_pane;
 mod rusant_contact_dialog;
 mod rusant_contact_item;
 mod rusant_contact_list;
+mod rusant_greeter;
 mod rusant_main_window;
 mod sender;
-mod rusant_greeter;
 
 use log::info;
 use rusant_main_window::MainWindow;
@@ -19,8 +19,8 @@ use gtk::{
 };
 use gtk_macros::action;
 // use webkit2gtk::{WebContext, WebView, WebViewExt, SettingsExt, WebContextExt};
-use std::{collections::HashMap, thread};
 use std::path::Path;
+use std::{collections::HashMap, thread};
 
 use gtk::gio::resources_register_include;
 

@@ -5,11 +5,12 @@ use std::fs::File;
 use gio::subclass::prelude::ObjectSubclassIsExt;
 use template::MainWindowTemplate;
 
-use glib::{wrapper, Object, Cast};
+use glib::{wrapper, Cast, Object};
 use gtk::{
     gio::{ActionGroup, ActionMap},
+    traits::GtkWindowExt,
     Accessible, ApplicationWindow, Buildable, ConstraintTarget, Native, Root, ShortcutManager,
-    Widget, Window, traits::GtkWindowExt,
+    Widget, Window,
 };
 use libadwaita::Application;
 
@@ -41,10 +42,14 @@ impl MainWindow {
     fn restore_data(&self) -> Vec<ContactItem> {
         if let Ok(file) = File::open("data.json") {
             // Deserialize data from file to vector
-            let backup_data: Vec<ContactData> = serde_json::from_reader(file).expect("It should be possible to read `backup_data` from the json file.");
-            
+            let backup_data: Vec<ContactData> = serde_json::from_reader(file)
+                .expect("It should be possible to read `backup_data` from the json file.");
+
             // Convert `Vec<ContactData>` to `Vec<ContactItem>`
-            let contacts: Vec<ContactItem> = backup_data.into_iter().map(ContactItem::from_contact_data).collect();
+            let contacts: Vec<ContactItem> = backup_data
+                .into_iter()
+                .map(ContactItem::from_contact_data)
+                .collect();
 
             contacts
         } else {

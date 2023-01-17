@@ -17,9 +17,13 @@ pub struct AudioSenderPipeline<'a> {
 impl<'a> VideoSenderPipeline<'a> {
     /// Initialize a new VideoSenderPipeline
     pub fn new(host: &'a str, port: i32) -> Self {
-        VideoSenderPipeline { host, port, pipeline: gst::Pipeline::new(Some("VideoSender")) }
+        VideoSenderPipeline {
+            host,
+            port,
+            pipeline: gst::Pipeline::new(Some("VideoSender")),
+        }
     }
-    
+
     /// Start sender pipeline
     pub fn start(&self) {
         // let pipeline = self.build();
@@ -48,7 +52,7 @@ impl<'a> VideoSenderPipeline<'a> {
         let rtpstreampay = gst::ElementFactory::make("rtpstreampay").build().unwrap();
         let udpsink = gst::ElementFactory::make("tcpserversink").build().unwrap();
         // let udpsink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
-        
+
         // Initialize caps
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
 
@@ -87,9 +91,13 @@ impl<'a> VideoSenderPipeline<'a> {
 impl<'a> AudioSenderPipeline<'a> {
     /// Initialize a new AudioSenderPipeline
     pub fn new(host: &'a str, port: i32) -> Self {
-        AudioSenderPipeline { host, port, pipeline: gst::Pipeline::new(Some("AudioSender")) }
+        AudioSenderPipeline {
+            host,
+            port,
+            pipeline: gst::Pipeline::new(Some("AudioSender")),
+        }
     }
-    
+
     /// Start sender pipeline
     pub fn start(&self) {
         // let pipeline = self.build();

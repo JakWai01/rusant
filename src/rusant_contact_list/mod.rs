@@ -89,7 +89,7 @@ impl ContactList {
 
                 //     contact_item.leave_selection_mode();
                 // }));
-                
+
                 // Handle contact search
                 this.imp().search_bar.connect_search_changed(clone!(@weak this, @weak contact_item, @strong name => move |entry| {
                     debug!("Search changed: {}", entry.text());

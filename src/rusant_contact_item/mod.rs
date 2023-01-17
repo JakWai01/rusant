@@ -2,11 +2,7 @@ pub mod template;
 
 use std::thread;
 
-use crate::{
-    receiver,
-    rusant_call_pane::CallPane,
-    rusant_contact_list::ContactList, sender,
-};
+use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender};
 
 use self::template::ContactItemTemplate;
 
@@ -69,7 +65,7 @@ impl ContactItem {
         imp.call
             .connect_clicked(clone!(@strong call_pane, @weak self as this => move |_| {
                     info!("Button call was clicked");
-                    
+
                     if call_pane.action_bar().is_visible() {
                         info!("Button was clicked during a call! Please end the call before starting a new one.");
                     } else {

@@ -126,10 +126,7 @@ impl ObjectImpl for MainWindowTemplate {
 impl WindowImpl for MainWindowTemplate {
     fn close_request(&self) -> glib::signal::Inhibit {
         // Store contacts in a vector
-        let binding = self
-            .contact_list
-            .contacts()
-            .snapshot();
+        let binding = self.contact_list.contacts().snapshot();
 
         let backup_data: Vec<ContactData> = binding
             .iter()
@@ -145,8 +142,6 @@ impl WindowImpl for MainWindowTemplate {
         self.parent_close_request()
     }
 }
-
-
 
 impl WidgetImpl for MainWindowTemplate {}
 impl ApplicationWindowImpl for MainWindowTemplate {}

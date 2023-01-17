@@ -19,7 +19,11 @@ pub struct AudioReceiverPipeline<'a> {
 impl<'a> VideoReceiverPipeline<'a> {
     /// Initialize a new VideoReceiverPipeline
     pub fn new(address: &'a str, port: i32) -> Self {
-        VideoReceiverPipeline { address, port, pipeline: gst::Pipeline::new(Some("VideoReceiver")) }
+        VideoReceiverPipeline {
+            address,
+            port,
+            pipeline: gst::Pipeline::new(Some("VideoReceiver")),
+        }
     }
 
     pub fn start(&self) {
@@ -88,7 +92,11 @@ impl<'a> VideoReceiverPipeline<'a> {
 impl<'a> AudioReceiverPipeline<'a> {
     /// Initialize a new AudioReceiverPipeline
     pub fn new(address: &'a str, port: i32) -> Self {
-        AudioReceiverPipeline { address, port, pipeline: gst::Pipeline::new(Some("AudioReceiver")) }
+        AudioReceiverPipeline {
+            address,
+            port,
+            pipeline: gst::Pipeline::new(Some("AudioReceiver")),
+        }
     }
 
     pub fn start(&self) {
@@ -129,23 +137,11 @@ impl<'a> AudioReceiverPipeline<'a> {
         filter.set_property("caps", &caps);
 
         pipeline
-            .add_many(&[
-                &src,
-                &filter,
-                &rtpstreamdepay,
-                &rtpvorbisdepay,
-                &decodebin,
-            ])
+            .add_many(&[&src, &filter, &rtpstreamdepay, &rtpvorbisdepay, &decodebin])
             .unwrap();
 
-        gst::Element::link_many(&[
-            &src,
-            &filter,
-            &rtpstreamdepay,
-            &rtpvorbisdepay,
-            &decodebin,
-        ])
-        .unwrap();
+        gst::Element::link_many(&[&src, &filter, &rtpstreamdepay, &rtpvorbisdepay, &decodebin])
+            .unwrap();
 
         let pipeline_weak = pipeline.downgrade();
 

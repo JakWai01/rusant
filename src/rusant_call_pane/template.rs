@@ -1,6 +1,4 @@
-use crate::{
-    receiver,
-};
+use crate::receiver;
 
 use super::CallPane;
 
@@ -131,8 +129,6 @@ impl ObjectImpl for CallPaneTemplate {
         //             this.grid.remove(&child);
         //         }
         //     }));
-
-        
     }
 }
 
