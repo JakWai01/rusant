@@ -47,7 +47,8 @@ impl<'a> VideoSenderPipeline<'a> {
         let rtpjpegpay = gst::ElementFactory::make("rtpjpegpay").build().unwrap();
         let rtpstreampay = gst::ElementFactory::make("rtpstreampay").build().unwrap();
         let udpsink = gst::ElementFactory::make("tcpserversink").build().unwrap();
-
+        // let udpsink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
+        
         // Initialize caps
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
 
@@ -115,6 +116,7 @@ impl<'a> AudioSenderPipeline<'a> {
         let rtpvorbispay = gst::ElementFactory::make("rtpvorbispay").build().unwrap();
         let rtpstreampay = gst::ElementFactory::make("rtpstreampay").build().unwrap();
         let sink = gst::ElementFactory::make("tcpserversink").build().unwrap();
+        // let sink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
 
         // Initialize caps
         let caps = gst::Caps::new_simple("audio/x-raw", &[("rate", &48000i32)]);
