@@ -1,12 +1,17 @@
+use std::fs::File;
+
 use super::MainWindow;
 use super::*;
 
 use crate::rusant_call_pane::CallPane;
+use crate::rusant_contact_item::ContactData;
 use crate::rusant_contact_list::template::ContactListTemplate;
 use crate::rusant_contact_list::ContactList;
-use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::ContactItem};
 use crate::rusant_greeter::Greeter;
+use crate::{rusant_call_pane::template::CallPaneTemplate, rusant_contact_item::ContactItem};
+use serde::{Deserialize, Serialize};
 
+use gio::prelude::ListModelExtManual;
 use glib::{
     self, object_subclass,
     subclass::{
@@ -19,6 +24,7 @@ use glib::{
 
 use gst::prelude::*;
 
+use gtk::subclass::window::WindowImplExt;
 use gtk::{
     prelude::InitializingWidgetExt,
     subclass::{
@@ -26,7 +32,7 @@ use gtk::{
         prelude::{TemplateChild, WidgetImpl, WindowImpl},
         widget::{CompositeTemplate, WidgetClassSubclassExt},
     },
-    CompositeTemplate, Stack
+    CompositeTemplate, Stack,
 };
 
 use libadwaita::{
@@ -105,18 +111,43 @@ impl ObjectImpl for MainWindowTemplate {
         );
 
         // Define initial contacts
-        let contact_model = vec![
-            ContactItem::new("Jakob"),
-            ContactItem::new("Felicitas"),
-            ContactItem::new("Daniel"),
-        ];
+        // let contact_model = vec![
+        //     ContactItem::new("Jakob"),
+        //     ContactItem::new("Felicitas"),
+        //     ContactItem::new("Daniel"),
+        // ];
+        let contact_model = self.obj().restore_data();
 
         // Define the model contained in the ContactList
         self.contact_list.set_model(contact_model, &call_pane);
     }
 }
 
+impl WindowImpl for MainWindowTemplate {
+    fn close_request(&self) -> glib::signal::Inhibit {
+        // Store contacts in a vector
+        let binding = self
+            .contact_list
+            .contacts()
+            .snapshot();
+
+        let backup_data: Vec<ContactData> = binding
+            .iter()
+            .filter_map(Cast::downcast_ref::<ContactItem>)
+            .map(ContactItem::to_contact_data)
+            .collect();
+
+        // Save state to file
+        let file = File::create("data.json").expect("Could not create json file.");
+        serde_json::to_writer(file, &backup_data).expect("Could not write data to json file");
+
+        // Pass close request on to the parent
+        self.parent_close_request()
+    }
+}
+
+
+
 impl WidgetImpl for MainWindowTemplate {}
-impl WindowImpl for MainWindowTemplate {}
 impl ApplicationWindowImpl for MainWindowTemplate {}
 impl AdwApplicationWindowImpl for MainWindowTemplate {}

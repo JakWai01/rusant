@@ -30,6 +30,8 @@ regex = "1"
 webkit2gtk5 = "0.2.0"
 derive_more = "0.99.17"
 anyhow = "1.0.68"
+serde_json = "1.0.91"
+serde = "1.0.152"
 
 [build-dependencies]
 glib-build-tools = "0.16.3"

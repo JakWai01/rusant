@@ -23,6 +23,7 @@ use gtk::{
 use gtk_macros::spawn;
 use libadwaita::{prelude::MessageDialogExtManual, traits::MessageDialogExt};
 use log::{debug, info};
+use serde::{Deserialize, Serialize};
 
 wrapper! {
     pub struct ContactItem(ObjectSubclass<ContactItemTemplate>)
@@ -233,4 +234,21 @@ impl ContactItem {
     pub fn get_name(&self) -> String {
         self.property("name")
     }
+
+    pub fn to_contact_data(&self) -> ContactData {
+        let name = self.property("name");
+
+        ContactData { name }
+    }
+
+    pub fn from_contact_data(contact_data: ContactData) -> Self {
+        let name = contact_data.name;
+
+        Self::new(&name)
+    }
+}
+
+#[derive(Default, Clone, Serialize, Deserialize)]
+pub struct ContactData {
+    pub name: String,
 }
