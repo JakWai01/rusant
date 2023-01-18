@@ -1575,10 +1575,15 @@ dependencies = [
  "pretty_env_logger",
  "regex",
  "rss",
+ "rusant-sys",
  "serde",
  "serde_json",
  "webkit2gtk5",
 ]
+
+[[package]]
+name = "rusant-sys"
+version = "0.1.0"
 
 [[package]]
 name = "rust-ini"

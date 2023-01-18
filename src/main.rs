@@ -8,6 +8,8 @@ mod rusant_greeter;
 mod rusant_main_window;
 mod sender;
 
+use rusant_sys::add;
+
 use log::info;
 use rusant_main_window::MainWindow;
 
@@ -31,6 +33,9 @@ use libadwaita::{
 };
 
 fn main() {
+
+    println!("Result of lib operation: {:?}", add(1, 2));
+
     // Initialize logger
     pretty_env_logger::init();
 

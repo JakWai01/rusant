@@ -32,6 +32,7 @@ derive_more = "0.99.17"
 anyhow = "1.0.68"
 serde_json = "1.0.91"
 serde = "1.0.152"
+rusant-sys = { path = "rusant-sys" }
 
 [build-dependencies]
 glib-build-tools = "0.16.3"
@@ -39,4 +40,4 @@ libadwaita = {package = "libadwaita", version = "0.2.1", features = ["v1_2"]}
 
 [[bin]]
 name = "rusant"
-path = "src/rusant/main.rs"
+path = "src/main.rs"
