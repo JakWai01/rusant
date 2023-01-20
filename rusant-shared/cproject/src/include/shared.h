@@ -8,3 +8,7 @@ struct key_spec {
 };
 
 struct key_spec* get_key();
+
+typedef void (*AddCallback)(int result, void *user_data);
+
+void better_add_two_numbers(int a, int b, AddCallback cb, void *user_data);

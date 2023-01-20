@@ -10,6 +10,7 @@ mod sender;
 
 use rusant_sys::add;
 use rusant_shared::key;
+use rusant_shared::badd;
 
 use log::info;
 use rusant_main_window::MainWindow;
@@ -34,6 +35,9 @@ use libadwaita::{
 };
 
 fn main() {
+
+    badd();
+    
     println!("Result of shared operation: {:?}", key());
     
     println!("Result of lib operation: {:?}", add(1, 2));
