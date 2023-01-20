@@ -1,5 +1,3 @@
-#![feature(maybe_uninit_slice)]
-
 use std::mem::MaybeUninit;
 
 #[allow(non_upper_case_globals)]
@@ -27,7 +25,7 @@ impl Sodium {
         &self,
         input: &[u8],
         key: Option<&[u8]>,
-        out: &'a mut [MaybeUninit<u8>],
+        out: &'a mut [u8],
     ) -> Result<&'a mut [u8], ()> {
         assert!(out.len() >= usize::try_from(ffi::crypto_generichash_BYTES_MIN).unwrap());
         assert!(out.len() <= usize::try_from(ffi::crypto_generichash_BYTES_MAX).unwrap());
@@ -44,7 +42,7 @@ impl Sodium {
         // presence of the function guarantees that init has been called
         let res = unsafe {
             ffi::crypto_generichash(
-                MaybeUninit::slice_as_mut_ptr(out),
+                out.as_mut_ptr(),
                 out.len(),
                 input.as_ptr(),
                 input.len() as u64,
@@ -58,7 +56,7 @@ impl Sodium {
         }
 
         // SAFETY: crypto_generichash_writes_to (and thus initializes) all the bytes of out
-        Ok(unsafe {MaybeUninit::slice_assume_init_mut(out)})
+        Ok(unsafe {out})
     }
 }
 
@@ -78,7 +76,8 @@ mod tests {
     #[test]
     fn it_hashes() {
         let s = Sodium::new().unwrap();
-        let mut out = [MaybeUninit::uninit(); ffi::crypto_generichash_BYTES as usize];
+        // Using MaybeUninit here would be better
+        let mut out = [0; ffi::crypto_generichash_BYTES as usize];
         let bytes = s.cryptogenerichash(b"Arbitrary data to hash in Rust", None, &mut out)
         .unwrap();
 
