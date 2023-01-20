@@ -1651,10 +1651,19 @@ dependencies = [
  "pretty_env_logger",
  "regex",
  "rss",
+ "rusant-shared",
  "rusant-sys",
  "serde",
  "serde_json",
  "webkit2gtk5",
+]
+
+[[package]]
+name = "rusant-shared"
+version = "0.1.0"
+dependencies = [
+ "bindgen",
+ "pkg-config",
 ]
 
 [[package]]

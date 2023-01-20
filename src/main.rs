@@ -9,6 +9,7 @@ mod rusant_main_window;
 mod sender;
 
 use rusant_sys::add;
+use rusant_shared::key;
 
 use log::info;
 use rusant_main_window::MainWindow;
@@ -33,7 +34,8 @@ use libadwaita::{
 };
 
 fn main() {
-
+    println!("Result of shared operation: {:?}", key());
+    
     println!("Result of lib operation: {:?}", add(1, 2));
 
     // Initialize logger

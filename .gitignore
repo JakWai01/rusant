@@ -1,2 +1,4 @@
 /target
 /rusant-sys/target
+/rusant-shared/target
+/data.json

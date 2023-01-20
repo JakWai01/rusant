@@ -4,6 +4,7 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
+    // We don't need this step since we don't use system packages
     pkg_config::Config::new()
         .print_system_libs(false)
         .atleast_version("1.0.18")

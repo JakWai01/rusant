@@ -10,6 +10,13 @@ Rusant is an open-source video conferencing software.
 
 🚧 This project is a work-in-progress! Instructions will be added as soon as it is usable. 🚧
 
+## Getting started
+
+Running while the shared library example is in place requires setting the `LD_LIBRARY_PATH`:
+```
+ env LD_LIBRARY_PATH=rusant-shared/cproject cargo r
+```
+
 ## Contributing
 
 1. Fork it
