@@ -36,26 +36,6 @@ pub fn get_trampoline<F>(_closure: &F) -> shared::AddCallback where F: FnMut(c_i
 }
 
 pub fn badd() {
-    // let numbers = [1, 2, 3, 4, 5, 6, 7];
-    // let mut total = 0;
-
-    // for i in 0..numbers.len() {
-    //     for j in i..numbers.len() {
-    //         let a = numbers[i];
-    //         let b = numbers[j];
-
-    //         unsafe {
-    //             shared::better_add_two_numbers(
-    //                 a,
-    //                 b,
-    //                 Some(add_result_to_total),
-    //                 &mut total as *mut c_int as *mut c_void,
-    //             );
-    //         }
-    //     }
-    // }
-
-    // println!("The sum is {}", total);
     let mut got = 0;
 
     {
@@ -73,7 +53,6 @@ pub fn badd() {
     }
 
     println!("got {}", got);
-
 }
 
 #[cfg(test)]
