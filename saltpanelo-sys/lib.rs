@@ -1,14 +1,16 @@
 use std::{
     ffi::{CString, c_void},
-    ptr::{null, null_mut},
+    ptr::{null, null_mut}, thread, fmt::Pointer,
 };
 
 use saltpanelo::SaltpaneloOnRequestCallResponse;
 
+use crate::saltpanelo::SaltpaneloAdapterLink;
+
 #[allow(non_upper_case_globals)]
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-mod saltpanelo {
+pub mod saltpanelo {
     include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 }
 
@@ -85,6 +87,11 @@ struct Test {
     name: String
 }
 
+#[derive(Debug)]
+struct PointerWrapper(*mut c_void);
+
+unsafe impl Send for PointerWrapper{}
+
 pub fn tti() {
     unsafe {
         // This can happen in the main.rs
@@ -110,7 +117,7 @@ pub fn tti() {
             CString::new("An94hvwzqxMmFcL8iEpTVrd88zFdhVdl")
                 .unwrap()
                 .into_raw(),
-            CString::new("https://localhost:11337").unwrap().into_raw(),
+            CString::new("http://localhost:11337").unwrap().into_raw(),
         );
 
         println!("{:#?}", ptr);
@@ -122,6 +129,21 @@ pub fn tti() {
         println!("{:?}", c_str.to_str().unwrap());
 
         // TODO: Adapter linker?
+
+        println!("{:?}", ptr);
+        let n_ptr = ptr as usize;
+
+        thread::spawn(move || {
+            println!("{:?}", n_ptr as *mut c_void);
+            let rv = SaltpaneloAdapterLink(n_ptr as *mut c_void);
+
+            if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
+                println!(
+                    "Error in SalpaneloAdapterLink: {}",
+                    std::ffi::CStr::from_ptr(rv).to_str().unwrap()
+                );
+            }
+        });
 
         // This needs to happen when a call is being started
         // How does this work?

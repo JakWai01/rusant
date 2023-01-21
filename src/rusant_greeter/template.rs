@@ -71,7 +71,6 @@ impl ObjectImpl for GreeterTemplate {
                      */
                     this.obj().parent_window().switch_to_leaflet();
                 });
-
                 app.run();
             }));
     }

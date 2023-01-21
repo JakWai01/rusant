@@ -9,6 +9,7 @@ mod rusant_main_window;
 mod sender;
 
 use rusant_sys::add;
+use saltpanelo_sys::saltpanelo::SaltpaneloOnRequestCallResponse;
 use saltpanelo_sys::tti;
 
 use log::info;
@@ -21,8 +22,10 @@ use gtk::{
     CssProvider, StyleContext, Window,
 };
 use gtk_macros::action;
+use std::ffi::{CString, c_void};
 // use webkit2gtk::{WebContext, WebView, WebViewExt, SettingsExt, WebContextExt};
 use std::path::Path;
+use std::ptr::null_mut;
 use std::{collections::HashMap, thread};
 
 use gtk::gio::resources_register_include;
@@ -34,12 +37,12 @@ use libadwaita::{
 };
 
 fn main() {
-    tti();
+    // tti();
 
     // badd();
-    
+
     // println!("Result of shared operation: {:?}", key());
-    
+
     println!("Result of lib operation: {:?}", add(1, 2));
 
     // Initialize logger
