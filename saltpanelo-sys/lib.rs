@@ -1,5 +1,5 @@
 use std::{
-    ffi::CString,
+    ffi::{CString, c_void},
     ptr::{null, null_mut},
 };
 
@@ -30,6 +30,9 @@ unsafe extern "C" fn open_url(
 ) -> *mut ::std::os::raw::c_char {
     println!("We did it! We did it!");
 
+    let mut test = &mut *(userdata as *mut Test);
+
+    println!("The desired name is: {:?}", test.name);
     // What should we return here?
     url
 }
@@ -78,9 +81,15 @@ unsafe extern "C" fn on_handle_call(
     route_id
 }
 
+struct Test {
+    name: String
+}
+
 pub fn tti() {
     unsafe {
         // This can happen in the main.rs
+
+        let mut test = Test{name:String::from("Jakob")};
 
         let ptr = saltpanelo::SaltpaneloNewAdapter(
             Some(on_request_call),
@@ -90,7 +99,7 @@ pub fn tti() {
             Some(on_handle_call),
             null_mut(),
             Some(open_url),
-            null_mut(),
+            &mut test as *mut Test as *mut c_void,
             CString::new("ws://localhost:1338").unwrap().into_raw(),
             CString::new("127.0.0.1").unwrap().into_raw(),
             0,
