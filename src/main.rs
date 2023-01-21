@@ -8,6 +8,8 @@ mod rusant_greeter;
 mod rusant_main_window;
 mod sender;
 
+use gtk::traits::ButtonExt;
+use libadwaita::ApplicationWindow;
 use rusant_sys::add;
 use saltpanelo_sys::saltpanelo::SaltpaneloOnRequestCallResponse;
 use saltpanelo_sys::tti;
@@ -22,7 +24,9 @@ use gtk::{
     CssProvider, StyleContext, Window,
 };
 use gtk_macros::action;
-use std::ffi::{CString, c_void};
+use std::ffi::{c_void, CString};
+use webkit2gtk::traits::{WebViewExt, WebkitSettingsExt};
+use webkit2gtk::{WebContext, WebView};
 // use webkit2gtk::{WebContext, WebView, WebViewExt, SettingsExt, WebContextExt};
 use std::path::Path;
 use std::ptr::null_mut;
@@ -135,6 +139,94 @@ fn main() {
     std::process::exit(app.run());
 }
 
+unsafe extern "C" fn open_url(
+    url: *mut ::std::os::raw::c_char,
+    userdata: *mut ::std::os::raw::c_void,
+) -> *mut ::std::os::raw::c_char {
+    println!("We did it! We did it!");
+
+    let win = &*(userdata as *mut MainWindow);
+
+    // let app = gtk::Application::new(None, Default::default());
+    // app.connect_activate(move |app| {
+    //     let window = gtk::ApplicationWindow::new(app);
+    //     window.set_default_size(800, 500);
+    //     window.set_title(Some("Rusant"));
+
+    //     let context = WebContext::default().unwrap();
+    //     let webview = WebView::with_context(&context);
+    //     webview.load_uri(std::ffi::CStr::from_ptr(url).to_str().unwrap());
+    //     window.set_child(Some(&webview));
+
+    //     let settings = WebViewExt::settings(&webview).unwrap();
+    //     settings.set_enable_developer_extras(true);
+
+    //     window.show();
+    // });
+    open::that(std::ffi::CStr::from_ptr(url).to_str().unwrap()).unwrap();
+    
+    // win.switch_to_leaflet();
+    // app.connect_shutdown(clone!(@weak win => move |_| {
+    //     info!("Window was closed. Successfully authenticated!");
+
+    //     /*
+    //      * This is the success case if the authentication worked
+    //      * Later, this handler should close the application window
+    //      */
+    //     // win.switch_to_leaflet()
+    // }));
+    // app.run();
+
+    // win.switch_to_leaflet();
+
+    // println!("The desired name is: {:?}", );
+    // What should we return here?
+    CString::new("").unwrap().into_raw()
+}
+
+unsafe extern "C" fn on_request_call(
+    src_id: *mut ::std::os::raw::c_char,
+    src_email: *mut ::std::os::raw::c_char,
+    route_id: *mut ::std::os::raw::c_char,
+    channel_id: *mut ::std::os::raw::c_char,
+    userdata: *mut ::std::os::raw::c_void,
+) -> SaltpaneloOnRequestCallResponse {
+    println!("Requested call");
+
+    // What should we return?
+    SaltpaneloOnRequestCallResponse {
+        Accept: 1,
+        Err: CString::new("").unwrap().into_raw(),
+    }
+}
+
+unsafe extern "C" fn on_call_disconnected(
+    route_id: *mut ::std::os::raw::c_char,
+    userdata: *mut ::std::os::raw::c_void,
+) -> *mut ::std::os::raw::c_char {
+    let c_str = std::ffi::CStr::from_ptr(route_id);
+    println!("Call with route ID {} was ended", c_str.to_str().unwrap());
+
+    // What should we return?
+    route_id
+}
+
+unsafe extern "C" fn on_handle_call(
+    route_id: *mut ::std::os::raw::c_char,
+    raddr: *mut ::std::os::raw::c_char,
+    userdata: *mut ::std::os::raw::c_void,
+) -> *mut ::std::os::raw::c_char {
+    let route_id_c_str = std::ffi::CStr::from_ptr(route_id);
+    let raddr_c_str = std::ffi::CStr::from_ptr(raddr);
+
+    println!(
+        "Call with route ID {:?} and remote address {:?} started",
+        route_id_c_str, raddr_c_str
+    );
+
+    // What should we return?
+    route_id
+}
 /// Build the user interface
 fn build_ui(app: &Application) {
     let content = libadwaita::gtk::Box::new(Orientation::Vertical, 0);
@@ -145,7 +237,81 @@ fn build_ui(app: &Application) {
             .build(),
     );
 
-    let window = MainWindow::new(app);
+    let mut window = MainWindow::new(app);
+
+    unsafe {
+        let ptr = saltpanelo_sys::saltpanelo::SaltpaneloNewAdapter(
+            Some(on_request_call),
+            null_mut(),
+            Some(on_call_disconnected),
+            null_mut(),
+            Some(on_handle_call),
+            null_mut(),
+            Some(open_url),
+            &mut window as *mut MainWindow as *mut c_void,
+            CString::new("ws://localhost:1338").unwrap().into_raw(),
+            CString::new("127.0.0.1").unwrap().into_raw(),
+            0,
+            10000,
+            CString::new("https://pojntfx.eu.auth0.com/")
+                .unwrap()
+                .into_raw(),
+            CString::new("An94hvwzqxMmFcL8iEpTVrd88zFdhVdl")
+                .unwrap()
+                .into_raw(),
+            CString::new("http://localhost:11337").unwrap().into_raw(),
+        );
+
+        window
+            .greeter()
+            .login_button()
+            .connect_clicked(clone!(@weak window => move |_| {
+                // let app = gtk::Application::new(None, Default::default());
+                // app.connect_activate(move |app| {
+                //     let window = ApplicationWindow::new(app);
+                //     window.set_default_size(800, 500);
+                //     window.set_title(Some("Rusant"));
+
+                //     let context = WebContext::default().unwrap();
+                //     let webview = WebView::with_context(&context);
+                //     webview.load_uri("https://github.com/JakWai01/rusant");
+                //     window.set_child(Some(&webview));
+
+                //     let settings = WebViewExt::settings(&webview).unwrap();
+                //     settings.set_enable_developer_extras(true);
+
+                //     window.show();
+                // });
+
+                // app.connect_shutdown(move |_| {
+                //     info!("Window was closed. Successfully authenticated!");
+
+                //     /*
+                //      * This is the success case if the authentication worked
+                //      * Later, this handler should close the application window
+                //      */
+                //     window.switch_to_leaflet()
+                // });
+                // app.run();
+
+                println!("Pointer: {:#?}", ptr);
+                let res = saltpanelo_sys::saltpanelo::SaltpaneloAdapterLogin(ptr);
+
+                let c_str = std::ffi::CStr::from_ptr(res);
+
+                println!("{:?}", c_str.to_str().unwrap());
+
+                window.switch_to_leaflet();
+            }));
+
+        // println!("{:#?}", ptr);
+
+        // let res = saltpanelo_sys::saltpanelo::SaltpaneloAdapterLogin(ptr);
+
+        // let c_str = std::ffi::CStr::from_ptr(res);
+
+        // println!("{:?}", c_str.to_str().unwrap());
+    }
 
     info!("Building UI");
 

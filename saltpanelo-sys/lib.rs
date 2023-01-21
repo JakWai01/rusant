@@ -5,7 +5,7 @@ use std::{
 
 use saltpanelo::SaltpaneloOnRequestCallResponse;
 
-use crate::saltpanelo::SaltpaneloAdapterLink;
+use crate::saltpanelo::{SaltpaneloAdapterLink, SaltpaneloAdapterHangupCall};
 
 #[allow(non_upper_case_globals)]
 #[allow(non_camel_case_types)]
@@ -119,7 +119,7 @@ pub fn tti() {
                 .into_raw(),
             CString::new("http://localhost:11337").unwrap().into_raw(),
         );
-
+        
         println!("{:#?}", ptr);
 
         let res = saltpanelo::SaltpaneloAdapterLogin(ptr);

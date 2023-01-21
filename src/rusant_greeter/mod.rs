@@ -28,4 +28,8 @@ impl Greeter {
             .and_then(|root| root.downcast().ok())
             .expect("Login needs to have a parent window")
     }
+
+    pub fn login_button(&self) -> gtk::Button {
+        self.imp().login_button.get()
+    }
 }

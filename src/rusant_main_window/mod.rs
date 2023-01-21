@@ -14,7 +14,7 @@ use gtk::{
 };
 use libadwaita::Application;
 
-use crate::rusant_contact_item::{ContactData, ContactItem};
+use crate::{rusant_contact_item::{ContactData, ContactItem}, rusant_greeter::Greeter, rusant_call_pane::CallPane, rusant_contact_list::ContactList};
 
 wrapper! {
     pub struct MainWindow(ObjectSubclass<MainWindowTemplate>)
@@ -55,5 +55,21 @@ impl MainWindow {
         } else {
             Vec::new()
         }
+    }
+
+    pub fn leaflet(&self) -> libadwaita::Leaflet {
+        self.imp().leaflet.get()
+    }
+
+    pub fn greeter(&self) -> Greeter {
+        self.imp().greeter.get()
+    }
+
+    pub fn contact(&self) -> ContactList {
+        self.imp().contact_list.get()
+    }
+
+    pub fn call_pane(&self) -> CallPane {
+        self.imp().call_pane.get()
     }
 }
