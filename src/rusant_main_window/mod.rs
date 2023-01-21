@@ -1,6 +1,6 @@
 mod template;
 
-use std::fs::File;
+use std::{fs::File, os::raw::c_void, };
 
 use gio::subclass::prelude::ObjectSubclassIsExt;
 use template::MainWindowTemplate;

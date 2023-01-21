@@ -1,8 +1,8 @@
 pub mod template;
 
-use std::thread;
+use std::{thread, os::raw::c_void, ffi::CString};
 
-use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender};
+use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender, ADAPTER};
 
 use self::template::ContactItemTemplate;
 
@@ -65,6 +65,25 @@ impl ContactItem {
         imp.call
             .connect_clicked(clone!(@strong call_pane, @weak self as this => move |_| {
                     info!("Button call was clicked");
+                    
+                    unsafe { 
+                        let ptr = ADAPTER.unwrap() as *mut c_void;
+
+                        let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jakob@waibel.gg").unwrap().into_raw(), CString::new("video").unwrap().into_raw());
+
+                        if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                            println!(
+                                "Error in SalpaneloAdapterRequestCall: {}",
+                                std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                            );
+                        }
+
+                        if rv.r0 == 1 {
+                            println!("Callee accepted the call");
+                        } else {
+                            println!("Callee denied the call");
+                        }
+                    };
 
                     if call_pane.action_bar().is_visible() {
                         info!("Button was clicked during a call! Please end the call before starting a new one.");

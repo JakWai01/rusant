@@ -11,14 +11,14 @@ mod sender;
 use gtk::traits::ButtonExt;
 use libadwaita::ApplicationWindow;
 use rusant_sys::add;
-use saltpanelo_sys::saltpanelo::SaltpaneloOnRequestCallResponse;
+use saltpanelo_sys::saltpanelo::{SaltpaneloOnRequestCallResponse, SaltpaneloAdapterLink};
 use saltpanelo_sys::tti;
 
 use log::info;
 use rusant_main_window::MainWindow;
 
 use config::Config;
-use glib::{clone, Continue};
+use glib::{clone, Continue, ObjectExt, ToValue, Value};
 use gtk::{
     gdk::Display, glib, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt,
     CssProvider, StyleContext, Window,
@@ -149,10 +149,6 @@ unsafe extern "C" fn open_url(
     // println!("Pointer before idle: {:?}", userdata);
     // let n_ptr = userdata as usize;
 
-   
-
-
-
     // let app = gtk::Application::new(None, Default::default());
     // app.connect_activate(move |app| {
     //     let window = gtk::ApplicationWindow::new(app);
@@ -170,7 +166,7 @@ unsafe extern "C" fn open_url(
     //     window.show();
     // });
     open::that(std::ffi::CStr::from_ptr(url).to_str().unwrap()).unwrap();
-    
+
     // let win = &*(userdata as *mut MainWindow);
     // println!("Is visible: {}", win.is_visible());
     // glib::idle_add(move || {
@@ -181,7 +177,7 @@ unsafe extern "C" fn open_url(
     //     println!("{}", win.is_visible());
     //     Continue(false)
     // });
-    
+
     // win.switch_to_leaflet();
     // app.connect_shutdown(clone!(@weak win => move |_| {
     //     info!("Window was closed. Successfully authenticated!");
@@ -244,6 +240,9 @@ unsafe extern "C" fn on_handle_call(
     // What should we return?
     route_id
 }
+
+pub static mut ADAPTER: Option<usize> = None;
+
 /// Build the user interface
 fn build_ui(app: &Application) {
     let content = libadwaita::gtk::Box::new(Orientation::Vertical, 0);
@@ -283,53 +282,68 @@ fn build_ui(app: &Application) {
             CString::new("http://localhost:11337").unwrap().into_raw(),
         );
 
+        ADAPTER = Some(ptr as usize);
+
         window = Some(MainWindow::new(app));
 
         let win = window.as_ref().unwrap();
-        win
-            .greeter()
+        win.greeter()
             .login_button()
             .connect_clicked(clone!(@weak win => move |_| {
-                // let app = gtk::Application::new(None, Default::default());
-                // app.connect_activate(move |app| {
-                //     let window = ApplicationWindow::new(app);
-                //     window.set_default_size(800, 500);
-                //     window.set_title(Some("Rusant"));
+                    // let app = gtk::Application::new(None, Default::default());
+                    // app.connect_activate(move |app| {
+                    //     let window = ApplicationWindow::new(app);
+                    //     window.set_default_size(800, 500);
+                    //     window.set_title(Some("Rusant"));
 
-                //     let context = WebContext::default().unwrap();
-                //     let webview = WebView::with_context(&context);
-                //     webview.load_uri("https://github.com/JakWai01/rusant");
-                //     window.set_child(Some(&webview));
+                    //     let context = WebContext::default().unwrap();
+                    //     let webview = WebView::with_context(&context);
+                    //     webview.load_uri("https://github.com/JakWai01/rusant");
+                    //     window.set_child(Some(&webview));
 
-                //     let settings = WebViewExt::settings(&webview).unwrap();
-                //     settings.set_enable_developer_extras(true);
+                    //     let settings = WebViewExt::settings(&webview).unwrap();
+                    //     settings.set_enable_developer_extras(true);
 
-                //     window.show();
-                // });
+                    //     window.show();
+                    // });
 
-                // app.connect_shutdown(move |_| {
-                //     info!("Window was closed. Successfully authenticated!");
+                    // app.connect_shutdown(move |_| {
+                    //     info!("Window was closed. Successfully authenticated!");
 
-                //     /*
-                //      * This is the success case if the authentication worked
-                //      * Later, this handler should close the application window
-                //      */
-                //     window.switch_to_leaflet()
-                // });
-                // app.run();
+                    //     /*
+                    //      * This is the success case if the authentication worked
+                    //      * Later, this handler should close the application window
+                    //      */
+                    //     window.switch_to_leaflet()
+                    // });
+                    // app.run();
 
-                println!("Pointer: {:#?}", ptr);
-                let res = saltpanelo_sys::saltpanelo::SaltpaneloAdapterLogin(ptr);
+                    println!("Pointer: {:#?}", ptr);
+                    let res = saltpanelo_sys::saltpanelo::SaltpaneloAdapterLogin(ptr);
 
-                let c_str = std::ffi::CStr::from_ptr(res);
+                    let c_str = std::ffi::CStr::from_ptr(res);
 
-                println!("{:?}", c_str.to_str().unwrap());
+                    println!("{:?}", c_str.to_str().unwrap());
+                    
+                    let n_ptr = ptr as usize;
+                    
+                    thread::spawn(move || {
+                        println!("{:?}", n_ptr as *mut c_void);
+                        let rv = SaltpaneloAdapterLink(n_ptr as *mut c_void);
 
-                win.switch_to_leaflet();
-            }));
-        
-            // let win = &*(user_data_ptr as *mut c_void as *mut MainWindow);
-            // win.show();
+                        if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
+                            println!(
+                                "Error in SalpaneloAdapterLink: {}",
+                                std::ffi::CStr::from_ptr(rv).to_str().unwrap()
+                            );
+                        }
+                    });
+
+                    win.switch_to_leaflet();
+                }));
+
+        // let win = &*(user_data_ptr as *mut c_void as *mut MainWindow);
+        // win.show();
 
         // println!("{:#?}", ptr);
 
@@ -341,7 +355,7 @@ fn build_ui(app: &Application) {
     }
 
     info!("Building UI");
-
+    // println!("{:?}", window.unwrap().property::<*mut c_void>("ptr"));
     window.unwrap().show();
 }
 

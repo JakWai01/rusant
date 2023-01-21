@@ -21,7 +21,7 @@ use glib::{
         InitializingObject,
     },
 };
-
+use std::cell::Cell;
 use gst::prelude::*;
 
 use gtk::subclass::window::WindowImplExt;
@@ -42,7 +42,7 @@ use libadwaita::{
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/jakobwaibel/Rusant/rusant-main-window.ui")]
-pub struct MainWindowTemplate {
+pub struct MainWindowTemplate {   
     #[template_child]
     pub leaflet: TemplateChild<Leaflet>,
 
