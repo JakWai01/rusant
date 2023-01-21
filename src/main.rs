@@ -18,7 +18,7 @@ use log::info;
 use rusant_main_window::MainWindow;
 
 use config::Config;
-use glib::clone;
+use glib::{clone, Continue};
 use gtk::{
     gdk::Display, glib, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt,
     CssProvider, StyleContext, Window,
@@ -143,9 +143,15 @@ unsafe extern "C" fn open_url(
     url: *mut ::std::os::raw::c_char,
     userdata: *mut ::std::os::raw::c_void,
 ) -> *mut ::std::os::raw::c_char {
-    println!("We did it! We did it!");
+    // println!("We did it! We did it!");
 
-    let win = &*(userdata as *mut MainWindow);
+    // let win = &*(userdata as *mut MainWindow);
+    // println!("Pointer before idle: {:?}", userdata);
+    // let n_ptr = userdata as usize;
+
+   
+
+
 
     // let app = gtk::Application::new(None, Default::default());
     // app.connect_activate(move |app| {
@@ -165,6 +171,17 @@ unsafe extern "C" fn open_url(
     // });
     open::that(std::ffi::CStr::from_ptr(url).to_str().unwrap()).unwrap();
     
+    // let win = &*(userdata as *mut MainWindow);
+    // println!("Is visible: {}", win.is_visible());
+    // glib::idle_add(move || {
+    //     println!("We are in idle");
+    //     println!("Pointer in idle: {:?}", n_ptr as *mut c_void);
+    //     let win = &*(n_ptr as *mut c_void as *mut MainWindow);
+    //     // win.switch_to_leaflet();
+    //     println!("{}", win.is_visible());
+    //     Continue(false)
+    // });
+    
     // win.switch_to_leaflet();
     // app.connect_shutdown(clone!(@weak win => move |_| {
     //     info!("Window was closed. Successfully authenticated!");
@@ -173,7 +190,7 @@ unsafe extern "C" fn open_url(
     //      * This is the success case if the authentication worked
     //      * Later, this handler should close the application window
     //      */
-    //     // win.switch_to_leaflet()
+    //     win.switch_to_leaflet()
     // }));
     // app.run();
 
@@ -237,9 +254,13 @@ fn build_ui(app: &Application) {
             .build(),
     );
 
-    let mut window = MainWindow::new(app);
+    let mut window: Option<MainWindow> = None;
+    // let mut window = MainWindow::new(app);
 
     unsafe {
+        let user_data_ptr = &mut window as *mut Option<MainWindow> as *mut c_void;
+        println!("{:?}", user_data_ptr);
+
         let ptr = saltpanelo_sys::saltpanelo::SaltpaneloNewAdapter(
             Some(on_request_call),
             null_mut(),
@@ -248,7 +269,7 @@ fn build_ui(app: &Application) {
             Some(on_handle_call),
             null_mut(),
             Some(open_url),
-            &mut window as *mut MainWindow as *mut c_void,
+            user_data_ptr,
             CString::new("ws://localhost:1338").unwrap().into_raw(),
             CString::new("127.0.0.1").unwrap().into_raw(),
             0,
@@ -262,10 +283,13 @@ fn build_ui(app: &Application) {
             CString::new("http://localhost:11337").unwrap().into_raw(),
         );
 
-        window
+        window = Some(MainWindow::new(app));
+
+        let win = window.as_ref().unwrap();
+        win
             .greeter()
             .login_button()
-            .connect_clicked(clone!(@weak window => move |_| {
+            .connect_clicked(clone!(@weak win => move |_| {
                 // let app = gtk::Application::new(None, Default::default());
                 // app.connect_activate(move |app| {
                 //     let window = ApplicationWindow::new(app);
@@ -301,8 +325,11 @@ fn build_ui(app: &Application) {
 
                 println!("{:?}", c_str.to_str().unwrap());
 
-                window.switch_to_leaflet();
+                win.switch_to_leaflet();
             }));
+        
+            // let win = &*(user_data_ptr as *mut c_void as *mut MainWindow);
+            // win.show();
 
         // println!("{:#?}", ptr);
 
@@ -315,7 +342,7 @@ fn build_ui(app: &Application) {
 
     info!("Building UI");
 
-    window.show();
+    window.unwrap().show();
 }
 
 /// Show the about page
