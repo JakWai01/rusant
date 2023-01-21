@@ -1,4 +1,7 @@
-use std::{ffi::CString, ptr::null};
+use std::{
+    ffi::CString,
+    ptr::{null, null_mut},
+};
 
 use saltpanelo::SaltpaneloOnRequestCallResponse;
 
@@ -13,12 +16,22 @@ pub fn add(left: usize, right: usize) -> usize {
     left + right
 }
 
+// unsafe extern "C" fn open_url(
+//     url: *mut ::std::os::raw::c_char,
+//     rv: *mut *mut ::std::os::raw::c_char,
+// ) {
+//     *rv = CString::new("Feli").unwrap().into_raw();
+//     println!("We did it! We did it!");
+// }
+
 unsafe extern "C" fn open_url(
     url: *mut ::std::os::raw::c_char,
-    rv: *mut *mut ::std::os::raw::c_char,
-) {
-    *rv = CString::new("Feli").unwrap().into_raw();
+    userdata: *mut ::std::os::raw::c_void,
+) -> *mut ::std::os::raw::c_char {
     println!("We did it! We did it!");
+
+    // What should we return here?
+    url
 }
 
 unsafe extern "C" fn on_request_call(
@@ -26,29 +39,43 @@ unsafe extern "C" fn on_request_call(
     src_email: *mut ::std::os::raw::c_char,
     route_id: *mut ::std::os::raw::c_char,
     channel_id: *mut ::std::os::raw::c_char,
-    rv: *mut SaltpaneloOnRequestCallResponse,
-) {
-    // This cannot be tested locally since we need a second party
+    userdata: *mut ::std::os::raw::c_void,
+) -> SaltpaneloOnRequestCallResponse {
     println!("Requested call");
+
+    // What should we return?
+    SaltpaneloOnRequestCallResponse {
+        Accept: 1,
+        Err: CString::new("").unwrap().into_raw(),
+    }
 }
 
 unsafe extern "C" fn on_call_disconnected(
     route_id: *mut ::std::os::raw::c_char,
-    rv: *mut *mut ::std::os::raw::c_char,
-) {
+    userdata: *mut ::std::os::raw::c_void,
+) -> *mut ::std::os::raw::c_char {
     let c_str = std::ffi::CStr::from_ptr(route_id);
     println!("Call with route ID {} was ended", c_str.to_str().unwrap());
+
+    // What should we return?
+    route_id
 }
 
 unsafe extern "C" fn on_handle_call(
     route_id: *mut ::std::os::raw::c_char,
     raddr: *mut ::std::os::raw::c_char,
-    rv: *mut *mut ::std::os::raw::c_char,
-) {
+    userdata: *mut ::std::os::raw::c_void,
+) -> *mut ::std::os::raw::c_char {
     let route_id_c_str = std::ffi::CStr::from_ptr(route_id);
     let raddr_c_str = std::ffi::CStr::from_ptr(raddr);
 
-    println!("Call with route ID {:?} and remote address {:?} started", route_id_c_str, raddr_c_str);
+    println!(
+        "Call with route ID {:?} and remote address {:?} started",
+        route_id_c_str, raddr_c_str
+    );
+
+    // What should we return?
+    route_id
 }
 
 pub fn tti() {
@@ -57,9 +84,13 @@ pub fn tti() {
 
         let ptr = saltpanelo::SaltpaneloNewAdapter(
             Some(on_request_call),
+            null_mut(),
             Some(on_call_disconnected),
+            null_mut(),
             Some(on_handle_call),
+            null_mut(),
             Some(open_url),
+            null_mut(),
             CString::new("ws://localhost:1338").unwrap().into_raw(),
             CString::new("127.0.0.1").unwrap().into_raw(),
             0,
