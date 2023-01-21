@@ -69,7 +69,7 @@ impl ContactItem {
                     unsafe { 
                         let ptr = ADAPTER.unwrap() as *mut c_void;
 
-                        let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jakob@waibel.gg").unwrap().into_raw(), CString::new("video").unwrap().into_raw());
+                        let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("video").unwrap().into_raw());
 
                         if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
                             println!(

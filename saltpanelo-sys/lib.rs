@@ -35,8 +35,8 @@ unsafe extern "C" fn open_url(
     let mut test = &mut *(userdata as *mut Test);
 
     println!("The desired name is: {:?}", test.name);
-    // What should we return here?
-    url
+
+    CString::new("").unwrap().into_raw()
 }
 
 unsafe extern "C" fn on_request_call(
@@ -62,8 +62,7 @@ unsafe extern "C" fn on_call_disconnected(
     let c_str = std::ffi::CStr::from_ptr(route_id);
     println!("Call with route ID {} was ended", c_str.to_str().unwrap());
 
-    // What should we return?
-    route_id
+    CString::new("").unwrap().into_raw()
 }
 
 unsafe extern "C" fn on_handle_call(
@@ -79,8 +78,7 @@ unsafe extern "C" fn on_handle_call(
         route_id_c_str, raddr_c_str
     );
 
-    // What should we return?
-    route_id
+    CString::new("").unwrap().into_raw()
 }
 
 struct Test {
