@@ -112,6 +112,7 @@ fn main() {
     let app = Application::builder()
         .application_id(app_id)
         .resource_base_path("/com/jakobwaibel/Rusant")
+        .flags(gio::ApplicationFlags::NON_UNIQUE)
         .build();
 
     // Run application
