@@ -1,8 +1,8 @@
-use crate::receiver;
+use crate::{receiver, ADAPTER, ROUTE_ID, WINDOW};
 
 use super::CallPane;
 
-use std::thread;
+use std::{thread, os::raw::c_void, ffi::CString};
 
 use anyhow::Error;
 use derive_more::{Display, Error};
@@ -129,6 +129,34 @@ impl ObjectImpl for CallPaneTemplate {
         //             this.grid.remove(&child);
         //         }
         //     }));
+        self.call_stop.connect_clicked(clone!(@weak self as this => move |_| {
+            info!("Button `call_stop` was clicked");
+            println!("Button `call_stop` was clicked");
+
+            thread::spawn(|| {
+                unsafe {
+                    let ptr = ADAPTER.unwrap() as *mut c_void;
+
+                    let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
+
+                    if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
+                        println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                    }
+
+                    glib::idle_add(move || {
+                        WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
+                        WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
+                        WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
+                        
+                        while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
+                            WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
+                        }
+
+                        glib::Continue(false)
+                    });
+                }
+            });
+        }));
     }
 }
 

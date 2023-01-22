@@ -2,7 +2,7 @@ pub mod template;
 
 use std::{thread, os::raw::c_void, ffi::CString};
 
-use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender, ADAPTER};
+use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender, ADAPTER, ROUTE_ID, WINDOW};
 
 use self::template::ContactItemTemplate;
 
@@ -66,7 +66,6 @@ impl ContactItem {
             .connect_clicked(clone!(@strong call_pane, @weak self as this => move |_| {
                     info!("Button call was clicked");
                    
-                    // thread...
                     thread::spawn(|| {
                         unsafe { 
                             let ptr = ADAPTER.unwrap() as *mut c_void;
@@ -85,15 +84,13 @@ impl ContactItem {
                             } else {
                                 println!("Callee denied the call");
                             }
-
-                            // init_run
                         };
                     });
 
 
-                    // if call_pane.action_bar().is_visible() {
-                    //     info!("Button was clicked during a call! Please end the call before starting a new one.");
-                    // } else {
+                    if call_pane.action_bar().is_visible() {
+                        info!("Button was clicked during a call! Please end the call before starting a new one.");
+                    } else {
                     //     call_pane.call_box().set_visible(true);
                     //     call_pane.placeholder().set_visible(false);
                     //     call_pane.action_bar().set_visible(true);
@@ -128,25 +125,50 @@ impl ContactItem {
                     //     audio_receiver.build();
                     //     audio_receiver.start();
 
-                    //     call_pane.call_stop().connect_clicked(clone!(@weak call_pane => move |_| {
-                    //         info!("Button `call_stop` was clicked");
+                        // call_pane.call_stop().connect_clicked(clone!(@weak call_pane => move |_| {
+                        //     info!("Button `call_stop` was clicked");
+                        //     println!("Button `call_stop` was clicked");
 
-                    //         // Hide call and show placeholder
-                    //         call_pane.placeholder().set_visible(true);
-                    //         call_pane.action_bar().set_visible(false);
-                    //         call_pane.call_box().set_visible(false);
+                        //     thread::spawn(|| {
+                        //         unsafe {
+                        //             let ptr = ADAPTER.unwrap() as *mut c_void;
 
-                    //         // Empty the grid when stopping a call
-                    //         while let Some(child) = call_pane.grid().child_at_index(0) {
-                    //             call_pane.grid().remove(&child);
-                    //         }
+                        //             let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
 
-                    //         audio_receiver.stop();
-                    //         receiver.stop();
-                    //         sender.stop();
-                    //         audio_sender.stop();
-                    //     }));
-                    // }
+                        //             if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
+                        //                 println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                        //             }
+
+                        //             glib::idle_add(move || {
+                        //                 WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
+                        //                 WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
+                        //                 WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
+                                        
+                        //                 while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
+                        //                     WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
+                        //                 }
+
+                        //                 glib::Continue(false)
+                        //             });
+                        //         }
+                        //     });
+
+                        //     // Hide call and show placeholder
+                        //     // call_pane.placeholder().set_visible(true);
+                        //     // call_pane.action_bar().set_visible(false);
+                        //     // call_pane.call_box().set_visible(false);
+
+                        //     // // Empty the grid when stopping a call
+                        //     // while let Some(child) = call_pane.grid().child_at_index(0) {
+                        //     //     call_pane.grid().remove(&child);
+                        //     // }
+
+                        //     // audio_receiver.stop();
+                        //     // receiver.stop();
+                        //     // sender.stop();
+                        //     // audio_sender.stop();
+                        // }));
+                    }
                 }));
     }
 

@@ -236,6 +236,10 @@ unsafe extern "C" fn open_url(
 
 // static mut ACCEPT: Option<i8> = None;
 
+pub static mut ROUTE_ID: Option<String> = None;
+pub static mut SRC_EMAIL: Option<String> = None;
+pub static mut CHANNEL_ID: Option<String> = None;
+
 unsafe extern "C" fn on_request_call(
     src_id: *mut ::std::os::raw::c_char,
     src_email: *mut ::std::os::raw::c_char,
@@ -245,6 +249,9 @@ unsafe extern "C" fn on_request_call(
 ) -> SaltpaneloOnRequestCallResponse {
     println!("Requested call");
 
+    ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
+    SRC_EMAIL = Some(String::from(std::ffi::CStr::from_ptr(src_email).to_str().unwrap()));
+    CHANNEL_ID = Some(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
     // let win = &*(userdata as *mut MainWindow);
     // 
 
@@ -349,6 +356,8 @@ unsafe extern "C" fn on_handle_call(
 ) -> *mut ::std::os::raw::c_char {
     let route_id_c_str = std::ffi::CStr::from_ptr(route_id);
     let raddr_c_str = std::ffi::CStr::from_ptr(raddr);
+
+    ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
 
     println!(
         "Call with route ID {:?} and remote address {:?} started",
