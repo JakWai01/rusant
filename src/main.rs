@@ -10,11 +10,12 @@ mod sender;
 
 use gtk::traits::ButtonExt;
 use libadwaita::ApplicationWindow;
+use libadwaita::prelude::MessageDialogExtManual;
 use rusant_sys::add;
 use saltpanelo_sys::saltpanelo::{SaltpaneloOnRequestCallResponse, SaltpaneloAdapterLink};
 use saltpanelo_sys::tti;
 
-use log::info;
+use log::{info, debug};
 use rusant_main_window::MainWindow;
 
 use config::Config;
@@ -23,7 +24,7 @@ use gtk::{
     gdk::Display, glib, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt,
     CssProvider, StyleContext, Window,
 };
-use gtk_macros::action;
+use gtk_macros::{action, spawn};
 use std::ffi::{c_void, CString};
 use webkit2gtk::traits::{WebViewExt, WebkitSettingsExt};
 use webkit2gtk::{WebContext, WebView};
@@ -206,12 +207,48 @@ unsafe extern "C" fn on_request_call(
 ) -> SaltpaneloOnRequestCallResponse {
     println!("Requested call");
 
+    // let win = &*(userdata as *mut MainWindow);
+    // 
+
+    glib::idle_add(|| {
+        spawn!(async move {
+            show_ring_dialog().await;
+        });
+        glib::Continue(false)
+    });
+
     // What should we return?
     SaltpaneloOnRequestCallResponse {
         Accept: 1,
         Err: CString::new("").unwrap().into_raw(),
     }
 }
+
+pub async fn show_ring_dialog() {
+        info!("Showing ring dialog");
+
+        let builder = gtk::Builder::from_resource("/com/jakobwaibel/Rusant/rusant-ring-dialog.ui");
+
+        let dialog = builder
+            .object::<libadwaita::MessageDialog>("dialog")
+            .unwrap();
+
+        unsafe {
+            dialog.set_transient_for(Some(WINDOW.as_ref().unwrap()));
+        };
+        // unsafe {
+        //     println!("{:?}", WINDOW.as_ref().unwrap().is_visible());
+        // }
+
+        // dialog.set_response_enabled("accept", true);
+
+        if dialog.run_future().await == "accept" {
+            debug!("Accepting call");
+
+            println!("Accepting the call");
+        }
+    }
+
 
 unsafe extern "C" fn on_call_disconnected(
     route_id: *mut ::std::os::raw::c_char,
@@ -242,6 +279,7 @@ unsafe extern "C" fn on_handle_call(
 }
 
 pub static mut ADAPTER: Option<usize> = None;
+pub static mut WINDOW: Option<MainWindow> = None;
 
 /// Build the user interface
 fn build_ui(app: &Application) {
@@ -284,9 +322,9 @@ fn build_ui(app: &Application) {
 
         ADAPTER = Some(ptr as usize);
 
-        window = Some(MainWindow::new(app));
+        WINDOW = Some(MainWindow::new(app));
 
-        let win = window.as_ref().unwrap();
+        let win = WINDOW.as_ref().unwrap();
         win.greeter()
             .login_button()
             .connect_clicked(clone!(@weak win => move |_| {
@@ -356,7 +394,9 @@ fn build_ui(app: &Application) {
 
     info!("Building UI");
     // println!("{:?}", window.unwrap().property::<*mut c_void>("ptr"));
-    window.unwrap().show();
+    unsafe {
+        WINDOW.as_ref().unwrap().show();
+    }
 }
 
 /// Show the about page
