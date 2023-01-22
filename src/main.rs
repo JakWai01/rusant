@@ -333,8 +333,12 @@ unsafe extern "C" fn on_call_disconnected(
     let c_str = std::ffi::CStr::from_ptr(route_id);
     println!("Call with route ID {} was ended", c_str.to_str().unwrap());
 
-    // What should we return?
-    route_id
+    // Close call pane
+    WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
+    WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
+    WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
+
+    CString::new("").unwrap().into_raw()
 }
 
 unsafe extern "C" fn on_handle_call(
@@ -350,8 +354,12 @@ unsafe extern "C" fn on_handle_call(
         route_id_c_str, raddr_c_str
     );
 
-    // What should we return?
-    route_id
+    // Open call pane
+    WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(true);
+    WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(false);
+    WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(true);
+
+    CString::new("").unwrap().into_raw()
 }
 
 pub static mut ADAPTER: Option<usize> = None;
