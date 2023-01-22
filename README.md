@@ -1,5 +1,7 @@
 # rusant
 
+![Logo](./docs/logo-readme.png)
+
 Rusant is an open-source video conferencing software.
 
 ![Screenshot 1](./docs/screenshots/login.png)
@@ -13,6 +15,7 @@ Rusant is an open-source video conferencing software.
 ## Getting started
 
 Running while the shared library example is in place requires setting the `LD_LIBRARY_PATH`:
+
 ```
  env LD_LIBRARY_PATH=rusant-shared/cproject cargo r
 ```
@@ -27,6 +30,6 @@ Running while the shared library example is in place requires setting the `LD_LI
 
 ## License
 
-rusant (c) 2022 Jakob Waibel and contributors
+rusant (c) 2023 Jakob Waibel and contributors
 
 SPDX-License-Identifier: AGPL-3.0License
