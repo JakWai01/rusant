@@ -249,33 +249,38 @@ unsafe extern "C" fn on_request_call(
 
     // let accept = AcceptWrapper::new();
     // let mut accept: Box<i8> = Box::new(0);
-    let mut accept: i8 = 0;
+    // let mut accept: i8 = 0;
 
-    let mut cb = Some(|x| {println!("This is x: {}", x)});
+    // let mut cb = Some(|x| {println!("This is x: {}", x)});
     // let mut cb = Some(|x| {accept = x});
+
+    let (sender, receiver) = mpsc::channel();
 
     glib::idle_add(move || {
         
-        let (sender, receiver) = MainContext::channel(PRIORITY_DEFAULT);
-
+        let sender = sender.clone();
         spawn!(async move {
             let accept = show_ring_dialog().await;
             sender.send(accept).expect("Could not send");
         });
 
-        receiver.attach(None, move |x| {
-            println!("Value of x: {}", x);
-            // let mut internal_accept = accept.borrow_mut();
-            // ACCEPT = Some(1);
-            // *internal_accept = Some(x);
-            // accept.set_accept(x);
-            cb.take().unwrap()(x);
-            glib::Continue(false)
-        });
+        // receiver.attach(None, move |x| {
+        //     println!("Value of x: {}", x);
+        //     // let mut internal_accept = accept.borrow_mut();
+        //     // ACCEPT = Some(1);
+        //     // *internal_accept = Some(x);
+        //     // accept.set_accept(x);
+        //     cb.take().unwrap()(x);
+        //     glib::Continue(false)
+        // });
+
 
         glib::Continue(false)
     });
 
+    let accept = receiver.recv().unwrap();
+
+    println!("Accept is currently: {}", accept);
     // let mut accept: i8 = 0;
 
     // println!("Accepting: {}", accept);
