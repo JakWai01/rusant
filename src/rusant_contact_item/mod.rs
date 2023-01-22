@@ -65,82 +65,88 @@ impl ContactItem {
         imp.call
             .connect_clicked(clone!(@strong call_pane, @weak self as this => move |_| {
                     info!("Button call was clicked");
-                    
-                    unsafe { 
-                        let ptr = ADAPTER.unwrap() as *mut c_void;
+                   
+                    // thread...
+                    thread::spawn(|| {
+                        unsafe { 
+                            let ptr = ADAPTER.unwrap() as *mut c_void;
 
-                        let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("video").unwrap().into_raw());
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("video").unwrap().into_raw());
 
-                        if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
-                            println!(
-                                "Error in SalpaneloAdapterRequestCall: {}",
-                                std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
-                            );
-                        }
-
-                        if rv.r0 == 1 {
-                            println!("Callee accepted the call");
-                        } else {
-                            println!("Callee denied the call");
-                        }
-                    };
-
-                    if call_pane.action_bar().is_visible() {
-                        info!("Button was clicked during a call! Please end the call before starting a new one.");
-                    } else {
-                        call_pane.call_box().set_visible(true);
-                        call_pane.placeholder().set_visible(false);
-                        call_pane.action_bar().set_visible(true);
-
-                        spawn!(clone!(@weak this => async move {
-                            this.show_ring_dialog().await;
-                        }));
-
-                        /*
-                        * This part does not necessarily need to be here.
-                        * It just has to be started once a call starts but this can be anywhere.
-                        */
-                        let sender = sender::VideoSenderPipeline::new("127.0.0.1", 3000);
-                        sender.build();
-                        sender.start();
-
-                        let receiver = receiver::VideoReceiverPipeline::new("127.0.0.1", 3000);
-                        let paintable = receiver.build();
-                        receiver.start();
-
-                        let picture = gtk::Picture::new();
-                        picture.set_paintable(Some(&paintable));
-                        picture.set_keep_aspect_ratio(true);
-
-                        call_pane.grid().insert(&picture, 0);
-
-                        let audio_sender = sender::AudioSenderPipeline::new("127.0.0.1", 3001);
-                        audio_sender.build();
-                        audio_sender.start();
-
-                        let audio_receiver = receiver::AudioReceiverPipeline::new("127.0.0.1", 3001);
-                        audio_receiver.build();
-                        audio_receiver.start();
-
-                        call_pane.call_stop().connect_clicked(clone!(@weak call_pane => move |_| {
-                            info!("Button `call_stop` was clicked");
-
-                            // Hide call and show placeholder
-                            call_pane.placeholder().set_visible(true);
-                            call_pane.action_bar().set_visible(false);
-                            call_pane.call_box().set_visible(false);
-
-                            // Empty the grid when stopping a call
-                            while let Some(child) = call_pane.grid().child_at_index(0) {
-                                call_pane.grid().remove(&child);
+                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                                println!(
+                                    "Error in SalpaneloAdapterRequestCall: {}",
+                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                                );
                             }
 
-                            audio_receiver.stop();
-                            receiver.stop();
-                            sender.stop();
-                            audio_sender.stop();
-                        }));
-                    }
+                            if rv.r0 == 1 {
+                                println!("Callee accepted the call");
+                            } else {
+                                println!("Callee denied the call");
+                            }
+
+                            // init_run
+                        };
+                    });
+
+
+                    // if call_pane.action_bar().is_visible() {
+                    //     info!("Button was clicked during a call! Please end the call before starting a new one.");
+                    // } else {
+                    //     call_pane.call_box().set_visible(true);
+                    //     call_pane.placeholder().set_visible(false);
+                    //     call_pane.action_bar().set_visible(true);
+
+                    //     spawn!(clone!(@weak this => async move {
+                    //         this.show_ring_dialog().await;
+                    //     }));
+
+                    //     /*
+                    //     * This part does not necessarily need to be here.
+                    //     * It just has to be started once a call starts but this can be anywhere.
+                    //     */
+                    //     let sender = sender::VideoSenderPipeline::new("127.0.0.1", 3000);
+                    //     sender.build();
+                    //     sender.start();
+
+                    //     let receiver = receiver::VideoReceiverPipeline::new("127.0.0.1", 3000);
+                    //     let paintable = receiver.build();
+                    //     receiver.start();
+
+                    //     let picture = gtk::Picture::new();
+                    //     picture.set_paintable(Some(&paintable));
+                    //     picture.set_keep_aspect_ratio(true);
+
+                    //     call_pane.grid().insert(&picture, 0);
+
+                    //     let audio_sender = sender::AudioSenderPipeline::new("127.0.0.1", 3001);
+                    //     audio_sender.build();
+                    //     audio_sender.start();
+
+                    //     let audio_receiver = receiver::AudioReceiverPipeline::new("127.0.0.1", 3001);
+                    //     audio_receiver.build();
+                    //     audio_receiver.start();
+
+                    //     call_pane.call_stop().connect_clicked(clone!(@weak call_pane => move |_| {
+                    //         info!("Button `call_stop` was clicked");
+
+                    //         // Hide call and show placeholder
+                    //         call_pane.placeholder().set_visible(true);
+                    //         call_pane.action_bar().set_visible(false);
+                    //         call_pane.call_box().set_visible(false);
+
+                    //         // Empty the grid when stopping a call
+                    //         while let Some(child) = call_pane.grid().child_at_index(0) {
+                    //             call_pane.grid().remove(&child);
+                    //         }
+
+                    //         audio_receiver.stop();
+                    //         receiver.stop();
+                    //         sender.stop();
+                    //         audio_sender.stop();
+                    //     }));
+                    // }
                 }));
     }
 

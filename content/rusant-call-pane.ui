@@ -28,7 +28,7 @@
                         <property name="hexpand">True</property>
                         <property name="vexpand">True</property>
                         <property name="title">Welcome</property>
-                        <property name="description" translatable="yes">Start a call by clicking on the appropriate button in the contacts list. You may also start a group call by selecting multiple contacts.</property>
+                        <property name="description" translatable="yes">Greetings! To start a call, simply select a contact from your list and click the video call button.</property>
                     </object>
                 </child>
                 <child>
