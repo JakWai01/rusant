@@ -11,6 +11,7 @@ mod sender;
 use gtk::traits::ButtonExt;
 use libadwaita::ApplicationWindow;
 use libadwaita::prelude::MessageDialogExtManual;
+use libadwaita::traits::MessageDialogExt;
 use rusant_sys::add;
 use saltpanelo_sys::saltpanelo::{SaltpaneloOnRequestCallResponse, SaltpaneloAdapterLink};
 use saltpanelo_sys::tti;
@@ -19,13 +20,17 @@ use log::{info, debug};
 use rusant_main_window::MainWindow;
 
 use config::Config;
-use glib::{clone, Continue, ObjectExt, ToValue, Value};
+use glib::{clone, Continue, ObjectExt, ToValue, Value, MainContext, PRIORITY_DEFAULT};
 use gtk::{
     gdk::Display, glib, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt,
     CssProvider, StyleContext, Window,
 };
 use gtk_macros::{action, spawn};
+use std::borrow::BorrowMut;
+use std::cell::RefCell;
 use std::ffi::{c_void, CString};
+use std::rc::Rc;
+use std::sync::mpsc::{Sender, Receiver, self};
 use webkit2gtk::traits::{WebViewExt, WebkitSettingsExt};
 use webkit2gtk::{WebContext, WebView};
 // use webkit2gtk::{WebContext, WebView, WebViewExt, SettingsExt, WebContextExt};
@@ -198,6 +203,38 @@ unsafe extern "C" fn open_url(
     CString::new("").unwrap().into_raw()
 }
 
+// type Accept = Rc<RefCell<Option<i8>>>;
+
+// #[derive(Clone)]
+// struct AcceptWrapper {
+//     internal_value: Accept
+// }
+
+// impl AcceptWrapper {
+//     fn new() -> Self {
+//         AcceptWrapper {
+//             internal_value: Rc::new(RefCell::new(None))
+//         }
+//     }
+
+//     fn get_accept(&self) -> Result<i8, &str> {
+//         let accept_wrapper = self.internal_value.borrow();
+//         match accept_wrapper.as_ref() {
+//             Some(accept) => Ok(accept.clone()),
+//             None => Err("Expected a value!")
+//         }
+//     }
+
+//     fn set_accept(&self, n: i8) {
+//         let mut accept = self.internal_value.borrow_mut();
+//         *accept = Some(n);
+//     }
+// }
+
+// unsafe impl Send for AcceptWrapper {}
+
+// static mut ACCEPT: Option<i8> = None;
+
 unsafe extern "C" fn on_request_call(
     src_id: *mut ::std::os::raw::c_char,
     src_email: *mut ::std::os::raw::c_char,
@@ -210,21 +247,51 @@ unsafe extern "C" fn on_request_call(
     // let win = &*(userdata as *mut MainWindow);
     // 
 
-    glib::idle_add(|| {
+    // let accept = AcceptWrapper::new();
+    // let mut accept: Box<i8> = Box::new(0);
+    let mut accept: i8 = 0;
+
+    let mut cb = Some(|x| {println!("This is x: {}", x)});
+    // let mut cb = Some(|x| {accept = x});
+
+    glib::idle_add(move || {
+        
+        let (sender, receiver) = MainContext::channel(PRIORITY_DEFAULT);
+
         spawn!(async move {
-            show_ring_dialog().await;
+            let accept = show_ring_dialog().await;
+            sender.send(accept).expect("Could not send");
         });
+
+        receiver.attach(None, move |x| {
+            println!("Value of x: {}", x);
+            // let mut internal_accept = accept.borrow_mut();
+            // ACCEPT = Some(1);
+            // *internal_accept = Some(x);
+            // accept.set_accept(x);
+            cb.take().unwrap()(x);
+            glib::Continue(false)
+        });
+
         glib::Continue(false)
     });
 
-    // What should we return?
+    // let mut accept: i8 = 0;
+
+    // println!("Accepting: {}", accept);
+
+    // let acc = match accept.get_accept() {
+    //     Ok(i8) => i8,
+    //     Err(err) => panic!("Actually an error: {}", err)
+    // };
+
     SaltpaneloOnRequestCallResponse {
-        Accept: 1,
+        Accept: accept,
         Err: CString::new("").unwrap().into_raw(),
     }
 }
 
-pub async fn show_ring_dialog() {
+pub async fn show_ring_dialog() -> i8 {
         info!("Showing ring dialog");
 
         let builder = gtk::Builder::from_resource("/com/jakobwaibel/Rusant/rusant-ring-dialog.ui");
@@ -244,8 +311,12 @@ pub async fn show_ring_dialog() {
 
         if dialog.run_future().await == "accept" {
             debug!("Accepting call");
-
-            println!("Accepting the call");
+            println!("Accepting call");
+            1
+        } else {
+            debug!("Denying the call");
+            println!("Denying call");
+            0
         }
     }
 
