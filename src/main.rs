@@ -240,6 +240,9 @@ pub static mut ROUTE_ID: Option<String> = None;
 pub static mut SRC_EMAIL: Option<String> = None;
 pub static mut CHANNEL_ID: Option<String> = None;
 
+pub static mut RADDR: Option<String> = None;
+pub static mut RPORT: Option<i32> = None;
+
 unsafe extern "C" fn on_request_call(
     src_id: *mut ::std::os::raw::c_char,
     src_email: *mut ::std::os::raw::c_char,
@@ -357,17 +360,42 @@ unsafe extern "C" fn on_handle_call(
     let route_id_c_str = std::ffi::CStr::from_ptr(route_id);
     let raddr_c_str = std::ffi::CStr::from_ptr(raddr);
 
-    ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
-
     println!(
         "Call with route ID {:?} and remote address {:?} started",
         route_id_c_str, raddr_c_str
     );
 
-    // Open call pane
-    WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(true);
-    WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(false);
-    WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(true);
+    ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
+
+    // Split original raddr into address and port
+    if let Some((address, port)) = std::ffi::CStr::from_ptr(raddr).to_str().unwrap().split_once(':') {
+        RADDR = Some(String::from(address));
+        RPORT = Some(port.parse().unwrap());
+    }
+
+    let address = RADDR.clone().unwrap();
+    let port = RPORT.unwrap();
+
+    println!("Partner's address is {} and their port is {}", address, port);
+
+    glib::idle_add(move || {
+        // We probably have to do this in a thread in main
+        let receiver = receiver::VideoReceiverPipeline::new(&address, port);
+        let paintable = receiver.build();
+        receiver.start();
+
+        let picture = gtk::Picture::new();
+        picture.set_paintable(Some(&paintable));
+
+        WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+
+        // Open call pane
+        WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(true);
+        WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(false);
+        WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(true);
+
+        glib::Continue(false)
+    });
 
     CString::new("").unwrap().into_raw()
 }
