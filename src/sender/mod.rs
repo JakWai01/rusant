@@ -50,13 +50,16 @@ impl<'a> VideoSenderPipeline<'a> {
         let jpegenc = gst::ElementFactory::make("jpegenc").build().unwrap();
         let rtpjpegpay = gst::ElementFactory::make("rtpjpegpay").build().unwrap();
         let rtpstreampay = gst::ElementFactory::make("rtpstreampay").build().unwrap();
-        let udpsink = gst::ElementFactory::make("tcpserversink").build().unwrap();
-        // let udpsink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
+        // let udpsink = gst::ElementFactory::make("tcpserversink").build().unwrap();
+        let udpsink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
 
         // Initialize caps
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
 
         filter.set_property("caps", &caps);
+
+        // For testing purposes only! (e.g. video0 and video4)
+        v4l2src.set_property("device", "/dev/video0");
 
         udpsink.set_property("host", self.host);
         udpsink.set_property("port", self.port);
@@ -123,8 +126,8 @@ impl<'a> AudioSenderPipeline<'a> {
         let vorbisenc = gst::ElementFactory::make("vorbisenc").build().unwrap();
         let rtpvorbispay = gst::ElementFactory::make("rtpvorbispay").build().unwrap();
         let rtpstreampay = gst::ElementFactory::make("rtpstreampay").build().unwrap();
-        let sink = gst::ElementFactory::make("tcpserversink").build().unwrap();
-        // let sink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
+        // let sink = gst::ElementFactory::make("tcpserversink").build().unwrap();
+        let sink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
 
         // Initialize caps
         let caps = gst::Caps::new_simple("audio/x-raw", &[("rate", &48000i32)]);

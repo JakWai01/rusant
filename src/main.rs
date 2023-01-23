@@ -344,10 +344,18 @@ unsafe extern "C" fn on_call_disconnected(
     let c_str = std::ffi::CStr::from_ptr(route_id);
     println!("Call with route ID {} was ended", c_str.to_str().unwrap());
 
-    // Close call pane
-    WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
-    WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
-    WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
+    glib::idle_add(move || {
+        // Close call pane
+        WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
+        WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
+        WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
+
+        while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
+            WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
+        }
+
+        glib::Continue(false)
+    });
 
     CString::new("").unwrap().into_raw()
 }
@@ -379,6 +387,11 @@ unsafe extern "C" fn on_handle_call(
     println!("Partner's address is {} and their port is {}", address, port);
 
     glib::idle_add(move || {
+
+        let sender = sender::VideoSenderPipeline::new(&address, port);
+        sender.build();
+        sender.start();
+
         // We probably have to do this in a thread in main
         let receiver = receiver::VideoReceiverPipeline::new(&address, port);
         let paintable = receiver.build();
@@ -387,6 +400,7 @@ unsafe extern "C" fn on_handle_call(
         let picture = gtk::Picture::new();
         picture.set_paintable(Some(&paintable));
 
+        // We need to clear those on hangup
         WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
 
         // Open call pane
