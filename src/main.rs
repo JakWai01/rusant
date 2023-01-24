@@ -28,6 +28,7 @@ use gtk::{
 use gtk_macros::{action, spawn};
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::ffi::{c_void, CString};
 use std::rc::Rc;
 use std::sync::mpsc::{Sender, Receiver, self};
@@ -238,10 +239,19 @@ unsafe extern "C" fn open_url(
 
 pub static mut ROUTE_ID: Option<String> = None;
 pub static mut SRC_EMAIL: Option<String> = None;
+
+// Possible CHANNEL_IDs are VIDEO_SENDER, VIDEO_RECEIVER, AUDIO_SENDER, AUDIO_RECEIVER
 pub static mut CHANNEL_ID: Option<String> = None;
 
 pub static mut RADDR: Option<String> = None;
 pub static mut RPORT: Option<i32> = None;
+
+// Experimental globals
+pub static mut SENT_REQUESTS: Option<HashSet<String>> = None;
+pub static mut RECEIVED_REQUESTS: Option<HashSet<String>> = None; 
+
+// Set this to false if call was ended
+pub static mut DIALOGUED: Option<bool> = None;
 
 unsafe extern "C" fn on_request_call(
     src_id: *mut ::std::os::raw::c_char,
@@ -255,9 +265,16 @@ unsafe extern "C" fn on_request_call(
     ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
     SRC_EMAIL = Some(String::from(std::ffi::CStr::from_ptr(src_email).to_str().unwrap()));
     CHANNEL_ID = Some(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
-    // let win = &*(userdata as *mut MainWindow);
-    // 
 
+    match RECEIVED_REQUESTS.as_mut() {
+        Some(x) => {
+            x.insert(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
+        },
+        None => {
+            RECEIVED_REQUESTS = Some(HashSet::new());
+            RECEIVED_REQUESTS.as_mut().unwrap().insert(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
+        },
+    }
     // let accept = AcceptWrapper::new();
     // let mut accept: Box<i8> = Box::new(0);
     // let mut accept: i8 = 0;
@@ -265,33 +282,57 @@ unsafe extern "C" fn on_request_call(
     // let mut cb = Some(|x| {println!("This is x: {}", x)});
     // let mut cb = Some(|x| {accept = x});
 
-    let (sender, receiver) = mpsc::channel();
-
-    glib::idle_add(move || {
+    println!("Current state of RECEIVED_REQUESTS: {:?}", RECEIVED_REQUESTS.as_ref().unwrap());
+    // if RECEIVED_REQUESTS.as_ref().unwrap().contains("VIDEO_SENDER") {
         
-        let sender = sender.clone();
-        spawn!(async move {
-            let accept = show_ring_dialog().await;
-            sender.send(accept).expect("Could not send");
+    match DIALOGUED.as_mut() {
+        Some(_) => {},
+        None => {
+            DIALOGUED = Some(false);
+        }
+    }
+
+    if !DIALOGUED.as_ref().unwrap() {
+        let (sender, receiver) = mpsc::channel();
+
+        glib::idle_add(move || {
+            
+            let sender = sender.clone();
+            spawn!(async move {
+                let accept = show_ring_dialog().await;
+                sender.send(accept).expect("Could not send");
+            });
+
+            // receiver.attach(None, move |x| {
+            //     println!("Value of x: {}", x);
+            //     // let mut internal_accept = accept.borrow_mut();
+            //     // ACCEPT = Some(1);
+            //     // *internal_accept = Some(x);
+            //     // accept.set_accept(x);
+            //     cb.take().unwrap()(x);
+            //     glib::Continue(false)
+            // });
+
+
+            glib::Continue(false)
         });
 
-        // receiver.attach(None, move |x| {
-        //     println!("Value of x: {}", x);
-        //     // let mut internal_accept = accept.borrow_mut();
-        //     // ACCEPT = Some(1);
-        //     // *internal_accept = Some(x);
-        //     // accept.set_accept(x);
-        //     cb.take().unwrap()(x);
-        //     glib::Continue(false)
-        // });
-
-
-        glib::Continue(false)
-    });
-
-    let accept = receiver.recv().unwrap();
-
-    println!("Accept is currently: {}", accept);
+        let accept = receiver.recv().unwrap();
+        
+        println!("Accept is currently: {}", accept);
+    
+        SaltpaneloOnRequestCallResponse {
+            Accept: accept,
+            Err: CString::new("").unwrap().into_raw(),
+        }
+    } else {
+        DIALOGUED = Some(true);
+        
+        SaltpaneloOnRequestCallResponse {
+            Accept: 1,
+            Err: CString::new("").unwrap().into_raw(),
+        }
+    }
     // let mut accept: i8 = 0;
 
     // println!("Accepting: {}", accept);
@@ -301,10 +342,6 @@ unsafe extern "C" fn on_request_call(
     //     Err(err) => panic!("Actually an error: {}", err)
     // };
 
-    SaltpaneloOnRequestCallResponse {
-        Accept: accept,
-        Err: CString::new("").unwrap().into_raw(),
-    }
 }
 
 pub async fn show_ring_dialog() -> i8 {
@@ -388,20 +425,86 @@ unsafe extern "C" fn on_handle_call(
 
     glib::idle_add(move || {
 
-        let sender = sender::VideoSenderPipeline::new(&address, port);
-        sender.build();
-        sender.start();
+        if let Some(requests) = RECEIVED_REQUESTS.as_mut() {
+            if requests.contains("VIDEO_SENDER") {
+                println!("We are in VIDEO_SENDER weak");
+                let sender = sender::VideoSenderPipeline::new(&address, port);
+                sender.build();
+                sender.start();
+
+                RECEIVED_REQUESTS.as_mut().unwrap().remove("VIDEO_SENDER");
+            }
+
+            if requests.contains("VIDEO_RECEIVER") {
+                println!("We are in VIDEO_RECEIVER weak");
+                let receiver = receiver::VideoReceiverPipeline::new(&address, port);
+                let paintable = receiver.build();
+                receiver.start();
+
+                let picture = gtk::Picture::new();
+                picture.set_paintable(Some(&paintable));
+
+                WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+
+                RECEIVED_REQUESTS.as_mut().unwrap().remove("VIDEO_RECEIVER");
+            }
+        }
+
+        if let Some(requests) = SENT_REQUESTS.as_mut() {
+            if requests.contains("VIDEO_SENDER") {
+                println!("We are in VIDEO_SENDER strong");
+                let receiver = receiver::VideoReceiverPipeline::new(&address, port);
+                let paintable = receiver.build();
+                receiver.start();
+
+                let picture = gtk::Picture::new();
+                picture.set_paintable(Some(&paintable));
+
+                WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+
+                SENT_REQUESTS.as_mut().unwrap().remove("VIDEO_SENDER");
+
+                thread::spawn(|| {
+                    unsafe {
+                         let ptr = ADAPTER.unwrap() as *mut c_void;
+                            
+                            match SENT_REQUESTS.as_mut() {
+                                Some(x) => {
+                                    x.insert(String::from("VIDEO_RECEIVER"));
+                                },
+                                None => {
+                                    SENT_REQUESTS = Some(HashSet::new());
+                                    SENT_REQUESTS.as_mut().unwrap().insert(String::from("VIDEO_RECEIVER"));
+                                }
+                            }
+
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("VIDEO_RECEIVER").unwrap().into_raw());
+
+                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                                println!(
+                                    "Error in SalpaneloAdapterRequestCall: {}",
+                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                                );
+                            }
+
+                            if rv.r0 == 1 {
+                                println!("Callee accepted the call");
+                            } else {
+                                println!("Callee denied the call");
+                            }
+                    };
+                });
+            } else if requests.contains("VIDEO_RECEIVER") {
+                println!("We are in VIDEO_RECEIVER strong");
+                let sender = sender::VideoSenderPipeline::new(&address, port);
+                sender.build();
+                sender.start();
+
+                SENT_REQUESTS.as_mut().unwrap().remove("VIDEO_RECEIVER");
+            }
+        }
 
         // We probably have to do this in a thread in main
-        let receiver = receiver::VideoReceiverPipeline::new(&address, port);
-        let paintable = receiver.build();
-        receiver.start();
-
-        let picture = gtk::Picture::new();
-        picture.set_paintable(Some(&paintable));
-
-        // We need to clear those on hangup
-        WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
 
         // Open call pane
         WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(true);

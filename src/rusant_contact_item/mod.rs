@@ -1,8 +1,8 @@
 pub mod template;
 
-use std::{thread, os::raw::c_void, ffi::CString};
+use std::{thread, os::raw::c_void, ffi::CString, collections::HashSet};
 
-use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender, ADAPTER, ROUTE_ID, WINDOW};
+use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender, ADAPTER, ROUTE_ID, WINDOW, SENT_REQUESTS};
 
 use self::template::ContactItemTemplate;
 
@@ -69,8 +69,18 @@ impl ContactItem {
                     thread::spawn(|| {
                         unsafe { 
                             let ptr = ADAPTER.unwrap() as *mut c_void;
+                            
+                            match SENT_REQUESTS.as_mut() {
+                                Some(x) => {
+                                    x.insert(String::from("VIDEO_SENDER"));
+                                },
+                                None => {
+                                    SENT_REQUESTS = Some(HashSet::new());
+                                    SENT_REQUESTS.as_mut().unwrap().insert(String::from("VIDEO_SENDER"));
+                                }
+                            }
 
-                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("video").unwrap().into_raw());
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("VIDEO_SENDER").unwrap().into_raw());
 
                             if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
                                 println!(

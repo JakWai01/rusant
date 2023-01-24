@@ -59,7 +59,7 @@ impl<'a> VideoSenderPipeline<'a> {
         filter.set_property("caps", &caps);
 
         // For testing purposes only! (e.g. video0 and video4)
-        v4l2src.set_property("device", "/dev/video0");
+        v4l2src.set_property("device", "/dev/video4");
 
         udpsink.set_property("host", self.host);
         udpsink.set_property("port", self.port);
