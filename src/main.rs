@@ -369,15 +369,27 @@ unsafe extern "C" fn on_handle_call(
         }
 
         if channel == "AUDIO_SENDER" && REQUESTED_AUDIO_SENDER {
-
+            println!("Receiving video");
+            let receiver = receiver::AudioReceiverPipeline::new(&address, port);
+            receiver.build();
+            receiver.start();
         } else if channel == "AUDIO_SENDER" {
-
+            println!("Sending audio");
+            let sender = sender::AudioSenderPipeline::new(&address, port);
+            sender.build();
+            sender.start();
         }
 
         if channel == "AUDIO_RECEIVER" && REQUESTED_AUDIO_RECEIVER {
-
+            println!("Sending audio");
+            let sender = sender::AudioSenderPipeline::new(&address, port);
+            sender.build();
+            sender.start();
         } else if channel == "AUDIO_RECEIVER" {
-
+            println!("Receiving audio");
+            let receiver = receiver::AudioReceiverPipeline::new(&address, port);
+            receiver.build();
+            receiver.start();
         }
 
         // Open call pane
