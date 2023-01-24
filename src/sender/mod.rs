@@ -1,4 +1,5 @@
 use gst::prelude::*;
+use gtk::gdk;
 use log::info;
 
 /// Sender part of the gstreamer pipeline
@@ -42,7 +43,7 @@ impl VideoSenderPipeline {
     }
 
     /// Build the pipeline
-    pub fn build(&self) {
+    pub fn build(&self) -> gdk::Paintable {
         info!("Initializing video sender pipeline");
 
         // Initialize Gstreamer pipeline
@@ -55,8 +56,19 @@ impl VideoSenderPipeline {
         let rtpjpegpay = gst::ElementFactory::make("rtpjpegpay").build().unwrap();
         let rtpstreampay = gst::ElementFactory::make("rtpstreampay").build().unwrap();
         // let udpsink = gst::ElementFactory::make("tcpserversink").build().unwrap();
+        let tee = gst::ElementFactory::make("tee").build().unwrap();
+        
+        let queue1 = gst::ElementFactory::make("queue").build().unwrap();
+
+        let videoconvert1 = gst::ElementFactory::make("videoconvert").build().unwrap();
+
+        let queue2 = gst::ElementFactory::make("queue").build().unwrap();
+
+        let videoconvert2 = gst::ElementFactory::make("videoconvert").build().unwrap();
+
         let udpsink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
 
+        let mirror_sink = gst::ElementFactory::make("gtk4paintablesink").build().unwrap();
         // Initialize caps
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
 
@@ -67,6 +79,8 @@ impl VideoSenderPipeline {
 
         udpsink.set_property("host", self.host.clone());
         udpsink.set_property("port", self.port);
+        
+        let paintable = mirror_sink.property::<gdk::Paintable>("paintable");
 
         // Add pads
         self.pipeline
@@ -76,22 +90,38 @@ impl VideoSenderPipeline {
                 &jpegenc,
                 &rtpjpegpay,
                 &rtpstreampay,
+                &tee,
+                &queue1,
+                &videoconvert1,
+                &queue2,
+                &videoconvert2,
                 &udpsink,
+                &mirror_sink,
             ])
             .unwrap();
+
+        
 
         // Link pads
         gst::Element::link_many(&[
             &v4l2src,
             &filter,
-            &jpegenc,
-            &rtpjpegpay,
-            &rtpstreampay,
-            &udpsink,
+            &tee,
         ])
         .unwrap();
+        
+        tee.link(&queue1).unwrap();
+        queue1.link(&videoconvert1).unwrap();
+        videoconvert1.link(&jpegenc).unwrap();
+        jpegenc.link(&rtpjpegpay).unwrap();
+        rtpjpegpay.link(&rtpstreampay).unwrap();
+        rtpstreampay.link(&udpsink).unwrap();
 
-        // self.pipeline = pipeline;
+        tee.link(&queue2).unwrap();
+        queue2.link(&videoconvert2).unwrap();
+        videoconvert2.link(&mirror_sink).unwrap();
+
+        paintable
     }
 }
 
@@ -167,7 +197,5 @@ impl AudioSenderPipeline {
             &sink,
         ])
         .unwrap();
-
-        // self.pipeline = pipeline
     }
 }

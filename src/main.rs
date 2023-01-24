@@ -414,15 +414,25 @@ unsafe extern "C" fn on_handle_call(
         } else if channel == "VIDEO_SENDER" {
             println!("Sending video");
             VIDEO_SENDER = Some(sender::VideoSenderPipeline::new(address.clone(), port));
-            VIDEO_SENDER.as_ref().unwrap().build();
+            let paintable = VIDEO_SENDER.as_ref().unwrap().build();
             VIDEO_SENDER.as_ref().unwrap().start();
+            
+            let picture = gtk::Picture::new();
+            picture.set_paintable(Some(&paintable));
+
+            WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
         }
 
         if channel == "VIDEO_RECEIVER" && REQUESTED_VIDEO_RECEIVER {
             println!("Sending video");
             VIDEO_SENDER = Some(sender::VideoSenderPipeline::new(address.clone(), port));
-            VIDEO_SENDER.as_ref().unwrap().build();
+            let paintable = VIDEO_SENDER.as_ref().unwrap().build();
             VIDEO_SENDER.as_ref().unwrap().start();
+            
+            let picture = gtk::Picture::new();
+            picture.set_paintable(Some(&paintable));
+
+            WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
         } else if channel == "VIDEO_RECEIVER" {
             println!("Receiving video");
             VIDEO_RECEIVER = Some(receiver::VideoReceiverPipeline::new(address.clone(), port));
@@ -467,7 +477,7 @@ unsafe extern "C" fn on_handle_call(
         if let None = VIDEO_SENDER.as_ref() {
             WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
         }
-        
+
         glib::Continue(false)
     });
 
