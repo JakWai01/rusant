@@ -192,7 +192,6 @@ unsafe extern "C" fn open_url(
     CString::new("").unwrap().into_raw()
 }
 
-pub static mut ROUTE_ID: Option<String> = None;
 pub static mut SRC_EMAIL: Option<String> = None;
 
 // Possible CHANNEL_IDs are VIDEO_SENDER, VIDEO_RECEIVER, AUDIO_SENDER, AUDIO_RECEIVER
@@ -223,7 +222,7 @@ unsafe extern "C" fn on_request_call(
 
     println!("Requested call");
 
-    ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
+    // ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
     SRC_EMAIL = Some(String::from(std::ffi::CStr::from_ptr(src_email).to_str().unwrap()));
     CHANNEL_ID = Some(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
 
@@ -313,13 +312,18 @@ unsafe extern "C" fn on_call_disconnected(
     CString::new("").unwrap().into_raw()
 }
 
+pub static mut VIDEO_SENDER_ROUTE_ID: Option<String> = None;
+pub static mut VIDEO_RECEIVER_ROUTE_ID: Option<String> = None;
+pub static mut AUDIO_SENDER_ROUTE_ID: Option<String> = None;
+pub static mut AUDIO_RECEIVER_ROUTE_ID: Option<String> = None;
+
 unsafe extern "C" fn on_handle_call(
     route_id: *mut ::std::os::raw::c_char,
     channel_id: *mut ::std::os::raw::c_char,
     raddr: *mut ::std::os::raw::c_char,
     userdata: *mut ::std::os::raw::c_void,
 ) -> *mut ::std::os::raw::c_char {
-    let route_id_c_str = std::ffi::CStr::from_ptr(route_id);
+    let route_id_c_str = std::ffi::CStr::from_ptr(route_id).to_str().unwrap();
     let raddr_c_str = std::ffi::CStr::from_ptr(raddr);
 
     println!(
@@ -327,7 +331,7 @@ unsafe extern "C" fn on_handle_call(
         route_id_c_str, raddr_c_str
     );
 
-    ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
+    // ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
 
     // Split original raddr into address and port
     if let Some((address, port)) = std::ffi::CStr::from_ptr(raddr).to_str().unwrap().split_once(':') {
@@ -338,6 +342,22 @@ unsafe extern "C" fn on_handle_call(
     let address = RADDR.clone().unwrap();
     let port = RPORT.unwrap();
     let channel = std::ffi::CStr::from_ptr(channel_id).to_str().unwrap();
+
+    match channel {
+        "VIDEO_SENDER" => {
+            VIDEO_SENDER_ROUTE_ID = Some(String::from(route_id_c_str));
+        },
+        "VIDEO_RECEIVER" => {
+            VIDEO_RECEIVER_ROUTE_ID = Some(String::from(route_id_c_str));
+        },
+        "AUDIO_SENDER" => {
+            AUDIO_SENDER_ROUTE_ID = Some(String::from(route_id_c_str));
+        },
+        "AUDIO_RECEIVER" => {
+            AUDIO_RECEIVER_ROUTE_ID = Some(String::from(route_id_c_str));
+        },
+        &_ => unimplemented!()
+    }
 
     println!("Partner's address is {} and their port is {}", address, port);
 

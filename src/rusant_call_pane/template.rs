@@ -1,4 +1,4 @@
-use crate::{receiver, ADAPTER, ROUTE_ID, WINDOW};
+use crate::{receiver, ADAPTER, WINDOW, VIDEO_SENDER_ROUTE_ID, VIDEO_RECEIVER_ROUTE_ID, AUDIO_SENDER_ROUTE_ID, AUDIO_RECEIVER_ROUTE_ID};
 
 use super::CallPane;
 
@@ -137,25 +137,63 @@ impl ObjectImpl for CallPaneTemplate {
                 unsafe {
                     let ptr = ADAPTER.unwrap() as *mut c_void;
 
-                    let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
+                    let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(VIDEO_SENDER_ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
 
                     if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
                         println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
                     }
-
-                    glib::idle_add(move || {
-                        WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
-                        WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
-                        WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
-                        
-                        while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
-                            WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
-                        }
-
-                        glib::Continue(false)
-                    });
                 }
             });
+
+            thread::spawn(|| {
+                unsafe {
+                    let ptr = ADAPTER.unwrap() as *mut c_void;
+
+                    let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(VIDEO_RECEIVER_ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
+
+                    if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
+                        println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                    }
+                }
+            });
+
+            thread::spawn(|| {
+                unsafe {
+                    let ptr = ADAPTER.unwrap() as *mut c_void;
+
+                    let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(AUDIO_SENDER_ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
+
+                    if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
+                        println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                    }
+                }
+            });
+            
+            thread::spawn(|| {
+                unsafe {
+                    let ptr = ADAPTER.unwrap() as *mut c_void;
+
+                    let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(AUDIO_RECEIVER_ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
+
+                    if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
+                        println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                    }
+                }
+            });
+
+            unsafe {
+                glib::idle_add(move || {
+                    WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
+                    WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
+                    WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
+                    
+                    while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
+                        WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
+                    }
+
+                    glib::Continue(false)
+                });
+            };
         }));
     }
 }
