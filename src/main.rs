@@ -321,13 +321,13 @@ unsafe extern "C" fn on_request_call(
         
         println!("Accept is currently: {}", accept);
     
+        DIALOGUED = Some(true);
+
         SaltpaneloOnRequestCallResponse {
             Accept: accept,
             Err: CString::new("").unwrap().into_raw(),
         }
     } else {
-        DIALOGUED = Some(true);
-        
         SaltpaneloOnRequestCallResponse {
             Accept: 1,
             Err: CString::new("").unwrap().into_raw(),
