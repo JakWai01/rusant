@@ -25,6 +25,7 @@ use gtk::{
 use gtk_macros::{action, spawn};
 use std::collections::HashSet;
 use std::ffi::{c_void, CString};
+use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{self};
 use std::path::Path;
 use std::ptr::null_mut;
@@ -41,6 +42,9 @@ use libadwaita::{
 fn main() {
     // Initialize logger
     pretty_env_logger::init();
+
+    // Initialize lock
+    unsafe { LOCK = Some(Arc::new(Mutex::new(0))) }
 
     // Parse config
     let config = Config::builder()
@@ -206,6 +210,8 @@ pub static mut REQUESTED_VIDEO_RECEIVER: bool = false;
 pub static mut REQUESTED_AUDIO_SENDER: bool = false;
 pub static mut REQUESTED_AUDIO_RECEIVER: bool = false;
 
+pub static mut LOCK: Option<Arc<Mutex<i32>>> = None;
+
 unsafe extern "C" fn on_request_call(
     src_id: *mut ::std::os::raw::c_char,
     src_email: *mut ::std::os::raw::c_char,
@@ -213,6 +219,8 @@ unsafe extern "C" fn on_request_call(
     channel_id: *mut ::std::os::raw::c_char,
     userdata: *mut ::std::os::raw::c_void,
 ) -> SaltpaneloOnRequestCallResponse {
+    let _lock = LOCK.as_ref().unwrap().lock().unwrap();
+
     println!("Requested call");
 
     ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
