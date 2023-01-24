@@ -464,6 +464,10 @@ unsafe extern "C" fn on_handle_call(
         WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(false);
         WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(true);
 
+        if let None = VIDEO_SENDER.as_ref() {
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
+        }
+        
         glib::Continue(false)
     });
 

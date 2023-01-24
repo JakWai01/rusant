@@ -66,101 +66,56 @@ impl ContactItem {
             .connect_clicked(clone!(@strong call_pane, @weak self as this => move |_| {
                     info!("Button call was clicked");
                    
-                    if call_pane.action_bar().is_visible() {
-                        info!("Button was clicked during a call! Please end the call before starting a new one.");
-                    } else {
-                        thread::spawn(|| {
-                            unsafe { 
-                                REQUESTED_VIDEO_SENDER = true;
+                if call_pane.action_bar().is_visible() {
+                    info!("Button was clicked during a call! Please end the call before starting a new one.");
+                } else {
+                    thread::spawn(|| {
+                        unsafe { 
+                            REQUESTED_AUDIO_SENDER = true;
 
-                                let ptr = ADAPTER.unwrap() as *mut c_void;
-                                
-                                let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("VIDEO_SENDER").unwrap().into_raw());
+                            let ptr = ADAPTER.unwrap() as *mut c_void;
+                            
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("AUDIO_SENDER").unwrap().into_raw());
 
-                                if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
-                                    println!(
-                                        "Error in SaltpaneloAdapterRequestCall: {}",
-                                        std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
-                                    );
-                                }
+                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                                println!(
+                                    "Error in SaltpaneloAdapterRequestCall: {}",
+                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                                );
+                            }
 
-                                if rv.r0 == 1 {
-                                    println!("Callee accepted the call");
-                                } else {
-                                    println!("Callee denied the call");
-                                }
-                            };
-                        });
+                            if rv.r0 == 1 {
+                                println!("Callee accepted the call");
+                            } else {
+                                println!("Callee denied the call");
+                            }
+                        };
+                    });
 
-                        thread::spawn(|| {
-                            unsafe { 
-                                REQUESTED_VIDEO_RECEIVER = true;
+                    thread::spawn(|| {
+                        unsafe { 
+                            REQUESTED_AUDIO_RECEIVER = true;
 
-                                let ptr = ADAPTER.unwrap() as *mut c_void;
-                                
-                                let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("VIDEO_RECEIVER").unwrap().into_raw());
+                            let ptr = ADAPTER.unwrap() as *mut c_void;
+                            
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("AUDIO_RECEIVER").unwrap().into_raw());
 
-                                if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
-                                    println!(
-                                        "Error in SaltpaneloAdapterRequestCall: {}",
-                                        std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
-                                    );
-                                }
+                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                                println!(
+                                    "Error in SaltpaneloAdapterRequestCall: {}",
+                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                                );
+                            }
 
-                                if rv.r0 == 1 {
-                                    println!("Callee accepted the call");
-                                } else {
-                                    println!("Callee denied the call");
-                                }
-                            };
-                        });
-                        
-                        thread::spawn(|| {
-                            unsafe { 
-                                REQUESTED_AUDIO_SENDER = true;
-
-                                let ptr = ADAPTER.unwrap() as *mut c_void;
-                                
-                                let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("AUDIO_SENDER").unwrap().into_raw());
-
-                                if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
-                                    println!(
-                                        "Error in SaltpaneloAdapterRequestCall: {}",
-                                        std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
-                                    );
-                                }
-
-                                if rv.r0 == 1 {
-                                    println!("Callee accepted the call");
-                                } else {
-                                    println!("Callee denied the call");
-                                }
-                            };
-                        });
-
-                        thread::spawn(|| {
-                            unsafe { 
-                                REQUESTED_AUDIO_RECEIVER = true;
-
-                                let ptr = ADAPTER.unwrap() as *mut c_void;
-                                
-                                let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("AUDIO_RECEIVER").unwrap().into_raw());
-
-                                if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
-                                    println!(
-                                        "Error in SaltpaneloAdapterRequestCall: {}",
-                                        std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
-                                    );
-                                }
-
-                                if rv.r0 == 1 {
-                                    println!("Callee accepted the call");
-                                } else {
-                                    println!("Callee denied the call");
-                                }
-                            };
-                        });
-                    }
+                            if rv.r0 == 1 {
+                                println!("Callee accepted the call");
+                            } else {
+                                println!("Callee denied the call");
+                            }
+                        };
+                    });
+                }
+                    
                 }));
     }
 
@@ -196,10 +151,102 @@ impl ContactItem {
         imp.video_call
             .connect_clicked(clone!(@strong call_pane => move |_| {
                 info!("Button video_call was clicked");
+                    
+                if call_pane.action_bar().is_visible() {
+                    info!("Button was clicked during a call! Please end the call before starting a new one.");
+                } else {
+                    thread::spawn(|| {
+                        unsafe { 
+                            REQUESTED_VIDEO_SENDER = true;
 
-                call_pane.call_box().set_visible(true);
-                call_pane.placeholder().set_visible(false);
-                call_pane.action_bar().set_visible(true);
+                            let ptr = ADAPTER.unwrap() as *mut c_void;
+                            
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("VIDEO_SENDER").unwrap().into_raw());
+
+                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                                println!(
+                                    "Error in SaltpaneloAdapterRequestCall: {}",
+                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                                );
+                            }
+
+                            if rv.r0 == 1 {
+                                println!("Callee accepted the call");
+                            } else {
+                                println!("Callee denied the call");
+                            }
+                        };
+                    });
+
+                    thread::spawn(|| {
+                        unsafe { 
+                            REQUESTED_VIDEO_RECEIVER = true;
+
+                            let ptr = ADAPTER.unwrap() as *mut c_void;
+                            
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("VIDEO_RECEIVER").unwrap().into_raw());
+
+                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                                println!(
+                                    "Error in SaltpaneloAdapterRequestCall: {}",
+                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                                );
+                            }
+
+                            if rv.r0 == 1 {
+                                println!("Callee accepted the call");
+                            } else {
+                                println!("Callee denied the call");
+                            }
+                        };
+                    });
+                    
+                    thread::spawn(|| {
+                        unsafe { 
+                            REQUESTED_AUDIO_SENDER = true;
+
+                            let ptr = ADAPTER.unwrap() as *mut c_void;
+                            
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("AUDIO_SENDER").unwrap().into_raw());
+
+                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                                println!(
+                                    "Error in SaltpaneloAdapterRequestCall: {}",
+                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                                );
+                            }
+
+                            if rv.r0 == 1 {
+                                println!("Callee accepted the call");
+                            } else {
+                                println!("Callee denied the call");
+                            }
+                        };
+                    });
+
+                    thread::spawn(|| {
+                        unsafe { 
+                            REQUESTED_AUDIO_RECEIVER = true;
+
+                            let ptr = ADAPTER.unwrap() as *mut c_void;
+                            
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("AUDIO_RECEIVER").unwrap().into_raw());
+
+                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
+                                println!(
+                                    "Error in SaltpaneloAdapterRequestCall: {}",
+                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
+                                );
+                            }
+
+                            if rv.r0 == 1 {
+                                println!("Callee accepted the call");
+                            } else {
+                                println!("Callee denied the call");
+                            }
+                        };
+                    });
+                }
             }));
     }
 

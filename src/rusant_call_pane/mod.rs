@@ -46,4 +46,8 @@ impl CallPane {
     pub fn call_stop(&self) -> gtk::Button {
         self.imp().call_stop.get()
     }
+
+    pub fn camera_video(&self) -> gtk::Button {
+        self.imp().camera_video.get()
+    }
 }
