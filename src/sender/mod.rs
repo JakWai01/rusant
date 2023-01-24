@@ -32,6 +32,10 @@ impl VideoSenderPipeline {
         self.pipeline.set_state(gst::State::Playing).unwrap();
     }
 
+    pub fn pause(&self) {
+        self.pipeline.set_state(gst::State::Paused).unwrap();
+    }
+
     /// Stop sender pipeline
     pub fn stop(&self) {
         self.pipeline.set_state(gst::State::Null).unwrap();
@@ -59,7 +63,7 @@ impl VideoSenderPipeline {
         filter.set_property("caps", &caps);
 
         // For testing purposes only! (e.g. video0 and video4)
-        v4l2src.set_property("device", "/dev/video0");
+        v4l2src.set_property("device", "/dev/video4");
 
         udpsink.set_property("host", self.host.clone());
         udpsink.set_property("port", self.port);
@@ -107,6 +111,10 @@ impl AudioSenderPipeline {
 
         // Start pipeline
         self.pipeline.set_state(gst::State::Playing).unwrap();
+    }
+
+    pub fn pause(&self) {
+        self.pipeline.set_state(gst::State::Paused).unwrap();
     }
 
     pub fn stop(&self) {

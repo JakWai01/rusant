@@ -95,8 +95,10 @@ impl ObjectImpl for CallPaneTemplate {
             // Check if the button currently has the `suggested-action` css class
             if button.has_css_class(css_class) {
                 button.remove_css_class(css_class);
+                unsafe { VIDEO_SENDER.as_ref().unwrap().pause(); }
             } else {
                 button.add_css_class(css_class);
+                unsafe { VIDEO_SENDER.as_ref().unwrap().start(); }
             }
         });
 
@@ -109,8 +111,10 @@ impl ObjectImpl for CallPaneTemplate {
             // Check if button currently has the `suggested-action` css class
             if button.has_css_class(css_class) {
                 button.remove_css_class(css_class);
+                unsafe { AUDIO_SENDER.as_ref().unwrap().pause(); }
             } else {
                 button.add_css_class(css_class);
+                unsafe { AUDIO_SENDER.as_ref().unwrap().start(); }
             }
         });
 
