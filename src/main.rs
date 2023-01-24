@@ -295,6 +295,7 @@ pub async fn show_ring_dialog() -> i8 {
 
 unsafe extern "C" fn on_call_disconnected(
     route_id: *mut ::std::os::raw::c_char,
+    channel_id: *mut ::std::os::raw::c_char,
     userdata: *mut ::std::os::raw::c_void,
 ) -> *mut ::std::os::raw::c_char {
     let c_str = std::ffi::CStr::from_ptr(route_id);
@@ -317,6 +318,7 @@ unsafe extern "C" fn on_call_disconnected(
 
 unsafe extern "C" fn on_handle_call(
     route_id: *mut ::std::os::raw::c_char,
+    channel_id: *mut ::std::os::raw::c_char,
     raddr: *mut ::std::os::raw::c_char,
     userdata: *mut ::std::os::raw::c_void,
 ) -> *mut ::std::os::raw::c_char {
@@ -498,7 +500,7 @@ fn build_ui(app: &Application) {
 
                         if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
                             println!(
-                                "Error in SalpaneloAdapterLink: {}",
+                                "Error in SaltpaneloAdapterLink: {}",
                                 std::ffi::CStr::from_ptr(rv).to_str().unwrap()
                             );
                         }
