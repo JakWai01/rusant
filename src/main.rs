@@ -9,32 +9,23 @@ mod rusant_main_window;
 mod sender;
 
 use gtk::traits::ButtonExt;
-use libadwaita::ApplicationWindow;
 use libadwaita::prelude::MessageDialogExtManual;
-use libadwaita::traits::MessageDialogExt;
 use rusant_sys::add;
 use saltpanelo_sys::saltpanelo::{SaltpaneloOnRequestCallResponse, SaltpaneloAdapterLink};
-use saltpanelo_sys::tti;
 
 use log::{info, debug};
 use rusant_main_window::MainWindow;
 
 use config::Config;
-use glib::{clone, Continue, ObjectExt, ToValue, Value, MainContext, PRIORITY_DEFAULT};
+use glib::clone;
 use gtk::{
     gdk::Display, glib, prelude::ActionMapExt, prelude::GtkApplicationExt, prelude::GtkWindowExt,
-    CssProvider, StyleContext, Window,
+    CssProvider, StyleContext,
 };
 use gtk_macros::{action, spawn};
-use std::borrow::BorrowMut;
-use std::cell::RefCell;
 use std::collections::HashSet;
 use std::ffi::{c_void, CString};
-use std::rc::Rc;
-use std::sync::mpsc::{Sender, Receiver, self};
-use webkit2gtk::traits::{WebViewExt, WebkitSettingsExt};
-use webkit2gtk::{WebContext, WebView};
-// use webkit2gtk::{WebContext, WebView, WebViewExt, SettingsExt, WebContextExt};
+use std::sync::mpsc::{self};
 use std::path::Path;
 use std::ptr::null_mut;
 use std::{collections::HashMap, thread};
@@ -48,14 +39,6 @@ use libadwaita::{
 };
 
 fn main() {
-    // tti();
-
-    // badd();
-
-    // println!("Result of shared operation: {:?}", key());
-
-    println!("Result of lib operation: {:?}", add(1, 2));
-
     // Initialize logger
     pretty_env_logger::init();
 
@@ -205,38 +188,6 @@ unsafe extern "C" fn open_url(
     CString::new("").unwrap().into_raw()
 }
 
-// type Accept = Rc<RefCell<Option<i8>>>;
-
-// #[derive(Clone)]
-// struct AcceptWrapper {
-//     internal_value: Accept
-// }
-
-// impl AcceptWrapper {
-//     fn new() -> Self {
-//         AcceptWrapper {
-//             internal_value: Rc::new(RefCell::new(None))
-//         }
-//     }
-
-//     fn get_accept(&self) -> Result<i8, &str> {
-//         let accept_wrapper = self.internal_value.borrow();
-//         match accept_wrapper.as_ref() {
-//             Some(accept) => Ok(accept.clone()),
-//             None => Err("Expected a value!")
-//         }
-//     }
-
-//     fn set_accept(&self, n: i8) {
-//         let mut accept = self.internal_value.borrow_mut();
-//         *accept = Some(n);
-//     }
-// }
-
-// unsafe impl Send for AcceptWrapper {}
-
-// static mut ACCEPT: Option<i8> = None;
-
 pub static mut ROUTE_ID: Option<String> = None;
 pub static mut SRC_EMAIL: Option<String> = None;
 
@@ -275,15 +226,8 @@ unsafe extern "C" fn on_request_call(
             RECEIVED_REQUESTS.as_mut().unwrap().insert(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
         },
     }
-    // let accept = AcceptWrapper::new();
-    // let mut accept: Box<i8> = Box::new(0);
-    // let mut accept: i8 = 0;
-
-    // let mut cb = Some(|x| {println!("This is x: {}", x)});
-    // let mut cb = Some(|x| {accept = x});
-
+    
     println!("Current state of RECEIVED_REQUESTS: {:?}", RECEIVED_REQUESTS.as_ref().unwrap());
-    // if RECEIVED_REQUESTS.as_ref().unwrap().contains("VIDEO_SENDER") {
         
     match DIALOGUED.as_mut() {
         Some(_) => {},
@@ -302,17 +246,6 @@ unsafe extern "C" fn on_request_call(
                 let accept = show_ring_dialog().await;
                 sender.send(accept).expect("Could not send");
             });
-
-            // receiver.attach(None, move |x| {
-            //     println!("Value of x: {}", x);
-            //     // let mut internal_accept = accept.borrow_mut();
-            //     // ACCEPT = Some(1);
-            //     // *internal_accept = Some(x);
-            //     // accept.set_accept(x);
-            //     cb.take().unwrap()(x);
-            //     glib::Continue(false)
-            // });
-
 
             glib::Continue(false)
         });
@@ -333,15 +266,6 @@ unsafe extern "C" fn on_request_call(
             Err: CString::new("").unwrap().into_raw(),
         }
     }
-    // let mut accept: i8 = 0;
-
-    // println!("Accepting: {}", accept);
-
-    // let acc = match accept.get_accept() {
-    //     Ok(i8) => i8,
-    //     Err(err) => panic!("Actually an error: {}", err)
-    // };
-
 }
 
 pub async fn show_ring_dialog() -> i8 {
@@ -356,12 +280,7 @@ pub async fn show_ring_dialog() -> i8 {
         unsafe {
             dialog.set_transient_for(Some(WINDOW.as_ref().unwrap()));
         };
-        // unsafe {
-        //     println!("{:?}", WINDOW.as_ref().unwrap().is_visible());
-        // }
-
-        // dialog.set_response_enabled("accept", true);
-
+        
         if dialog.run_future().await == "accept" {
             debug!("Accepting call");
             println!("Accepting call");
@@ -382,7 +301,6 @@ unsafe extern "C" fn on_call_disconnected(
     println!("Call with route ID {} was ended", c_str.to_str().unwrap());
 
     glib::idle_add(move || {
-        // Close call pane
         WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
         WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
         WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
@@ -427,7 +345,7 @@ unsafe extern "C" fn on_handle_call(
 
         if let Some(requests) = RECEIVED_REQUESTS.as_mut() {
             if requests.contains("VIDEO_SENDER") {
-                println!("We are in VIDEO_SENDER weak");
+                println!("Sending video");
                 let sender = sender::VideoSenderPipeline::new(&address, port);
                 sender.build();
                 sender.start();
@@ -436,7 +354,7 @@ unsafe extern "C" fn on_handle_call(
             }
 
             if requests.contains("VIDEO_RECEIVER") {
-                println!("We are in VIDEO_RECEIVER weak");
+                println!("Receiving video");
                 let receiver = receiver::VideoReceiverPipeline::new(&address, port);
                 let paintable = receiver.build();
                 receiver.start();
@@ -452,7 +370,7 @@ unsafe extern "C" fn on_handle_call(
 
         if let Some(requests) = SENT_REQUESTS.as_mut() {
             if requests.contains("VIDEO_SENDER") {
-                println!("We are in VIDEO_SENDER strong");
+                println!("Receiving video");
                 let receiver = receiver::VideoReceiverPipeline::new(&address, port);
                 let paintable = receiver.build();
                 receiver.start();
@@ -488,14 +406,14 @@ unsafe extern "C" fn on_handle_call(
                             }
 
                             if rv.r0 == 1 {
-                                println!("Callee accepted the call");
+                                println!("Callee accepted the VIDEO_RECEIVER call");
                             } else {
-                                println!("Callee denied the call");
+                                println!("Callee denied the VIDEO_RECEIVER call");
                             }
                     };
                 });
             } else if requests.contains("VIDEO_RECEIVER") {
-                println!("We are in VIDEO_RECEIVER strong");
+                println!("Sending video");
                 let sender = sender::VideoSenderPipeline::new(&address, port);
                 sender.build();
                 sender.start();
@@ -503,8 +421,6 @@ unsafe extern "C" fn on_handle_call(
                 SENT_REQUESTS.as_mut().unwrap().remove("VIDEO_RECEIVER");
             }
         }
-
-        // We probably have to do this in a thread in main
 
         // Open call pane
         WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(true);
@@ -567,34 +483,6 @@ fn build_ui(app: &Application) {
         win.greeter()
             .login_button()
             .connect_clicked(clone!(@weak win => move |_| {
-                    // let app = gtk::Application::new(None, Default::default());
-                    // app.connect_activate(move |app| {
-                    //     let window = ApplicationWindow::new(app);
-                    //     window.set_default_size(800, 500);
-                    //     window.set_title(Some("Rusant"));
-
-                    //     let context = WebContext::default().unwrap();
-                    //     let webview = WebView::with_context(&context);
-                    //     webview.load_uri("https://github.com/JakWai01/rusant");
-                    //     window.set_child(Some(&webview));
-
-                    //     let settings = WebViewExt::settings(&webview).unwrap();
-                    //     settings.set_enable_developer_extras(true);
-
-                    //     window.show();
-                    // });
-
-                    // app.connect_shutdown(move |_| {
-                    //     info!("Window was closed. Successfully authenticated!");
-
-                    //     /*
-                    //      * This is the success case if the authentication worked
-                    //      * Later, this handler should close the application window
-                    //      */
-                    //     window.switch_to_leaflet()
-                    // });
-                    // app.run();
-
                     println!("Pointer: {:#?}", ptr);
                     let res = saltpanelo_sys::saltpanelo::SaltpaneloAdapterLogin(ptr);
 
@@ -618,21 +506,9 @@ fn build_ui(app: &Application) {
 
                     win.switch_to_leaflet();
                 }));
-
-        // let win = &*(user_data_ptr as *mut c_void as *mut MainWindow);
-        // win.show();
-
-        // println!("{:#?}", ptr);
-
-        // let res = saltpanelo_sys::saltpanelo::SaltpaneloAdapterLogin(ptr);
-
-        // let c_str = std::ffi::CStr::from_ptr(res);
-
-        // println!("{:?}", c_str.to_str().unwrap());
     }
 
     info!("Building UI");
-    // println!("{:?}", window.unwrap().property::<*mut c_void>("ptr"));
     unsafe {
         WINDOW.as_ref().unwrap().show();
     }
