@@ -1,4 +1,4 @@
-use crate::{receiver, ADAPTER, WINDOW, VIDEO_SENDER_ROUTE_ID, VIDEO_RECEIVER_ROUTE_ID, AUDIO_SENDER_ROUTE_ID, AUDIO_RECEIVER_ROUTE_ID};
+use crate::{receiver, ADAPTER, WINDOW, VIDEO_SENDER_ROUTE_ID, VIDEO_RECEIVER_ROUTE_ID, AUDIO_SENDER_ROUTE_ID, AUDIO_RECEIVER_ROUTE_ID, VIDEO_RECEIVER, VIDEO_SENDER, AUDIO_RECEIVER, AUDIO_SENDER};
 
 use super::CallPane;
 
@@ -181,19 +181,35 @@ impl ObjectImpl for CallPaneTemplate {
                 }
             });
 
-            unsafe {
-                glib::idle_add(move || {
-                    WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
-                    WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
-                    WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
+            // unsafe {
+            //     glib::idle_add(move || {
+            //         WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
+            //         WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
+            //         WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
                     
-                    while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
-                        WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
-                    }
+            //         while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
+            //             WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
+            //         }
 
-                    glib::Continue(false)
-                });
-            };
+            //         // Stop pipelines
+            //         VIDEO_RECEIVER.as_ref().unwrap().stop();
+            //         VIDEO_SENDER.as_ref().unwrap().stop();
+            //         AUDIO_RECEIVER.as_ref().unwrap().stop();
+            //         AUDIO_SENDER.as_ref().unwrap().stop();
+
+            //         VIDEO_RECEIVER = None;
+            //         VIDEO_SENDER = None;
+            //         AUDIO_RECEIVER = None;
+            //         AUDIO_SENDER = None;
+
+            //         VIDEO_RECEIVER_ROUTE_ID = None;
+            //         VIDEO_SENDER_ROUTE_ID = None;
+            //         AUDIO_SENDER_ROUTE_ID = None;
+            //         AUDIO_RECEIVER_ROUTE_ID = None;
+
+            //         glib::Continue(false)
+            //     });
+            // };
         }));
     }
 }

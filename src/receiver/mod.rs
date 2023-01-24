@@ -4,21 +4,21 @@ use gtk::gdk;
 use log::info;
 
 /// Receiver part of the gstreamer pipeline
-pub struct VideoReceiverPipeline<'a> {
-    address: &'a str,
+pub struct VideoReceiverPipeline {
+    address: String,
     port: i32,
     pipeline: gst::Pipeline,
 }
 
-pub struct AudioReceiverPipeline<'a> {
-    address: &'a str,
+pub struct AudioReceiverPipeline {
+    address: String,
     port: i32,
     pipeline: gst::Pipeline,
 }
 
-impl<'a> VideoReceiverPipeline<'a> {
+impl VideoReceiverPipeline {
     /// Initialize a new VideoReceiverPipeline
-    pub fn new(address: &'a str, port: i32) -> Self {
+    pub fn new(address: String, port: i32) -> Self {
         VideoReceiverPipeline {
             address,
             port,
@@ -43,7 +43,7 @@ impl<'a> VideoReceiverPipeline<'a> {
 
         // Initialize pads
         let src = gst::ElementFactory::make("tcpclientsrc")
-            .property("host", self.address)
+            .property("host", self.address.clone())
             .property("port", self.port)
             .build()
             .unwrap();
@@ -89,9 +89,9 @@ impl<'a> VideoReceiverPipeline<'a> {
     }
 }
 
-impl<'a> AudioReceiverPipeline<'a> {
+impl AudioReceiverPipeline {
     /// Initialize a new AudioReceiverPipeline
-    pub fn new(address: &'a str, port: i32) -> Self {
+    pub fn new(address: String, port: i32) -> Self {
         AudioReceiverPipeline {
             address,
             port,
@@ -121,7 +121,7 @@ impl<'a> AudioReceiverPipeline<'a> {
         let rtpvorbisdepay = gst::ElementFactory::make("rtpvorbisdepay").build().unwrap();
         let decodebin = gst::ElementFactory::make("decodebin").build().unwrap();
 
-        src.set_property("host", self.address);
+        src.set_property("host", self.address.clone());
         src.set_property("port", self.port);
         src.set_property("do-timestamp", true);
 

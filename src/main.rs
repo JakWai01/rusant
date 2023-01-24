@@ -306,6 +306,40 @@ unsafe extern "C" fn on_call_disconnected(
             WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
         }
 
+        // Stop pipelines
+        if let Some(pipeline) = VIDEO_RECEIVER.as_ref() {
+            pipeline.stop();
+        }
+
+        if let Some(pipeline) = VIDEO_SENDER.as_ref() {
+            pipeline.stop()
+        }
+
+        if let Some(pipeline) = AUDIO_RECEIVER.as_ref() {
+            pipeline.stop()
+        }
+        
+        if let Some(pipeline) = AUDIO_SENDER.as_ref() {
+            pipeline.stop()
+        }
+
+        REQUESTED_AUDIO_RECEIVER = false;
+        REQUESTED_AUDIO_SENDER = false;
+        REQUESTED_VIDEO_RECEIVER = false;
+        REQUESTED_VIDEO_SENDER = false;
+
+        VIDEO_RECEIVER = None;
+        VIDEO_SENDER = None;
+        AUDIO_RECEIVER = None;
+        AUDIO_SENDER = None;
+
+        VIDEO_RECEIVER_ROUTE_ID = None;
+        VIDEO_SENDER_ROUTE_ID = None;
+        AUDIO_SENDER_ROUTE_ID = None;
+        AUDIO_RECEIVER_ROUTE_ID = None;
+
+        DIALOGUED = Some(false);
+
         glib::Continue(false)
     });
 
@@ -316,6 +350,11 @@ pub static mut VIDEO_SENDER_ROUTE_ID: Option<String> = None;
 pub static mut VIDEO_RECEIVER_ROUTE_ID: Option<String> = None;
 pub static mut AUDIO_SENDER_ROUTE_ID: Option<String> = None;
 pub static mut AUDIO_RECEIVER_ROUTE_ID: Option<String> = None;
+
+pub static mut VIDEO_RECEIVER: Option<receiver::VideoReceiverPipeline> = None;
+pub static mut VIDEO_SENDER: Option<sender::VideoSenderPipeline> = None;
+pub static mut AUDIO_SENDER: Option<sender::AudioSenderPipeline> = None;
+pub static mut AUDIO_RECEIVER: Option<receiver::AudioReceiverPipeline> = None;
 
 unsafe extern "C" fn on_handle_call(
     route_id: *mut ::std::os::raw::c_char,
@@ -364,9 +403,9 @@ unsafe extern "C" fn on_handle_call(
     glib::idle_add(move || {
         if channel == "VIDEO_SENDER" && REQUESTED_VIDEO_SENDER {
             println!("Receiving video");
-            let receiver = receiver::VideoReceiverPipeline::new(&address, port);
-            let paintable = receiver.build();
-            receiver.start();
+            VIDEO_RECEIVER = Some(receiver::VideoReceiverPipeline::new(address.clone(), port));
+            let paintable = VIDEO_RECEIVER.as_ref().unwrap().build();
+            VIDEO_RECEIVER.as_ref().unwrap().start();
 
             let picture = gtk::Picture::new();
             picture.set_paintable(Some(&paintable));
@@ -374,21 +413,21 @@ unsafe extern "C" fn on_handle_call(
             WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
         } else if channel == "VIDEO_SENDER" {
             println!("Sending video");
-            let sender = sender::VideoSenderPipeline::new(&address, port);
-            sender.build();
-            sender.start();
+            VIDEO_SENDER = Some(sender::VideoSenderPipeline::new(address.clone(), port));
+            VIDEO_SENDER.as_ref().unwrap().build();
+            VIDEO_SENDER.as_ref().unwrap().start();
         }
 
         if channel == "VIDEO_RECEIVER" && REQUESTED_VIDEO_RECEIVER {
             println!("Sending video");
-            let sender = sender::VideoSenderPipeline::new(&address, port);
-            sender.build();
-            sender.start();
+            VIDEO_SENDER = Some(sender::VideoSenderPipeline::new(address.clone(), port));
+            VIDEO_SENDER.as_ref().unwrap().build();
+            VIDEO_SENDER.as_ref().unwrap().start();
         } else if channel == "VIDEO_RECEIVER" {
             println!("Receiving video");
-            let receiver = receiver::VideoReceiverPipeline::new(&address, port);
-            let paintable = receiver.build();
-            receiver.start();
+            VIDEO_RECEIVER = Some(receiver::VideoReceiverPipeline::new(address.clone(), port));
+            let paintable = VIDEO_RECEIVER.as_ref().unwrap().build();
+            VIDEO_RECEIVER.as_ref().unwrap().start();
 
             let picture = gtk::Picture::new();
             picture.set_paintable(Some(&paintable));
@@ -398,26 +437,26 @@ unsafe extern "C" fn on_handle_call(
 
         if channel == "AUDIO_SENDER" && REQUESTED_AUDIO_SENDER {
             println!("Receiving video");
-            let receiver = receiver::AudioReceiverPipeline::new(&address, port);
-            receiver.build();
-            receiver.start();
+            AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
+            AUDIO_RECEIVER.as_ref().unwrap().build();
+            AUDIO_RECEIVER.as_ref().unwrap().start();
         } else if channel == "AUDIO_SENDER" {
             println!("Sending audio");
-            let sender = sender::AudioSenderPipeline::new(&address, port);
-            sender.build();
-            sender.start();
+            AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
+            AUDIO_SENDER.as_ref().unwrap().build();
+            AUDIO_SENDER.as_ref().unwrap().start();
         }
 
         if channel == "AUDIO_RECEIVER" && REQUESTED_AUDIO_RECEIVER {
             println!("Sending audio");
-            let sender = sender::AudioSenderPipeline::new(&address, port);
-            sender.build();
-            sender.start();
+            AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
+            AUDIO_SENDER.as_ref().unwrap().build();
+            AUDIO_SENDER.as_ref().unwrap().start();
         } else if channel == "AUDIO_RECEIVER" {
             println!("Receiving audio");
-            let receiver = receiver::AudioReceiverPipeline::new(&address, port);
-            receiver.build();
-            receiver.start();
+            AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
+            AUDIO_RECEIVER.as_ref().unwrap().build();
+            AUDIO_RECEIVER.as_ref().unwrap().start();
         }
 
         // Open call pane

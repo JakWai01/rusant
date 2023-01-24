@@ -2,21 +2,21 @@ use gst::prelude::*;
 use log::info;
 
 /// Sender part of the gstreamer pipeline
-pub struct VideoSenderPipeline<'a> {
-    host: &'a str,
+pub struct VideoSenderPipeline {
+    host: String,
     port: i32,
     pipeline: gst::Pipeline,
 }
 
-pub struct AudioSenderPipeline<'a> {
-    host: &'a str,
+pub struct AudioSenderPipeline {
+    host: String,
     port: i32,
     pipeline: gst::Pipeline,
 }
 
-impl<'a> VideoSenderPipeline<'a> {
+impl VideoSenderPipeline {
     /// Initialize a new VideoSenderPipeline
-    pub fn new(host: &'a str, port: i32) -> Self {
+    pub fn new(host: String, port: i32) -> Self {
         VideoSenderPipeline {
             host,
             port,
@@ -61,7 +61,7 @@ impl<'a> VideoSenderPipeline<'a> {
         // For testing purposes only! (e.g. video0 and video4)
         v4l2src.set_property("device", "/dev/video4");
 
-        udpsink.set_property("host", self.host);
+        udpsink.set_property("host", self.host.clone());
         udpsink.set_property("port", self.port);
 
         // Add pads
@@ -91,9 +91,9 @@ impl<'a> VideoSenderPipeline<'a> {
     }
 }
 
-impl<'a> AudioSenderPipeline<'a> {
+impl AudioSenderPipeline {
     /// Initialize a new AudioSenderPipeline
-    pub fn new(host: &'a str, port: i32) -> Self {
+    pub fn new(host: String, port: i32) -> Self {
         AudioSenderPipeline {
             host,
             port,
@@ -136,7 +136,7 @@ impl<'a> AudioSenderPipeline<'a> {
 
         rtpvorbispay.set_property("config-interval", 1u32);
 
-        sink.set_property("host", self.host);
+        sink.set_property("host", self.host.clone());
         sink.set_property("port", self.port);
 
         self.pipeline
