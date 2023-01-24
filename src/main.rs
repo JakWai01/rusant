@@ -197,12 +197,14 @@ pub static mut CHANNEL_ID: Option<String> = None;
 pub static mut RADDR: Option<String> = None;
 pub static mut RPORT: Option<i32> = None;
 
-// Experimental globals
-pub static mut SENT_REQUESTS: Option<HashSet<String>> = None;
-pub static mut RECEIVED_REQUESTS: Option<HashSet<String>> = None; 
-
 // Set this to false if call was ended
 pub static mut DIALOGUED: Option<bool> = None;
+
+// Experimental 
+pub static mut REQUESTED_VIDEO_SENDER: bool = false;
+pub static mut REQUESTED_VIDEO_RECEIVER: bool = false;
+pub static mut REQUESTED_AUDIO_SENDER: bool = false;
+pub static mut REQUESTED_AUDIO_RECEIVER: bool = false;
 
 unsafe extern "C" fn on_request_call(
     src_id: *mut ::std::os::raw::c_char,
@@ -217,18 +219,6 @@ unsafe extern "C" fn on_request_call(
     SRC_EMAIL = Some(String::from(std::ffi::CStr::from_ptr(src_email).to_str().unwrap()));
     CHANNEL_ID = Some(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
 
-    match RECEIVED_REQUESTS.as_mut() {
-        Some(x) => {
-            x.insert(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
-        },
-        None => {
-            RECEIVED_REQUESTS = Some(HashSet::new());
-            RECEIVED_REQUESTS.as_mut().unwrap().insert(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
-        },
-    }
-    
-    println!("Current state of RECEIVED_REQUESTS: {:?}", RECEIVED_REQUESTS.as_ref().unwrap());
-        
     match DIALOGUED.as_mut() {
         Some(_) => {},
         None => {
@@ -292,7 +282,6 @@ pub async fn show_ring_dialog() -> i8 {
         }
     }
 
-
 unsafe extern "C" fn on_call_disconnected(
     route_id: *mut ::std::os::raw::c_char,
     channel_id: *mut ::std::os::raw::c_char,
@@ -340,88 +329,55 @@ unsafe extern "C" fn on_handle_call(
 
     let address = RADDR.clone().unwrap();
     let port = RPORT.unwrap();
+    let channel = std::ffi::CStr::from_ptr(channel_id).to_str().unwrap();
 
     println!("Partner's address is {} and their port is {}", address, port);
 
     glib::idle_add(move || {
+        if channel == "VIDEO_SENDER" && REQUESTED_VIDEO_SENDER {
+            println!("Receiving video");
+            let receiver = receiver::VideoReceiverPipeline::new(&address, port);
+            let paintable = receiver.build();
+            receiver.start();
 
-        if let Some(requests) = RECEIVED_REQUESTS.as_mut() {
-            if requests.contains("VIDEO_SENDER") {
-                println!("Sending video");
-                let sender = sender::VideoSenderPipeline::new(&address, port);
-                sender.build();
-                sender.start();
+            let picture = gtk::Picture::new();
+            picture.set_paintable(Some(&paintable));
 
-                RECEIVED_REQUESTS.as_mut().unwrap().remove("VIDEO_SENDER");
-            }
-
-            if requests.contains("VIDEO_RECEIVER") {
-                println!("Receiving video");
-                let receiver = receiver::VideoReceiverPipeline::new(&address, port);
-                let paintable = receiver.build();
-                receiver.start();
-
-                let picture = gtk::Picture::new();
-                picture.set_paintable(Some(&paintable));
-
-                WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
-
-                RECEIVED_REQUESTS.as_mut().unwrap().remove("VIDEO_RECEIVER");
-            }
+            WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+        } else if channel == "VIDEO_SENDER" {
+            println!("Sending video");
+            let sender = sender::VideoSenderPipeline::new(&address, port);
+            sender.build();
+            sender.start();
         }
 
-        if let Some(requests) = SENT_REQUESTS.as_mut() {
-            if requests.contains("VIDEO_SENDER") {
-                println!("Receiving video");
-                let receiver = receiver::VideoReceiverPipeline::new(&address, port);
-                let paintable = receiver.build();
-                receiver.start();
+        if channel == "VIDEO_RECEIVER" && REQUESTED_VIDEO_RECEIVER {
+            println!("Sending video");
+            let sender = sender::VideoSenderPipeline::new(&address, port);
+            sender.build();
+            sender.start();
+        } else if channel == "VIDEO_RECEIVER" {
+            println!("Receiving video");
+            let receiver = receiver::VideoReceiverPipeline::new(&address, port);
+            let paintable = receiver.build();
+            receiver.start();
 
-                let picture = gtk::Picture::new();
-                picture.set_paintable(Some(&paintable));
+            let picture = gtk::Picture::new();
+            picture.set_paintable(Some(&paintable));
 
-                WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+            WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+        }
 
-                SENT_REQUESTS.as_mut().unwrap().remove("VIDEO_SENDER");
+        if channel == "AUDIO_SENDER" && REQUESTED_AUDIO_SENDER {
 
-                thread::spawn(|| {
-                    unsafe {
-                         let ptr = ADAPTER.unwrap() as *mut c_void;
-                            
-                            match SENT_REQUESTS.as_mut() {
-                                Some(x) => {
-                                    x.insert(String::from("VIDEO_RECEIVER"));
-                                },
-                                None => {
-                                    SENT_REQUESTS = Some(HashSet::new());
-                                    SENT_REQUESTS.as_mut().unwrap().insert(String::from("VIDEO_RECEIVER"));
-                                }
-                            }
+        } else if channel == "AUDIO_SENDER" {
 
-                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("VIDEO_RECEIVER").unwrap().into_raw());
+        }
 
-                            if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
-                                println!(
-                                    "Error in SalpaneloAdapterRequestCall: {}",
-                                    std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap()
-                                );
-                            }
+        if channel == "AUDIO_RECEIVER" && REQUESTED_AUDIO_RECEIVER {
 
-                            if rv.r0 == 1 {
-                                println!("Callee accepted the VIDEO_RECEIVER call");
-                            } else {
-                                println!("Callee denied the VIDEO_RECEIVER call");
-                            }
-                    };
-                });
-            } else if requests.contains("VIDEO_RECEIVER") {
-                println!("Sending video");
-                let sender = sender::VideoSenderPipeline::new(&address, port);
-                sender.build();
-                sender.start();
+        } else if channel == "AUDIO_RECEIVER" {
 
-                SENT_REQUESTS.as_mut().unwrap().remove("VIDEO_RECEIVER");
-            }
         }
 
         // Open call pane
