@@ -208,6 +208,8 @@ pub static mut REQUESTED_VIDEO_SENDER: bool = false;
 pub static mut REQUESTED_VIDEO_RECEIVER: bool = false;
 pub static mut REQUESTED_AUDIO_SENDER: bool = false;
 pub static mut REQUESTED_AUDIO_RECEIVER: bool = false;
+pub static mut REQUESTED_ONLY_AUDIO_SENDER: bool = false;
+pub static mut REQUESTED_ONLY_AUDIO_RECEIVER: bool = false;
 
 pub static mut LOCK: Option<Arc<Mutex<i32>>> = None;
 
@@ -302,6 +304,9 @@ unsafe extern "C" fn on_call_disconnected(
         WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
         WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
 
+        WINDOW.as_ref().unwrap().call_pane().camera_video().add_css_class("suggested-action");
+        WINDOW.as_ref().unwrap().call_pane().audio_input_microphone().add_css_class("suggested-action");
+
         while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
             WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
         }
@@ -327,6 +332,8 @@ unsafe extern "C" fn on_call_disconnected(
         REQUESTED_AUDIO_SENDER = false;
         REQUESTED_VIDEO_RECEIVER = false;
         REQUESTED_VIDEO_SENDER = false;
+        REQUESTED_ONLY_AUDIO_RECEIVER = false;
+        REQUESTED_ONLY_AUDIO_SENDER = false;
 
         VIDEO_RECEIVER = None;
         VIDEO_SENDER = None;
@@ -389,10 +396,10 @@ unsafe extern "C" fn on_handle_call(
         "VIDEO_RECEIVER" => {
             VIDEO_RECEIVER_ROUTE_ID = Some(String::from(route_id_c_str));
         },
-        "AUDIO_SENDER" => {
+        "AUDIO_SENDER" | "ONLY_AUDIO_SENDER" => {
             AUDIO_SENDER_ROUTE_ID = Some(String::from(route_id_c_str));
         },
-        "AUDIO_RECEIVER" => {
+        "AUDIO_RECEIVER" | "ONLY_AUDIO_RECEIVER" => {
             AUDIO_RECEIVER_ROUTE_ID = Some(String::from(route_id_c_str));
         },
         &_ => unimplemented!()
@@ -411,6 +418,7 @@ unsafe extern "C" fn on_handle_call(
             picture.set_paintable(Some(&paintable));
 
             WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         } else if channel == "VIDEO_SENDER" {
             println!("Sending video");
             VIDEO_SENDER = Some(sender::VideoSenderPipeline::new(address.clone(), port));
@@ -421,6 +429,7 @@ unsafe extern "C" fn on_handle_call(
             picture.set_paintable(Some(&paintable));
 
             WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         }
 
         if channel == "VIDEO_RECEIVER" && REQUESTED_VIDEO_RECEIVER {
@@ -433,6 +442,7 @@ unsafe extern "C" fn on_handle_call(
             picture.set_paintable(Some(&paintable));
 
             WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         } else if channel == "VIDEO_RECEIVER" {
             println!("Receiving video");
             VIDEO_RECEIVER = Some(receiver::VideoReceiverPipeline::new(address.clone(), port));
@@ -443,6 +453,7 @@ unsafe extern "C" fn on_handle_call(
             picture.set_paintable(Some(&paintable));
 
             WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         }
 
         if channel == "AUDIO_SENDER" && REQUESTED_AUDIO_SENDER {
@@ -450,33 +461,69 @@ unsafe extern "C" fn on_handle_call(
             AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
             AUDIO_RECEIVER.as_ref().unwrap().build();
             AUDIO_RECEIVER.as_ref().unwrap().start();
+            
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         } else if channel == "AUDIO_SENDER" {
             println!("Sending audio");
             AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
             AUDIO_SENDER.as_ref().unwrap().build();
             AUDIO_SENDER.as_ref().unwrap().start();
-        }
+            
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
+        } 
 
         if channel == "AUDIO_RECEIVER" && REQUESTED_AUDIO_RECEIVER {
             println!("Sending audio");
             AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
             AUDIO_SENDER.as_ref().unwrap().build();
             AUDIO_SENDER.as_ref().unwrap().start();
+            
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         } else if channel == "AUDIO_RECEIVER" {
             println!("Receiving audio");
             AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
             AUDIO_RECEIVER.as_ref().unwrap().build();
             AUDIO_RECEIVER.as_ref().unwrap().start();
+            
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
+        }
+
+        if channel == "ONLY_AUDIO_SENDER" && REQUESTED_ONLY_AUDIO_SENDER {
+            println!("Receiving video");
+            AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
+            AUDIO_RECEIVER.as_ref().unwrap().build();
+            AUDIO_RECEIVER.as_ref().unwrap().start();
+
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
+        } else if channel == "ONLY_AUDIO_SENDER" {
+            println!("Sending audio");
+            AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
+            AUDIO_SENDER.as_ref().unwrap().build();
+            AUDIO_SENDER.as_ref().unwrap().start();
+            
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
+        }
+
+        if channel == "ONLY_AUDIO_RECEIVER" && REQUESTED_ONLY_AUDIO_RECEIVER {
+            println!("Sending audio");
+            AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
+            AUDIO_SENDER.as_ref().unwrap().build();
+            AUDIO_SENDER.as_ref().unwrap().start();
+            
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
+        } else if channel == "ONLY_AUDIO_RECEIVER" {
+            println!("Receiving audio");
+            AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
+            AUDIO_RECEIVER.as_ref().unwrap().build();
+            AUDIO_RECEIVER.as_ref().unwrap().start();
+            
+            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
         }
 
         // Open call pane
         WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(true);
         WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(false);
         WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(true);
-
-        if let None = VIDEO_SENDER.as_ref() {
-            WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
-        }
 
         glib::Continue(false)
     });

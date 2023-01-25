@@ -50,4 +50,8 @@ impl CallPane {
     pub fn camera_video(&self) -> gtk::Button {
         self.imp().camera_video.get()
     }
+
+    pub fn audio_input_microphone(&self) -> gtk::Button {
+        self.imp().audio_input_microphone.get()
+    }
 }

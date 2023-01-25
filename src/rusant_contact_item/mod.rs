@@ -2,7 +2,7 @@ pub mod template;
 
 use std::{thread, os::raw::c_void, ffi::CString, collections::HashSet};
 
-use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender, ADAPTER, WINDOW, REQUESTED_VIDEO_SENDER, REQUESTED_VIDEO_RECEIVER, REQUESTED_AUDIO_SENDER, REQUESTED_AUDIO_RECEIVER};
+use crate::{receiver, rusant_call_pane::CallPane, rusant_contact_list::ContactList, sender, ADAPTER, WINDOW, REQUESTED_VIDEO_SENDER, REQUESTED_VIDEO_RECEIVER, REQUESTED_AUDIO_SENDER, REQUESTED_AUDIO_RECEIVER, REQUESTED_ONLY_AUDIO_SENDER, REQUESTED_ONLY_AUDIO_RECEIVER};
 
 use self::template::ContactItemTemplate;
 
@@ -71,11 +71,11 @@ impl ContactItem {
                 } else {
                     thread::spawn(|| {
                         unsafe { 
-                            REQUESTED_AUDIO_SENDER = true;
+                            REQUESTED_ONLY_AUDIO_SENDER = true;
 
                             let ptr = ADAPTER.unwrap() as *mut c_void;
                             
-                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("AUDIO_SENDER").unwrap().into_raw());
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("ONLY_AUDIO_SENDER").unwrap().into_raw());
 
                             if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
                                 println!(
@@ -94,11 +94,11 @@ impl ContactItem {
 
                     thread::spawn(|| {
                         unsafe { 
-                            REQUESTED_AUDIO_RECEIVER = true;
+                            REQUESTED_ONLY_AUDIO_RECEIVER = true;
 
                             let ptr = ADAPTER.unwrap() as *mut c_void;
                             
-                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("AUDIO_RECEIVER").unwrap().into_raw());
+                            let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterRequestCall(ptr, CString::new("jean.doe@example.com").unwrap().into_raw(), CString::new("ONLY_AUDIO_RECEIVER").unwrap().into_raw());
 
                             if !std::ffi::CStr::from_ptr(rv.r1).to_str().unwrap().eq("") {
                                 println!(
