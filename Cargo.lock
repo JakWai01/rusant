@@ -1662,19 +1662,10 @@ dependencies = [
  "pretty_env_logger",
  "regex",
  "rss",
- "rusant-sys",
  "saltpanelo-sys",
  "serde",
  "serde_json",
  "webkit2gtk5",
-]
-
-[[package]]
-name = "rusant-sys"
-version = "0.1.0"
-dependencies = [
- "bindgen",
- "pkg-config",
 ]
 
 [[package]]

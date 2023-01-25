@@ -118,24 +118,8 @@ impl ObjectImpl for CallPaneTemplate {
             }
         });
 
-        // Handle click on call_stop button
-        // self.call_stop
-        //     .connect_clicked(clone!(@weak self as this => move |_| {
-        //         info!("Button `call_stop` was clicked");
-
-        //         // Hide call and show placeholder
-        //         this.placeholder.set_visible(true);
-        //         this.action_bar.set_visible(false);
-        //         this.call_box.set_visible(false);
-
-        //         // Empty the grid when stopping a call
-        //         while let Some(child) = this.grid.child_at_index(0) {
-        //             this.grid.remove(&child);
-        //         }
-        //     }));
         self.call_stop.connect_clicked(clone!(@weak self as this => move |_| {
             info!("Button `call_stop` was clicked");
-            println!("Button `call_stop` was clicked");
 
             thread::spawn(|| {
                 unsafe {
@@ -144,7 +128,7 @@ impl ObjectImpl for CallPaneTemplate {
                     let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(VIDEO_SENDER_ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
 
                     if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
-                        println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                        info!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
                     }
                 }
             });
@@ -156,7 +140,7 @@ impl ObjectImpl for CallPaneTemplate {
                     let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(VIDEO_RECEIVER_ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
 
                     if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
-                        println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                        info!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
                     }
                 }
             });
@@ -168,7 +152,7 @@ impl ObjectImpl for CallPaneTemplate {
                     let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(AUDIO_SENDER_ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
 
                     if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
-                        println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                        info!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
                     }
                 }
             });
@@ -180,40 +164,10 @@ impl ObjectImpl for CallPaneTemplate {
                     let rv = saltpanelo_sys::saltpanelo::SaltpaneloAdapterHangupCall(ptr, CString::new(AUDIO_RECEIVER_ROUTE_ID.as_ref().unwrap().as_str()).unwrap().into_raw());
 
                     if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
-                        println!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
+                        info!("Error in SaltpaneloAdapterHandupCall: {}", std::ffi::CStr::from_ptr(rv).to_str().unwrap());
                     }
                 }
             });
-
-            // unsafe {
-            //     glib::idle_add(move || {
-            //         WINDOW.as_ref().unwrap().call_pane().placeholder().set_visible(true);
-            //         WINDOW.as_ref().unwrap().call_pane().action_bar().set_visible(false);
-            //         WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
-                    
-            //         while let Some(child) = WINDOW.as_ref().unwrap().call_pane().grid().child_at_index(0) {
-            //             WINDOW.as_ref().unwrap().call_pane().grid().remove(&child);
-            //         }
-
-            //         // Stop pipelines
-            //         VIDEO_RECEIVER.as_ref().unwrap().stop();
-            //         VIDEO_SENDER.as_ref().unwrap().stop();
-            //         AUDIO_RECEIVER.as_ref().unwrap().stop();
-            //         AUDIO_SENDER.as_ref().unwrap().stop();
-
-            //         VIDEO_RECEIVER = None;
-            //         VIDEO_SENDER = None;
-            //         AUDIO_RECEIVER = None;
-            //         AUDIO_SENDER = None;
-
-            //         VIDEO_RECEIVER_ROUTE_ID = None;
-            //         VIDEO_SENDER_ROUTE_ID = None;
-            //         AUDIO_SENDER_ROUTE_ID = None;
-            //         AUDIO_RECEIVER_ROUTE_ID = None;
-
-            //         glib::Continue(false)
-            //     });
-            // };
         }));
     }
 }

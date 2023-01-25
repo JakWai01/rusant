@@ -46,29 +46,20 @@ impl VideoSenderPipeline {
     pub fn build(&self) -> gdk::Paintable {
         info!("Initializing video sender pipeline");
 
-        // Initialize Gstreamer pipeline
-        // let pipeline = self.pipeline;
-
         // Initialize pads
         let v4l2src = gst::ElementFactory::make("v4l2src").build().unwrap();
         let filter = gst::ElementFactory::make("capsfilter").build().unwrap();
         let jpegenc = gst::ElementFactory::make("jpegenc").build().unwrap();
         let rtpjpegpay = gst::ElementFactory::make("rtpjpegpay").build().unwrap();
         let rtpstreampay = gst::ElementFactory::make("rtpstreampay").build().unwrap();
-        // let udpsink = gst::ElementFactory::make("tcpserversink").build().unwrap();
         let tee = gst::ElementFactory::make("tee").build().unwrap();
-        
         let queue1 = gst::ElementFactory::make("queue").build().unwrap();
-
         let videoconvert1 = gst::ElementFactory::make("videoconvert").build().unwrap();
-
         let queue2 = gst::ElementFactory::make("queue").build().unwrap();
-
         let videoconvert2 = gst::ElementFactory::make("videoconvert").build().unwrap();
-
         let udpsink = gst::ElementFactory::make("tcpclientsink").build().unwrap();
-
         let mirror_sink = gst::ElementFactory::make("gtk4paintablesink").build().unwrap();
+        
         // Initialize caps
         let caps = gst::Caps::new_simple("video/x-raw", &[("width", &640i32), ("height", &480i32)]);
 
@@ -154,9 +145,6 @@ impl AudioSenderPipeline {
     /// Build the pipeline
     pub fn build(&self) {
         info!("Initializing audio sender pipeline");
-
-        // Initialize Gstreamer pipeline
-        // let pipeline = gst::Pipeline::new(Some("AudioSender"));
 
         // Initialize pads
         let src = gst::ElementFactory::make("alsasrc").build().unwrap();

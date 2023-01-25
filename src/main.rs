@@ -1,4 +1,3 @@
-mod ports;
 mod receiver;
 mod rusant_call_pane;
 mod rusant_contact_dialog;
@@ -10,7 +9,6 @@ mod sender;
 
 use gtk::traits::ButtonExt;
 use libadwaita::prelude::MessageDialogExtManual;
-use rusant_sys::add;
 use saltpanelo_sys::saltpanelo::{SaltpaneloOnRequestCallResponse, SaltpaneloAdapterLink};
 
 use log::{info, debug};
@@ -23,7 +21,6 @@ use gtk::{
     CssProvider, StyleContext,
 };
 use gtk_macros::{action, spawn};
-use std::collections::HashSet;
 use std::ffi::{c_void, CString};
 use std::sync::{Mutex, Arc};
 use std::sync::mpsc::{self};
@@ -138,63 +135,13 @@ unsafe extern "C" fn open_url(
     url: *mut ::std::os::raw::c_char,
     userdata: *mut ::std::os::raw::c_void,
 ) -> *mut ::std::os::raw::c_char {
-    // println!("We did it! We did it!");
-
-    // let win = &*(userdata as *mut MainWindow);
-    // println!("Pointer before idle: {:?}", userdata);
-    // let n_ptr = userdata as usize;
-
-    // let app = gtk::Application::new(None, Default::default());
-    // app.connect_activate(move |app| {
-    //     let window = gtk::ApplicationWindow::new(app);
-    //     window.set_default_size(800, 500);
-    //     window.set_title(Some("Rusant"));
-
-    //     let context = WebContext::default().unwrap();
-    //     let webview = WebView::with_context(&context);
-    //     webview.load_uri(std::ffi::CStr::from_ptr(url).to_str().unwrap());
-    //     window.set_child(Some(&webview));
-
-    //     let settings = WebViewExt::settings(&webview).unwrap();
-    //     settings.set_enable_developer_extras(true);
-
-    //     window.show();
-    // });
     open::that(std::ffi::CStr::from_ptr(url).to_str().unwrap()).unwrap();
-
-    // let win = &*(userdata as *mut MainWindow);
-    // println!("Is visible: {}", win.is_visible());
-    // glib::idle_add(move || {
-    //     println!("We are in idle");
-    //     println!("Pointer in idle: {:?}", n_ptr as *mut c_void);
-    //     let win = &*(n_ptr as *mut c_void as *mut MainWindow);
-    //     // win.switch_to_leaflet();
-    //     println!("{}", win.is_visible());
-    //     Continue(false)
-    // });
-
-    // win.switch_to_leaflet();
-    // app.connect_shutdown(clone!(@weak win => move |_| {
-    //     info!("Window was closed. Successfully authenticated!");
-
-    //     /*
-    //      * This is the success case if the authentication worked
-    //      * Later, this handler should close the application window
-    //      */
-    //     win.switch_to_leaflet()
-    // }));
-    // app.run();
-
-    // win.switch_to_leaflet();
-
-    // println!("The desired name is: {:?}", );
-    // What should we return here?
     CString::new("").unwrap().into_raw()
 }
 
 pub static mut SRC_EMAIL: Option<String> = None;
 
-// Possible CHANNEL_IDs are VIDEO_SENDER, VIDEO_RECEIVER, AUDIO_SENDER, AUDIO_RECEIVER
+// Possible CHANNEL_IDs are VIDEO_SENDER, VIDEO_RECEIVER, AUDIO_SENDER, AUDIO_RECEIVER, ONLY_AUDIO_SENDER and ONLY_AUDIO_RECEIVER
 pub static mut CHANNEL_ID: Option<String> = None;
 
 pub static mut RADDR: Option<String> = None;
@@ -203,7 +150,6 @@ pub static mut RPORT: Option<i32> = None;
 // Set this to false if call was ended
 pub static mut DIALOGUED: Option<bool> = None;
 
-// Experimental 
 pub static mut REQUESTED_VIDEO_SENDER: bool = false;
 pub static mut REQUESTED_VIDEO_RECEIVER: bool = false;
 pub static mut REQUESTED_AUDIO_SENDER: bool = false;
@@ -213,6 +159,9 @@ pub static mut REQUESTED_ONLY_AUDIO_RECEIVER: bool = false;
 
 pub static mut LOCK: Option<Arc<Mutex<i32>>> = None;
 
+pub static mut ACCEPTED: bool = false;
+
+// if the first one was declined, decline all others 
 unsafe extern "C" fn on_request_call(
     src_id: *mut ::std::os::raw::c_char,
     src_email: *mut ::std::os::raw::c_char,
@@ -221,13 +170,8 @@ unsafe extern "C" fn on_request_call(
     userdata: *mut ::std::os::raw::c_void,
 ) -> SaltpaneloOnRequestCallResponse {
     let _lock = LOCK.as_ref().unwrap().lock().unwrap();
-
-    println!("Requested call");
-
-    // ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
-    SRC_EMAIL = Some(String::from(std::ffi::CStr::from_ptr(src_email).to_str().unwrap()));
-    CHANNEL_ID = Some(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
-
+    info!("Call was requested");
+    println!("Call was requested");
     match DIALOGUED.as_mut() {
         Some(_) => {},
         None => {
@@ -251,18 +195,41 @@ unsafe extern "C" fn on_request_call(
 
         let accept = receiver.recv().unwrap();
         
-        println!("Accept is currently: {}", accept);
-    
         DIALOGUED = Some(true);
+
+        if accept == 1 {
+            ACCEPTED = true;
+            SRC_EMAIL = Some(String::from(std::ffi::CStr::from_ptr(src_email).to_str().unwrap()));
+            CHANNEL_ID = Some(String::from(std::ffi::CStr::from_ptr(channel_id).to_str().unwrap()));
+        }
+
+        if accept == 0 {
+            ACCEPTED = false;
+            REQUESTED_AUDIO_RECEIVER = false;
+            REQUESTED_AUDIO_SENDER = false;
+            REQUESTED_ONLY_AUDIO_RECEIVER = false;
+            REQUESTED_ONLY_AUDIO_SENDER = false;
+            REQUESTED_VIDEO_RECEIVER = false;
+            REQUESTED_VIDEO_SENDER = false;
+
+            DIALOGUED = Some(false);
+        }
 
         SaltpaneloOnRequestCallResponse {
             Accept: accept,
             Err: CString::new("").unwrap().into_raw(),
         }
     } else {
-        SaltpaneloOnRequestCallResponse {
-            Accept: 1,
-            Err: CString::new("").unwrap().into_raw(),
+        if ACCEPTED == true {
+            SaltpaneloOnRequestCallResponse {
+                Accept: 1,
+                Err: CString::new("").unwrap().into_raw(),
+            }
+        } else {
+            SaltpaneloOnRequestCallResponse {
+                Accept: 0,
+                Err: CString::new("").unwrap().into_raw(),
+            }
         }
     }
 }
@@ -282,11 +249,9 @@ pub async fn show_ring_dialog() -> i8 {
         
         if dialog.run_future().await == "accept" {
             debug!("Accepting call");
-            println!("Accepting call");
             1
         } else {
             debug!("Denying the call");
-            println!("Denying call");
             0
         }
     }
@@ -297,7 +262,8 @@ unsafe extern "C" fn on_call_disconnected(
     userdata: *mut ::std::os::raw::c_void,
 ) -> *mut ::std::os::raw::c_char {
     let c_str = std::ffi::CStr::from_ptr(route_id);
-    println!("Call with route ID {} was ended", c_str.to_str().unwrap());
+    
+    info!("Call with route ID {} was ended", c_str.to_str().unwrap());
 
     glib::idle_add(move || {
         WINDOW.as_ref().unwrap().call_pane().call_box().set_visible(false);
@@ -372,12 +338,10 @@ unsafe extern "C" fn on_handle_call(
     let route_id_c_str = std::ffi::CStr::from_ptr(route_id).to_str().unwrap();
     let raddr_c_str = std::ffi::CStr::from_ptr(raddr);
 
-    println!(
+    info!(
         "Call with route ID {:?} and remote address {:?} started",
         route_id_c_str, raddr_c_str
     );
-
-    // ROUTE_ID = Some(String::from(std::ffi::CStr::from_ptr(route_id).to_str().unwrap()));
 
     // Split original raddr into address and port
     if let Some((address, port)) = std::ffi::CStr::from_ptr(raddr).to_str().unwrap().split_once(':') {
@@ -405,11 +369,10 @@ unsafe extern "C" fn on_handle_call(
         &_ => unimplemented!()
     }
 
-    println!("Partner's address is {} and their port is {}", address, port);
+    info!("Partner's address is {} and their port is {}", address, port);
 
     glib::idle_add(move || {
         if channel == "VIDEO_SENDER" && REQUESTED_VIDEO_SENDER {
-            println!("Receiving video");
             VIDEO_RECEIVER = Some(receiver::VideoReceiverPipeline::new(address.clone(), port));
             let paintable = VIDEO_RECEIVER.as_ref().unwrap().build();
             VIDEO_RECEIVER.as_ref().unwrap().start();
@@ -420,7 +383,6 @@ unsafe extern "C" fn on_handle_call(
             WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
             WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         } else if channel == "VIDEO_SENDER" {
-            println!("Sending video");
             VIDEO_SENDER = Some(sender::VideoSenderPipeline::new(address.clone(), port));
             let paintable = VIDEO_SENDER.as_ref().unwrap().build();
             VIDEO_SENDER.as_ref().unwrap().start();
@@ -433,7 +395,6 @@ unsafe extern "C" fn on_handle_call(
         }
 
         if channel == "VIDEO_RECEIVER" && REQUESTED_VIDEO_RECEIVER {
-            println!("Sending video");
             VIDEO_SENDER = Some(sender::VideoSenderPipeline::new(address.clone(), port));
             let paintable = VIDEO_SENDER.as_ref().unwrap().build();
             VIDEO_SENDER.as_ref().unwrap().start();
@@ -444,7 +405,6 @@ unsafe extern "C" fn on_handle_call(
             WINDOW.as_ref().unwrap().call_pane().grid().insert(&picture, 0);
             WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         } else if channel == "VIDEO_RECEIVER" {
-            println!("Receiving video");
             VIDEO_RECEIVER = Some(receiver::VideoReceiverPipeline::new(address.clone(), port));
             let paintable = VIDEO_RECEIVER.as_ref().unwrap().build();
             VIDEO_RECEIVER.as_ref().unwrap().start();
@@ -457,14 +417,12 @@ unsafe extern "C" fn on_handle_call(
         }
 
         if channel == "AUDIO_SENDER" && REQUESTED_AUDIO_SENDER {
-            println!("Receiving video");
             AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
             AUDIO_RECEIVER.as_ref().unwrap().build();
             AUDIO_RECEIVER.as_ref().unwrap().start();
             
             WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         } else if channel == "AUDIO_SENDER" {
-            println!("Sending audio");
             AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
             AUDIO_SENDER.as_ref().unwrap().build();
             AUDIO_SENDER.as_ref().unwrap().start();
@@ -473,14 +431,12 @@ unsafe extern "C" fn on_handle_call(
         } 
 
         if channel == "AUDIO_RECEIVER" && REQUESTED_AUDIO_RECEIVER {
-            println!("Sending audio");
             AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
             AUDIO_SENDER.as_ref().unwrap().build();
             AUDIO_SENDER.as_ref().unwrap().start();
             
             WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(true);
         } else if channel == "AUDIO_RECEIVER" {
-            println!("Receiving audio");
             AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
             AUDIO_RECEIVER.as_ref().unwrap().build();
             AUDIO_RECEIVER.as_ref().unwrap().start();
@@ -489,14 +445,12 @@ unsafe extern "C" fn on_handle_call(
         }
 
         if channel == "ONLY_AUDIO_SENDER" && REQUESTED_ONLY_AUDIO_SENDER {
-            println!("Receiving video");
             AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
             AUDIO_RECEIVER.as_ref().unwrap().build();
             AUDIO_RECEIVER.as_ref().unwrap().start();
 
             WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
         } else if channel == "ONLY_AUDIO_SENDER" {
-            println!("Sending audio");
             AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
             AUDIO_SENDER.as_ref().unwrap().build();
             AUDIO_SENDER.as_ref().unwrap().start();
@@ -505,14 +459,12 @@ unsafe extern "C" fn on_handle_call(
         }
 
         if channel == "ONLY_AUDIO_RECEIVER" && REQUESTED_ONLY_AUDIO_RECEIVER {
-            println!("Sending audio");
             AUDIO_SENDER = Some(sender::AudioSenderPipeline::new(address.clone(), port));
             AUDIO_SENDER.as_ref().unwrap().build();
             AUDIO_SENDER.as_ref().unwrap().start();
             
             WINDOW.as_ref().unwrap().call_pane().camera_video().set_visible(false);
         } else if channel == "ONLY_AUDIO_RECEIVER" {
-            println!("Receiving audio");
             AUDIO_RECEIVER = Some(receiver::AudioReceiverPipeline::new(address.clone(), port));
             AUDIO_RECEIVER.as_ref().unwrap().build();
             AUDIO_RECEIVER.as_ref().unwrap().start();
@@ -545,11 +497,9 @@ fn build_ui(app: &Application) {
     );
 
     let mut window: Option<MainWindow> = None;
-    // let mut window = MainWindow::new(app);
 
     unsafe {
         let user_data_ptr = &mut window as *mut Option<MainWindow> as *mut c_void;
-        println!("{:?}", user_data_ptr);
 
         let ptr = saltpanelo_sys::saltpanelo::SaltpaneloNewAdapter(
             Some(on_request_call),
@@ -581,21 +531,17 @@ fn build_ui(app: &Application) {
         win.greeter()
             .login_button()
             .connect_clicked(clone!(@weak win => move |_| {
-                    println!("Pointer: {:#?}", ptr);
                     let res = saltpanelo_sys::saltpanelo::SaltpaneloAdapterLogin(ptr);
 
                     let c_str = std::ffi::CStr::from_ptr(res);
 
-                    println!("{:?}", c_str.to_str().unwrap());
-                    
                     let n_ptr = ptr as usize;
                     
                     thread::spawn(move || {
-                        println!("{:?}", n_ptr as *mut c_void);
                         let rv = SaltpaneloAdapterLink(n_ptr as *mut c_void);
 
                         if !std::ffi::CStr::from_ptr(rv).to_str().unwrap().eq("") {
-                            println!(
+                            info!(
                                 "Error in SaltpaneloAdapterLink: {}",
                                 std::ffi::CStr::from_ptr(rv).to_str().unwrap()
                             );

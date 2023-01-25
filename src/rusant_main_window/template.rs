@@ -110,12 +110,6 @@ impl ObjectImpl for MainWindowTemplate {
             Widget::NONE,
         );
 
-        // Define initial contacts
-        // let contact_model = vec![
-        //     ContactItem::new("Jakob"),
-        //     ContactItem::new("Felicitas"),
-        //     ContactItem::new("Daniel"),
-        // ];
         let contact_model = self.obj().restore_data();
 
         // Define the model contained in the ContactList

@@ -61,8 +61,6 @@ pub struct ContactListTemplate {
     #[template_child]
     pub delete_button: TemplateChild<Button>,
 
-    // #[template_child]
-    // pub call_button: TemplateChild<Button>,
     #[template_child]
     pub search_bar: TemplateChild<SearchEntry>,
 
